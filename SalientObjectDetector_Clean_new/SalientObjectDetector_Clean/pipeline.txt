@@ -1,0 +1,26 @@
+salientregiondetector
+input: image
+output: detection
+
+0. set detection params
+1. init
+	segmentation
+	compute pair-wise cost
+2. run multi-sliding window
+	for each window size, run slidingWindow and do nms
+	do nms for all resulted windows from all scales
+3. save data
+
+
+SegmentBasedWindowComposer: compose one window or compute a scoremap for a window size
+input: window, superpixel compose features (index map, segment static features, background weight image)
+
+
+test stage: all ok
+detector init: ok
+detection: 
+	1. non-incremental: OK, lack integral area count
+	2. incremental: OK
+
+Problem:
+slow; bgmap can't save

@@ -1,0 +1,202 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="WindowSaliency">
+      <UniqueIdentifier>{46ec17ed-998b-4537-935d-c2acf0f9fa31}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="library">
+      <UniqueIdentifier>{414badc4-d609-46f8-9ec1-40c4ec911e3b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="library\EHSW">
+      <UniqueIdentifier>{abe8cba3-dac4-44d2-b23b-be446a3e2912}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="library\GraphBasedSegment">
+      <UniqueIdentifier>{58623cee-eab5-490d-8fc1-40e8354ebece}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="library\Algorithm">
+      <UniqueIdentifier>{e5d08519-568d-42d9-851b-98b4d093d39f}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="ReadMe.txt" />
+    <None Include="pipeline.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WindowSaliency\SalientRegionDetector.h">
+      <Filter>WindowSaliency</Filter>
+    </ClInclude>
+    <ClInclude Include="..\WindowSaliency\SegmentBasedWindowComposer.h">
+      <Filter>WindowSaliency</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\ImageSimple.h">
+      <Filter>library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\BinAdditiveFunction.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\BinUnaryOp2ArrayFunction.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\fast_histogram.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\HistBinaryCenterReconstructionFunction.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\HistBinaryFunction.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\HistBinarySimilarityFunction.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\HistSVMFunction.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\HistUnaryFunction.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\HistUnaryOp2ArrayFunction.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\HistUnarySimilarityFunction.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\HistUnarySimpleFunction.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\IncrHistCalculator.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\IncrMultiHistCalculator.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\SlidingWindowCalculator.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\SlidingWindowCalculatorConcept.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\EHSW\SlidingWindowResultWriter.h">
+      <Filter>library\EHSW</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\BitmapHelper.h">
+      <Filter>library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\FolderHelper.h">
+      <Filter>library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\time_ex.h">
+      <Filter>library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\convolve.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\disjoint-set.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\filter.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\image.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\imconv.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\imutil.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\misc.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\pnmfile.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\segment-graph.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\segment-image.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\GraphBasedSegment\wrapper.h">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\colorconverthelper.h">
+      <Filter>library</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\Algorithm\nms.h">
+      <Filter>library\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\Algorithm\functional_ex.h">
+      <Filter>library\Algorithm</Filter>
+    </ClInclude>
+    <ClInclude Include="..\library\Algorithm\IntegralImage.h">
+      <Filter>library\Algorithm</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SalientObjectDetector_Clean.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WindowSaliency\SalientRegionDetector.cpp">
+      <Filter>WindowSaliency</Filter>
+    </ClCompile>
+    <ClCompile Include="..\WindowSaliency\SegmentBasedWindowComposer.cpp">
+      <Filter>WindowSaliency</Filter>
+    </ClCompile>
+    <ClCompile Include="test_compile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\EHSW\IncrHistCalculator.cpp">
+      <Filter>library\EHSW</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\EHSW\IncrMultiHistCalculator.cpp">
+      <Filter>library\EHSW</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\EHSW\SlidingWindowCalculatorConcept.cpp">
+      <Filter>library\EHSW</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\EHSW\test_compile.cpp">
+      <Filter>library\EHSW</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\BitmapHelper.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\FolderHelper.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\GdiplusHelper.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\time_ex.cpp">
+      <Filter>library</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\GraphBasedSegment\wrapper.cpp">
+      <Filter>library\GraphBasedSegment</Filter>
+    </ClCompile>
+    <ClCompile Include="..\library\Algorithm\IntegralImage.cpp">
+      <Filter>library\Algorithm</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

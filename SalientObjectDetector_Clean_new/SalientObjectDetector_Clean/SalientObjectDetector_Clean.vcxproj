@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{858C6E79-C5EB-4DFA-978D-979FABCD87E9}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>SalientObjectDetector_Clean</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>MultiByte</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>true</LinkIncremental>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\WindowSaliency;..\library;..\library\Algorithm;..\library\EHSW</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <PrecompiledHeader>
+      </PrecompiledHeader>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\WindowSaliency;..\library;..\library\Algorithm;..\library\EHSW</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Console</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <None Include="pipeline.txt" />
+    <None Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\library\Algorithm\functional_ex.h" />
+    <ClInclude Include="..\library\Algorithm\IntegralImage.h" />
+    <ClInclude Include="..\library\Algorithm\nms.h" />
+    <ClInclude Include="..\library\BitmapHelper.h" />
+    <ClInclude Include="..\library\colorconverthelper.h" />
+    <ClInclude Include="..\library\EHSW\BinAdditiveFunction.h" />
+    <ClInclude Include="..\library\EHSW\BinUnaryOp2ArrayFunction.h" />
+    <ClInclude Include="..\library\EHSW\fast_histogram.h" />
+    <ClInclude Include="..\library\EHSW\HistBinaryCenterReconstructionFunction.h" />
+    <ClInclude Include="..\library\EHSW\HistBinaryFunction.h" />
+    <ClInclude Include="..\library\EHSW\HistBinarySimilarityFunction.h" />
+    <ClInclude Include="..\library\EHSW\HistSVMFunction.h" />
+    <ClInclude Include="..\library\EHSW\HistUnaryFunction.h" />
+    <ClInclude Include="..\library\EHSW\HistUnaryOp2ArrayFunction.h" />
+    <ClInclude Include="..\library\EHSW\HistUnarySimilarityFunction.h" />
+    <ClInclude Include="..\library\EHSW\HistUnarySimpleFunction.h" />
+    <ClInclude Include="..\library\EHSW\IncrHistCalculator.h" />
+    <ClInclude Include="..\library\EHSW\IncrMultiHistCalculator.h" />
+    <ClInclude Include="..\library\EHSW\SlidingWindowCalculator.h" />
+    <ClInclude Include="..\library\EHSW\SlidingWindowCalculatorConcept.h" />
+    <ClInclude Include="..\library\EHSW\SlidingWindowResultWriter.h" />
+    <ClInclude Include="..\library\FolderHelper.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\convolve.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\disjoint-set.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\filter.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\image.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\imconv.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\imutil.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\misc.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\pnmfile.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\segment-graph.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\segment-image.h" />
+    <ClInclude Include="..\library\GraphBasedSegment\wrapper.h" />
+    <ClInclude Include="..\library\ImageSimple.h" />
+    <ClInclude Include="..\library\time_ex.h" />
+    <ClInclude Include="..\WindowSaliency\SalientRegionDetector.h" />
+    <ClInclude Include="..\WindowSaliency\SegmentBasedWindowComposer.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\library\Algorithm\IntegralImage.cpp" />
+    <ClCompile Include="..\library\BitmapHelper.cpp" />
+    <ClCompile Include="..\library\EHSW\IncrHistCalculator.cpp" />
+    <ClCompile Include="..\library\EHSW\IncrMultiHistCalculator.cpp" />
+    <ClCompile Include="..\library\EHSW\SlidingWindowCalculatorConcept.cpp" />
+    <ClCompile Include="..\library\EHSW\test_compile.cpp" />
+    <ClCompile Include="..\library\FolderHelper.cpp" />
+    <ClCompile Include="..\library\GdiplusHelper.cpp" />
+    <ClCompile Include="..\library\GraphBasedSegment\wrapper.cpp" />
+    <ClCompile Include="..\library\time_ex.cpp" />
+    <ClCompile Include="..\WindowSaliency\SalientRegionDetector.cpp" />
+    <ClCompile Include="..\WindowSaliency\SegmentBasedWindowComposer.cpp" />
+    <ClCompile Include="SalientObjectDetector_Clean.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="test_compile.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
