@@ -1,0 +1,68 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Segmentation">
+      <UniqueIdentifier>{dd2682b6-3c6e-46e6-8e8d-6c00e0e1df28}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="HelpFunc">
+      <UniqueIdentifier>{3299edbb-e1dd-4c76-a774-26dd29e3b1aa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source">
+      <UniqueIdentifier>{f5646617-d7f6-4df5-9eda-5cc7cfdf1407}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Segmentation\disjoint-set.h">
+      <Filter>Segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation\segment-graph.h">
+      <Filter>Segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="Segmentation\segment-image.h">
+      <Filter>Segmentation</Filter>
+    </ClInclude>
+    <ClInclude Include="HelpFunc\CmFile.h">
+      <Filter>HelpFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="HelpFunc\CmLog.h">
+      <Filter>HelpFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="HelpFunc\CmTimer.h">
+      <Filter>HelpFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>HelpFunc</Filter>
+    </ClInclude>
+    <ClInclude Include="Saliency.h">
+      <Filter>Source</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="Segmentation\segment-image.cpp">
+      <Filter>Segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="HelpFunc\CmFile.cpp">
+      <Filter>HelpFunc</Filter>
+    </ClCompile>
+    <ClCompile Include="HelpFunc\CmLog.cpp">
+      <Filter>HelpFunc</Filter>
+    </ClCompile>
+    <ClCompile Include="HelpFunc\CmTimer.cpp">
+      <Filter>HelpFunc</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>HelpFunc</Filter>
+    </ClCompile>
+    <ClCompile Include="ImgSaliencyMain.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+    <ClCompile Include="Saliency.cpp">
+      <Filter>Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Run.bat">
+      <Filter>Source</Filter>
+    </None>
+  </ItemGroup>
+</Project>

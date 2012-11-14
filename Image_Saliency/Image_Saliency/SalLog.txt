@@ -1,0 +1,1 @@
+[11/04/08 16:47:08:582] Get saliency maps for images `D:\VOCtest_06-Nov-2007\VOCdevkit\VOC2007\JPEGImages\*.jpg' and save results to `G:\Intelligence\Saliency_data\Sal\'

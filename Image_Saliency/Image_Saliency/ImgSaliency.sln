@@ -1,0 +1,20 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2010
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgSaliency", "ImgSaliency.vcxproj", "{9D2A068C-476B-4C6F-A9CA-1DBB8D339B30}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9D2A068C-476B-4C6F-A9CA-1DBB8D339B30}.Debug|Win32.ActiveCfg = Debug|Win32
+		{9D2A068C-476B-4C6F-A9CA-1DBB8D339B30}.Debug|Win32.Build.0 = Debug|Win32
+		{9D2A068C-476B-4C6F-A9CA-1DBB8D339B30}.Release|Win32.ActiveCfg = Release|Win32
+		{9D2A068C-476B-4C6F-A9CA-1DBB8D339B30}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
