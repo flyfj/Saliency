@@ -88,6 +88,7 @@ bool down_sample_image(Bitmap& inputImg, float down_ratio, Bitmap& newImg)
 	return true;
 }
 
+
 // multiple nms;  
 int _tmain(int argc, _TCHAR* argv[])
 {
