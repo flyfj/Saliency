@@ -14,6 +14,7 @@ int main()
 
 	Saliency detector;
 	Mat hc_res = detector.GetHC(img);
+	cout<<hc_res.channels()<<endl;
 
 	double diff_t = GetTickCount() - start_t;
 	cout<<"Time cost: "<<diff_t / getTickFrequency()<<" s"<<endl;
