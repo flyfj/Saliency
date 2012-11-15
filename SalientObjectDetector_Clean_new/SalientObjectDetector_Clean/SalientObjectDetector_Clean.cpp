@@ -137,10 +137,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		// read image
 		wstring imgname = string2wstring(imgfilename);
 		Bitmap img( imgname.c_str() );
-		if (img.GetLastStatus() != Ok) return E_FAIL;
+		if (img.GetLastStatus() != Ok) continue;
 		// note that in PixelFormat24bppRGB bmp, color is packed as (B,G,R) instead of (R,G,B)
 		//	this may cause failure for some image
-		if (img.GetPixelFormat() != PixelFormat24bppRGB) return -1;	// 32 fail
+		if (img.GetPixelFormat() != PixelFormat24bppRGB) continue;	// 32 fail
 
 		// downsample image
 		float down_ratio;
