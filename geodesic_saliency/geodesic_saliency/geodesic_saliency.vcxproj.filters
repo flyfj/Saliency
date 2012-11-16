@@ -26,7 +26,7 @@
     <ClCompile Include="GdiplusHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GS_Grid_Sample.cpp">
+    <ClCompile Include="cv_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

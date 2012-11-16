@@ -2,6 +2,10 @@
 #include "windows.h"
 #include "stdio.h"
 #include <Gdiplus.h>
+#include <time.h>
+#include <iostream>
+#include <opencv2/opencv.hpp>
+using namespace cv;
 using namespace Gdiplus;
 
 #include "BGMapExtractor_Grid.h"
@@ -69,6 +73,8 @@ int wmain(int argc, wchar_t *argv[])
 	int iPatchWidth = 10;
 	int iPatchHeight = 10;
 
+	double start_t = getTickCount();
+
     if (!bgExtractor.Initialize(iMaxWidth, iMaxHeight, iPatchWidth, iPatchHeight))
     {
         printf("bgExtractor initialization error.\n");
@@ -101,6 +107,9 @@ int wmain(int argc, wchar_t *argv[])
 
     delete[] pfBGMap;
     bmp.UnlockBits(&bmpData);
+
+	double diff_t = getTickCount() - start_t;
+	std::cout<<diff_t/getTickFrequency()<<" s"<<std::endl;
 
     return 0;
 }
