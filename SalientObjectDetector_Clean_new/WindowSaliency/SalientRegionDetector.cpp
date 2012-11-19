@@ -36,7 +36,10 @@ inline void fast_2d_nms(const ImageFloatSimple& score_map, int winw, int winh, f
 	//int xstep = (int)(2*winw*nms_threshold/(nms_threshold+1));
 
 	int ystep = winh*(1-nms_threshold)/(nms_threshold+1) + 0.5;
+	// ADDED: 2012-11-19
+	ystep = (ystep < 1? 1: ystep);	// can't be 0 for very small image
 	int xstep = winw*(1-nms_threshold)/(nms_threshold+1) + 0.5;
+	xstep = (xstep < 1? 1: xstep);
 
 	ScoredRect win(Rect(0, 0, winw, winh));
 	
