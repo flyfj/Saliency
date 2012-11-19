@@ -2,6 +2,7 @@
 #include <opencv2\opencv.hpp>
 #include <time.h>
 #include <iostream>
+#include <vector>
 using namespace cv;
 
 #include "BGMapExtractor_Grid.h"
@@ -16,7 +17,7 @@ int wmain(int argc, wchar_t *argv[])
 		return -1;
 	}
 
-	Mat img = imread("jia.jpg");
+	Mat img = imread("test.jpg");
 	cv::cvtColor(img, img, CV_BGR2RGB);
 
 	int w = img.cols;

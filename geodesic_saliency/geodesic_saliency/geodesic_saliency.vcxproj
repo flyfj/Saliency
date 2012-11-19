@@ -82,7 +82,6 @@
   <ItemGroup>
     <ClCompile Include="BGMapExtractor_Grid.cpp" />
     <ClCompile Include="cv_main.cpp" />
-    <ClCompile Include="GdiplusHelper.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,5 +1,10 @@
 #pragma once
 #include "math.h"
+#include <opencv2/opencv.hpp>
+
+
+#define MAX_VAL 999999999999
+
 
 class BGMapExtractor_Grid
 {

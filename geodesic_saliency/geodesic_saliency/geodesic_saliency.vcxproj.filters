@@ -23,9 +23,6 @@
     <ClCompile Include="BGMapExtractor_Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GdiplusHelper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="cv_main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
