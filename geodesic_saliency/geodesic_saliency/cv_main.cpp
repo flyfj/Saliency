@@ -17,7 +17,7 @@ int wmain(int argc, wchar_t *argv[])
 		return -1;
 	}
 
-	Mat img = imread("test.jpg");
+	Mat img = imread("photo.jpg");
 	cv::cvtColor(img, img, CV_BGR2RGB);
 
 	int w = img.cols;
