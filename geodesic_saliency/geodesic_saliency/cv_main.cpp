@@ -55,6 +55,7 @@ int wmain(int argc, wchar_t *argv[])
 	{
 		printf("BG_map extraction error.\n");
 		delete[] pfBGMap;
+		pfBGMap = NULL;
 		return -1;
 	}
 
@@ -69,6 +70,7 @@ int wmain(int argc, wchar_t *argv[])
 	std::cout<<diff_t/getTickFrequency()<<" s"<<std::endl;
 
 	delete[] pfBGMap;
+	pfBGMap = NULL;
 
 
 	return 0;
