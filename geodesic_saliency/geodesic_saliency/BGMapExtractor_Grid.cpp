@@ -298,6 +298,7 @@ void BGMapExtractor_Grid::BuildGridRgbImage(const unsigned char *pRgbPixels, int
     return;
 }
 
+
 void BGMapExtractor_Grid::ConvertToGridLabImage()
 {
     memset(m_pfGridLabPixels, 0, sizeof(float)*m_iPatchNum*3);
