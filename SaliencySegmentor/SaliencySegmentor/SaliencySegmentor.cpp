@@ -23,8 +23,6 @@ namespace Saliency
 		img_segmentor.m_dThresholdK = 80.f;
 		int segment_num = img_segmentor.DoSegmentation(img);
 		cout<<"Total segments number: "<<segment_num<<endl;
-		imshow("seg", img_segmentor.m_segImg);
-		waitKey(0);
 		max_id = segment_num-1;
 
 		// create first level segments
@@ -184,9 +182,6 @@ namespace Saliency
 		const SegSuperPixelFeature& in_seg1, const SegSuperPixelFeature& in_seg2, 
 		SegSuperPixelFeature& out_seg, bool onlyCombineFeat)
 	{
-
-		
-
 
 		// combine masks
 		out_seg.mask = in_seg1.mask | in_seg2.mask;

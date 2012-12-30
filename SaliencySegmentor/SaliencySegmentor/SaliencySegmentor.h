@@ -38,6 +38,9 @@ namespace Saliency
 		SaliencySegmentor(void);
 		~SaliencySegmentor(void);
 
+		const Mat& GetSegmentImage() { return img_segmentor.m_segImg; }
+		int GetSegIdByLocation(Point pt) { return img_segmentor.m_idxImg.at<int>(pt.y, pt.x); }
+
 		void Init(const Mat& img);
 
 		// simply combine two segments and create a new one with updated segment data
