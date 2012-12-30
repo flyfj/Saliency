@@ -178,7 +178,7 @@ namespace Saliency
 	}
 
 
-	void SaliencySegmentor::MergeSegments(
+	float SaliencySegmentor::MergeSegments(
 		const SegSuperPixelFeature& in_seg1, const SegSuperPixelFeature& in_seg2, 
 		SegSuperPixelFeature& out_seg, bool onlyCombineFeat)
 	{
@@ -194,7 +194,7 @@ namespace Saliency
 		if(contours.empty())
 		{
 			cerr<<"error combining masks."<<endl;
-			return;
+			return -1;
 		}
 
 		out_seg.box = boundingRect(contours[0]);
@@ -210,8 +210,24 @@ namespace Saliency
 		// after merge segment id always -1 to distinguish from others
 		out_seg.id = -1;
 
+		// compute segment color histogram similarity
+		float dist = 0;
+		vector<float> feat1 = in_seg1.feat;
+		vector<float> feat2 = in_seg2.feat;
+		// normalize
+		for(size_t i=0; i<feat1.size(); i++)
+		{
+			feat1[i] /= in_seg1.area*3;
+			feat2[i] /= in_seg2.area*3;
+		}
+
+		for(size_t i=0; i<feat1.size(); i++)
+			dist += (feat1[i]-feat2[i])*(feat1[i]-feat2[i]);
+		dist = sqrt(dist);
+
+
 		if(onlyCombineFeat)
-			return;
+			return dist;
 
 		// update adjacency matrix
 		if(in_seg1.id != -1)
@@ -231,6 +247,8 @@ namespace Saliency
 			if( !merged_sign[*pi] )
 				out_seg.neighbor_ids.insert(*pi);
 		}
+
+		return dist;
 
 	}
 
@@ -255,21 +273,25 @@ namespace Saliency
 		while( !cur_merge.neighbor_ids.empty() )
 		{
 			// find most salient neighbor to merge
+			float max_merge = 0;
 			float max_saliency = 0;
 			int best_id = -1;
 			for(set<int>::iterator pi=cur_merge.neighbor_ids.begin(); pi!=cur_merge.neighbor_ids.end(); pi++)
 			{
 				SegSuperPixelFeature merged_seg;
-				MergeSegments(cur_merge, sp_features[*pi], merged_seg, true);
+				float dist = MergeSegments(cur_merge, sp_features[*pi], merged_seg, true);
 				float sal_score = sal_computer.ComputeSegmentSaliency(img, merged_seg, CenterSurroundHistogramContrast);
-				if(sal_score > max_saliency)
+				float merge_score = sal_score / dist;	// more similar (dist smaller) and more salient after merge is preferred
+				if(merge_score > max_merge)
 				{
-					max_saliency = sal_score;
+					max_merge = merge_score;
 					best_id = *pi;
 				}
+				if(sal_score > max_saliency)
+					max_saliency = sal_score;
 			}
 
-			cout<<"Max saliency score: "<<max_saliency<<endl;
+			cout<<"Max merge score: "<<max_merge<<endl;
 
 			// do actual merge with the best one
 			SegSuperPixelFeature temp_merged;

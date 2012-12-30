@@ -43,8 +43,8 @@ namespace Saliency
 
 		void Init(const Mat& img);
 
-		// simply combine two segments and create a new one with updated segment data
-		void MergeSegments(
+		// simply combine two segments and create a new one with updated segment data; return distance of the two segments
+		float MergeSegments(
 			const SegSuperPixelFeature& in_seg1, const SegSuperPixelFeature& in_seg2, 
 			SegSuperPixelFeature& out_seg, bool onlyCombineFeat);
 
