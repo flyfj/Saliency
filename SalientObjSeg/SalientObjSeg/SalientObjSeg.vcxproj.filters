@@ -1,0 +1,157 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav</Extensions>
+    </Filter>
+    <Filter Include="MRF">
+      <UniqueIdentifier>{cf53be6d-1a67-4f69-ac53-1317d1a74adb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MRF\Header">
+      <UniqueIdentifier>{58cf6624-7fff-427a-a75b-a532f943d8d8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="MRF\Source">
+      <UniqueIdentifier>{4a9b5b13-0112-489b-8c30-69121abb427b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GraphSegmentor">
+      <UniqueIdentifier>{3e023e1c-d7b8-4ca0-9f82-ca3d0d395fce}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CompositionCost.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageSegmentor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SalientObjSegmentor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="test_CC.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mrf\BP-S.cpp">
+      <Filter>MRF\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mrf\GCoptimization.cpp">
+      <Filter>MRF\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mrf\graph.cpp">
+      <Filter>MRF\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mrf\ICM.cpp">
+      <Filter>MRF\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mrf\LinkedBlockList.cpp">
+      <Filter>MRF\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mrf\maxflow.cpp">
+      <Filter>MRF\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mrf\MaxProdBP.cpp">
+      <Filter>MRF\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mrf\mrf.cpp">
+      <Filter>MRF\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mrf\regions-maxprod.cpp">
+      <Filter>MRF\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="mrf\TRW-S.cpp">
+      <Filter>MRF\Source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CompositionCost.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageSegmentor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SalientObjSegmentor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\block.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\BP-S.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\energy.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\GCoptimization.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\graph.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\ICM.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\LinkedBlockList.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\MaxProdBP.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\mrf.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\regions-new.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\TRW-S.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="mrf\typeTruncatedQuadratic2D.h">
+      <Filter>MRF\Header</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphSegmentor\convolve.h">
+      <Filter>GraphSegmentor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphSegmentor\disjoint-set.h">
+      <Filter>GraphSegmentor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphSegmentor\filter.h">
+      <Filter>GraphSegmentor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphSegmentor\image.h">
+      <Filter>GraphSegmentor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphSegmentor\imconv.h">
+      <Filter>GraphSegmentor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphSegmentor\imutil.h">
+      <Filter>GraphSegmentor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphSegmentor\misc.h">
+      <Filter>GraphSegmentor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphSegmentor\pnmfile.h">
+      <Filter>GraphSegmentor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphSegmentor\segment-graph.h">
+      <Filter>GraphSegmentor</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphSegmentor\segment-image.h">
+      <Filter>GraphSegmentor</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="mrf\README.txt">
+      <Filter>MRF</Filter>
+    </None>
+    <None Include="algorithm_brief.txt" />
+    <None Include="code backup.txt" />
+  </ItemGroup>
+</Project>

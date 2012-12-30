@@ -1,0 +1,32 @@
+seeds selection with superpixels and data term as shortest path cost map:
+
+// loop background setting
+	for(size_t k=0; k<spFGWeightmaps.size(); k++)
+	{
+
+		// set current weight map for MRF use
+		spFGWeightmaps[k].copyTo(cur_spFGWeightmap);
+
+		// set bg mask (same for all seeds)
+		bgMask.setTo(0);
+		for(size_t id=0; id<sp_features.size(); id++)
+		{
+			if(sp_features[id].fgWeights[k] < bgSeedTh)
+				bgMask.setTo(255, superpixels[id].sp_mask);
+		}
+		imshow("bg mask", bgMask);
+		waitKey(10);
+
+		// select seeds
+		for(size_t id=0; id<sp_features.size(); id++)
+		{
+			// set current seed mask
+			seedMask.setTo(0);
+			if(sp_features[id].fgWeights[k] > fgSeedTh)
+				seedMask.setTo(255, superpixels[id].sp_mask);
+			else
+				continue;
+			imshow("Seed mask", seedMask);
+			waitKey(10);
+			
+			// loop params...

@@ -1,0 +1,17 @@
+brief description of currently used algorithm
+
+big framework:
+1. use MRF to get candidate object segments
+2. rank using CC
+
+MRF:
+1. compute patch-wise shortest path cost: patch distance is computed either by Euclidean distance
+	of vector pixels or mean color distance
+2. set background as certain part of boundary and use cost as foreground weight
+	and also get a unified background mask
+3. grid sampling patches, use superpixel covering current patch as current seed
+4. set data term according to computed bg mask and seed affinity map (pair-wise cost to seed patch)
+5. smoothness as color similarity between neighbor pixels
+
+Composition cost is computed using non-weighted segment composition (ICCV 2011 paper: re-implement)
+P.S. may modify CC computation using shorest-path-cost superpixel weight map (later try) 2011-10-1
