@@ -27,6 +27,7 @@ namespace Saliency
 		vector<SegSuperPixelFeature> sp_features;
 		Mat lab_img;
 		int max_id;
+		vector<bool> merged_sign;	// sign indicating if each segment has been merged 
 
 		// processor
 		ImageSegmentor img_segmentor;
@@ -49,8 +50,6 @@ namespace Saliency
 
 		// do iterative merging to find salient object
 		bool MineSalientObjectFromSegment(const Mat& img, int start_seg_id, float& best_saliency);
-
-		bool MineSalientObjects(const Mat& img);
 
 		float SegmentDissimilarity(const SegSuperPixelFeature& seg1, const SegSuperPixelFeature& seg2);
 

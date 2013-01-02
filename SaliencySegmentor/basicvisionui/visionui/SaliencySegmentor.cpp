@@ -32,6 +32,8 @@ namespace Saliency
 		// create data
 		sp_features.clear();
 		sp_features.resize(segment_num);
+		merged_sign.clear();
+		merged_sign.resize(segment_num, false);
 
 		// compute perimeter and boundary pixel numbers, set bounding box
 		for(int y=0; y<img.rows; y++)
@@ -125,8 +127,7 @@ namespace Saliency
 			sp_features[i].centroid.x /= sp_features[i].area;
 			sp_features[i].centroid.y /= sp_features[i].area;
 			// init components to itself only
-			sp_features[i].components.resize(sp_features.size(), false);
-			sp_features[i].components[i] = true;	// set itself to true
+			sp_features[i].components.push_back(i);
 		}
 
 		// set mask
@@ -191,10 +192,6 @@ namespace Saliency
 				curfeat.feat[j] /= (3*curfeat.area);
 		}*/
 
-
-		// init composition features
-		sal_computer.InitCompositionFeature(sp_features);
-
 	}
 
 
@@ -221,8 +218,6 @@ namespace Saliency
 		out_seg.box_pos[0] = out_seg.box.tl();
 		out_seg.box_pos[1] = out_seg.box.br();
 		out_seg.perimeter = contours[0].size();
-		out_seg.centroid.x = 
-			(in_seg1.centroid.x*in_seg1.area+in_seg2.centroid.x*in_seg2.area) / (in_seg1.area+in_seg2.area);
 
 		// feature
 		out_seg.feat.resize(in_seg1.feat.size());
@@ -249,25 +244,30 @@ namespace Saliency
 
 
 		// merge components
-		out_seg.components.resize(sp_features.size(), false);
-		for(size_t i=0; i<in_seg1.components.size(); i++)
-			out_seg.components[i] = in_seg1.components[i] || in_seg2.components[i];
+		out_seg.components = in_seg1.components;
+		for(size_t i=0; i<in_seg2.components.size(); i++)
+			out_seg.components.push_back(in_seg2.components[i]);
 
 
 		if(onlyCombineFeat)
 			return dist;
 
 		// update adjacency matrix
+		if(in_seg1.id != -1)
+			merged_sign[in_seg1.id] = true;
+		if(in_seg2.id != -1)
+			merged_sign[in_seg2.id] = true;
+
 		// add neighbors of seg2 to seg1 list except merged ones
 		out_seg.neighbor_ids.clear();
 		for( set<int>::iterator pi=in_seg1.neighbor_ids.begin(); pi!=in_seg1.neighbor_ids.end(); pi++ )
 		{
-			if( !out_seg.components[*pi] )
+			if( !merged_sign[*pi] )
 				out_seg.neighbor_ids.insert(*pi);
 		}
 		for( set<int>::iterator pi=in_seg2.neighbor_ids.begin(); pi!=in_seg2.neighbor_ids.end(); pi++ )
 		{
-			if( !out_seg.components[*pi] )
+			if( !merged_sign[*pi] )
 				out_seg.neighbor_ids.insert(*pi);
 		}
 
@@ -279,9 +279,28 @@ namespace Saliency
 	float SaliencySegmentor::SegmentDissimilarity(const SegSuperPixelFeature& seg1, const SegSuperPixelFeature& seg2)
 	{
 
+		// select primitive segment
+		int mergedSegId, singleSegId;
+		if(seg1.components.size() == 1 && seg2.components.size()==1)
+		{
+			if(merged_sign[seg1.id])
+				mergedSegId = 1;
+			else
+				mergedSegId = 2;
+		}
+		else
+		{
+			mergedSegId = (seg1.components.size()>1? 1: 2);
+		}
+
+		singleSegId = (mergedSegId==1? 2: 1);
+
+		const SegSuperPixelFeature& mergedSeg = (mergedSegId==1? seg1: seg2);
+		const SegSuperPixelFeature& singleSeg = (singleSegId==1? seg1: seg2);
+
 		float dist = 0;
-		vector<float> feat1 = seg1.feat;
-		vector<float> feat2 = seg2.feat;
+		vector<float> feat1 = mergedSeg.feat;
+		vector<float> feat2 = singleSeg.feat;
 		// normalize
 		for(size_t i=0; i<feat1.size(); i++)
 		{
@@ -297,29 +316,29 @@ namespace Saliency
 
 
 		float min_dist = INFINITE;
-		//for(set<int>::iterator pi=singleSeg.neighbor_ids.begin(); pi!=singleSeg.neighbor_ids.end(); pi++)
-		//{
-		//	if(merged_sign[*pi])
-		//	{
-		//		// compute distance of two segments as the distance between two most similar segment components
-		//		float dist = 0;
-		//		vector<float> feat1 = sp_features[*pi].feat;
-		//		vector<float> feat2 = singleSeg.feat;
-		//		// normalize
-		//		for(size_t i=0; i<feat1.size(); i++)
-		//		{
-		//			feat1[i] /= seg1.area*3;
-		//			feat2[i] /= seg2.area*3;
-		//		}
+		for(set<int>::iterator pi=singleSeg.neighbor_ids.begin(); pi!=singleSeg.neighbor_ids.end(); pi++)
+		{
+			if(merged_sign[*pi])
+			{
+				// compute distance of two segments as the distance between two most similar segment components
+				float dist = 0;
+				vector<float> feat1 = sp_features[*pi].feat;
+				vector<float> feat2 = singleSeg.feat;
+				// normalize
+				for(size_t i=0; i<feat1.size(); i++)
+				{
+					feat1[i] /= seg1.area*3;
+					feat2[i] /= seg2.area*3;
+				}
 
-		//		for(size_t i=0; i<feat1.size(); i++)
-		//			dist += (feat1[i]-feat2[i])*(feat1[i]-feat2[i]);
-		//		dist = sqrt(dist);
+				for(size_t i=0; i<feat1.size(); i++)
+					dist += (feat1[i]-feat2[i])*(feat1[i]-feat2[i]);
+				dist = sqrt(dist);
 
-		//		if(dist < min_dist)
-		//			min_dist = dist;
-		//	}
-		//}
+				if(dist < min_dist)
+					min_dist = dist;
+			}
+		}
 		
 
 		return min_dist;
@@ -335,10 +354,10 @@ namespace Saliency
 		}
 
 		// reset merged sign
-		for(size_t i=0; i<sp_features[start_seg_id].components.size(); i++)
-			sp_features[start_seg_id].components[i] = false;
+		for(size_t i=0; i<merged_sign.size(); i++)
+			merged_sign[i] = false;
 
-		sp_features[start_seg_id].components[start_seg_id] = true;
+		merged_sign[start_seg_id] = true;
 
 		// globally best salient object
 		best_saliency = 0;
@@ -356,7 +375,6 @@ namespace Saliency
 			neighbor_mask.setTo(0);
 			for(set<int>::iterator pi=cur_merge.neighbor_ids.begin(); pi!=cur_merge.neighbor_ids.end(); pi++)
 			{
-
 				SegSuperPixelFeature merged_seg;
 				neighbor_mask.setTo(255, sp_features[*pi].mask);
 
@@ -366,7 +384,7 @@ namespace Saliency
 				// do dummy merge (only need updated mask and combined feature)
 				MergeSegments(cur_merge, sp_features[*pi], merged_seg, true);
 				// compute saliency score after merge
-				float sal_score = sal_computer.ComputeSegmentSaliency(img, merged_seg, sp_features, CenterSurroundHistogramContrast);
+				float sal_score = sal_computer.ComputeSegmentSaliency(img, merged_seg, CenterSurroundHistogramContrast);
 				float merge_score =	1 - dist;	// more similar (dist smaller) and more salient after merge is preferred
 				if(merge_score > max_merge)
 				{
@@ -374,7 +392,8 @@ namespace Saliency
 					max_saliency = sal_score;
 					best_id = *pi;
 				}
-
+				/*if(sal_score > max_saliency)
+					max_saliency = sal_score;*/
 			}
 
 			//cout<<"Max merge score: "<<max_merge<<endl;
