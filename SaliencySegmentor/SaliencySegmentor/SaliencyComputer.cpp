@@ -285,11 +285,11 @@ namespace Saliency
 		// only change composition related data (area)
 		for(size_t i=0; i<prim_sp_feats.size(); i++)
 		{
-			SegSuperPixelFeature& cur_feat = prim_sp_feats[sp_feat.components[i]];
+			SegSuperPixelFeature& cur_feat = prim_sp_feats[i];
 			if(sp_feat.components[i])
 			{
 				// inner sp
-				cur_feat.compose_feat.leftInnerArea = MAX(0, 2*cur_feat.area-cur_feat.compose_feat.extendedArea);
+				cur_feat.compose_feat.leftInnerArea = cur_feat.area;	//MAX(0, 2*cur_feat.area-cur_feat.compose_feat.extendedArea);
 				cur_feat.compose_feat.leftOuterArea = 0;
 			}
 			else
@@ -320,7 +320,7 @@ namespace Saliency
 		for (size_t i = 0; i < innerSegs.size(); i++)
 		{	
 			SegSuperPixelComposeFeature& curfeat = *innerSegs[i];
-			rate += curfeat.leftInnerArea * curfeat.importWeight;
+			//rate += curfeat.leftInnerArea * curfeat.importWeight;
 
 			// use all other segments to fill this one in order of their similarity to this one
 			curfeat.composition_cost = 0;
@@ -361,7 +361,7 @@ namespace Saliency
 
 		const float winarea_inv = 1.0f / sp_feat.area;
 		rate *= winarea_inv;
-		return winscore * winarea_inv * rate;
+		return winscore * winarea_inv;	// * rate;
 
 	}
 

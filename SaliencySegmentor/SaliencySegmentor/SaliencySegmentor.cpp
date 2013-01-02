@@ -251,6 +251,7 @@ namespace Saliency
 
 
 		// merge components
+		out_seg.components.clear();
 		out_seg.components.resize(sp_features.size(), false);
 		for(size_t i=0; i<in_seg1.components.size(); i++)
 			out_seg.components[i] = in_seg1.components[i] || in_seg2.components[i];
