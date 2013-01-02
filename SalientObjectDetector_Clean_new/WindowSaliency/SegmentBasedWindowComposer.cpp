@@ -305,8 +305,8 @@ inline float SegmentBasedWindowComposer::compose_greedy(const Rect& win)
 			if (curfeat.leftInnerArea <= feat.leftOuterArea)	//enough
 			{
 				fillarea = curfeat.leftInnerArea;
-				curfeat.leftInnerArea = 0;
 				feat.leftOuterArea -= curfeat.leftInnerArea;
+				curfeat.leftInnerArea = 0;
 			}
 			else
 			{

@@ -20,7 +20,7 @@ void onMouse( int event, int x, int y, int, void* )
 
 int main()
 {
-	img = imread("D:\\imgs\\0_1_1004.jpg");
+	img = imread("a3.jpg");
 	imshow("img", img);
 
 	

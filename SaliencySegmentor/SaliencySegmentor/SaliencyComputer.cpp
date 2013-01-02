@@ -334,8 +334,8 @@ namespace Saliency
 				if (curfeat.leftInnerArea <= feat.leftOuterArea)	//enough
 				{
 					filled_area = curfeat.leftInnerArea;
-					curfeat.leftInnerArea = 0;
 					feat.leftOuterArea -= curfeat.leftInnerArea;
+					curfeat.leftInnerArea = 0;
 				}
 				else
 				{

@@ -40,7 +40,7 @@ namespace Saliency
 	struct SegSuperPixelComposeFeature
 	{
 		SegSuperPixelComposeFeature() : composition_cost(0.f)
-			,extendedArea(0), currentArea(0)
+			,extendedArea(0), currentArea(0), leftInnerArea(0), leftOuterArea(0)
 			,dist_to_win(0), importWeight(1)
 		{}
 
@@ -103,9 +103,18 @@ namespace Saliency
 
 		static float FeatureIntersectionDistance(const SegSuperPixelFeature& a, const SegSuperPixelFeature& b)
 		{
+			// do normalization first
+			vector<float> feat1 = a.feat;
+			vector<float> feat2 = b.feat;
+			for(size_t i=0; i<feat1.size(); i++)
+			{
+				feat1[i] /= (a.area*3);
+				feat2[i] /= (b.area*3);
+			}
+
 			float dist = 0;
-			for(size_t i = 0; i < a.feat.size(); i++)
-				dist += ((a.feat[i] < b.feat[i]) ? a.feat[i] : b.feat[i]);
+			for(size_t i = 0; i < feat1.size(); i++)
+				dist += ((feat1[i] < feat2[i]) ? feat1[i] : feat2[i]);
 			return 1 - dist;
 		}
 

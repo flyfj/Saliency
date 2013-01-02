@@ -205,7 +205,7 @@ namespace Saliency
 
 		// combine masks
 		out_seg.mask = in_seg1.mask | in_seg2.mask;
-		out_seg.area = countNonZero(out_seg.mask);
+		out_seg.area = in_seg1.area + in_seg2.area;
 		Mat backup_mask = out_seg.mask.clone();
 		vector<vector<Point> > contours;
 		vector<Vec4i> hierarchy;
@@ -222,7 +222,9 @@ namespace Saliency
 		out_seg.box_pos[1] = out_seg.box.br();
 		out_seg.perimeter = contours[0].size();
 		out_seg.centroid.x = 
-			(in_seg1.centroid.x*in_seg1.area+in_seg2.centroid.x*in_seg2.area) / (in_seg1.area+in_seg2.area);
+			(in_seg1.centroid.x*in_seg1.area + in_seg2.centroid.x*in_seg2.area) / (in_seg1.area+in_seg2.area);
+		out_seg.centroid.y = 
+			(in_seg1.centroid.y*in_seg1.area + in_seg2.centroid.y*in_seg2.area) / (in_seg1.area+in_seg2.area);
 
 		// feature
 		out_seg.feat.resize(in_seg1.feat.size());
@@ -343,6 +345,11 @@ namespace Saliency
 		// globally best salient object
 		best_saliency = 0;
 		Mat best_obj_img;
+		Mat debug_img = img.clone();
+		rectangle(debug_img, sp_features[start_seg_id].box, CV_RGB(255,0,0), 1);
+		circle(debug_img, sp_features[start_seg_id].centroid, 1, CV_RGB(255,0,0));
+		imshow("debug", debug_img);
+		waitKey(0);
 
 		SegSuperPixelFeature cur_merge = sp_features[start_seg_id];
 		while( !cur_merge.neighbor_ids.empty() )
@@ -361,13 +368,13 @@ namespace Saliency
 				neighbor_mask.setTo(255, sp_features[*pi].mask);
 
 				// compute distance with each neighbor
-				float dist = SegmentDissimilarity(cur_merge, sp_features[*pi]);
-				cout<<dist<<endl;
+				/*float dist = SegmentDissimilarity(cur_merge, sp_features[*pi]);
+				cout<<dist<<endl;*/
 				// do dummy merge (only need updated mask and combined feature)
 				MergeSegments(cur_merge, sp_features[*pi], merged_seg, true);
 				// compute saliency score after merge
-				float sal_score = sal_computer.ComputeSegmentSaliency(img, merged_seg, sp_features, CenterSurroundHistogramContrast);
-				float merge_score =	1 - dist;	// more similar (dist smaller) and more salient after merge is preferred
+				float sal_score = sal_computer.ComputeSegmentSaliency(img, merged_seg, sp_features, Composition);
+				float merge_score =	sal_score;	// more similar (dist smaller) and more salient after merge is preferred
 				if(merge_score > max_merge)
 				{
 					max_merge = merge_score;
@@ -390,12 +397,17 @@ namespace Saliency
 			Mat cur_obj_img(img.rows, img.cols, img.depth());
 			cur_obj_img.setTo(255);
 			img.copyTo(cur_obj_img, cur_merge.mask);
+			// merged segment box
+			rectangle(cur_obj_img, cur_merge.box, CV_RGB(0,255,0), 1);
+			circle(cur_obj_img, cur_merge.centroid, 1, CV_RGB(0,255,0));
+			// merged neighbor box
+			rectangle(cur_obj_img, sp_features[best_id].box, CV_RGB(255,0,0), 1);
+			circle(cur_obj_img, sp_features[best_id].centroid, 1, CV_RGB(255,0,0));
+
 			imshow("cur_obj", cur_obj_img);
 			imshow("neighbors", neighbor_mask);
-			Mat graymask;
-			sp_features[best_id].mask.convertTo(graymask, CV_8U, 255);
-			imshow("best neighbor", graymask);
 			waitKey(0);
+
 
 			if(max_saliency > best_saliency && cur_merge.area < img.rows*img.cols*0.6)
 			{
