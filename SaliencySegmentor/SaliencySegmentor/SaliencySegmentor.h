@@ -12,6 +12,8 @@
 #include "SaliencyComputer.h"
 #include <iostream>
 #include <set>
+#include <map>
+#include <algorithm>
 using namespace std;
 using namespace cv;
 
@@ -26,7 +28,7 @@ namespace Saliency
 
 		vector<SegSuperPixelFeature> sp_features;
 		Mat lab_img;
-		int max_id;
+		int prim_seg_num;	// primitive superpixel number
 
 		// processor
 		ImageSegmentor img_segmentor;
@@ -45,12 +47,12 @@ namespace Saliency
 		// simply combine two segments and create a new one with updated segment data; return distance of the two segments
 		float MergeSegments(
 			const SegSuperPixelFeature& in_seg1, const SegSuperPixelFeature& in_seg2, 
-			SegSuperPixelFeature& out_seg, bool onlyCombineFeat);
+			SegSuperPixelFeature& out_seg, bool onlyCombineFeat = false);
 
 		// do iterative merging to find salient object
 		bool MineSalientObjectFromSegment(const Mat& img, int start_seg_id, float& best_saliency);
 
-		bool MineSalientObjects(const Mat& img);
+		bool MineSalientObjectsByMergingPairs(const Mat& img);
 
 		float SegmentDissimilarity(const SegSuperPixelFeature& seg1, const SegSuperPixelFeature& seg2);
 

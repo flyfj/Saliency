@@ -23,7 +23,7 @@ namespace Saliency
 		img_segmentor.m_dThresholdK = 100.f;
 		int segment_num = img_segmentor.DoSegmentation(img);
 		cout<<"Total segments number: "<<segment_num<<endl;
-		max_id = segment_num-1;
+		prim_seg_num = segment_num;
 
 		// create first level segments
 		//////////////////////////////////////////////////////////////////////////
@@ -425,6 +425,108 @@ namespace Saliency
 
 		return true;
 
+	}
+
+
+	bool SaliencySegmentor::MineSalientObjectsByMergingPairs(const Mat& img)
+	{
+		map<float, Point, greater<float>> merge_pair_prior_list;	// ranked by descent saliency score 
+		map<int, SegSuperPixelFeature> sp_collection;	// used to save intermediate segments
+		
+		// set initial sp
+		for(size_t i=0; i<sp_features.size(); i++)
+			sp_collection[i] = sp_features[i];
+
+
+		// compute initial pairs
+		// to eliminate redundancy, only need to merge neighbors whose id is bigger than current id
+		// merge is mutual
+		for(size_t i=0; i<sp_features.size(); i++)
+		{
+			const SegSuperPixelFeature& cur_feat = sp_features[i];
+			// check each neighbor
+			for(set<int>::iterator pi=cur_feat.neighbor_ids.begin(); pi!=cur_feat.neighbor_ids.end(); pi++)
+			{
+				if(*pi < i)
+					continue;
+
+				SegSuperPixelFeature mergedSeg;
+				MergeSegments(cur_feat, sp_features[*pi], mergedSeg);
+				float sal_score = 
+					sal_computer.ComputeSegmentSaliency(img, mergedSeg, sp_features, Composition);
+				merge_pair_prior_list[sal_score] = Point(i, *pi);
+			}
+		}
+
+		int merge_no = prim_seg_num;
+		// start actual merge
+		while(1)
+		{
+			// pick the most salient pair
+			map<float, Point, greater<float>>::iterator pi = merge_pair_prior_list.begin();
+			cout<<"Current max saliency: "<<pi->first<<endl;
+
+			Point pair_id = pi->second;
+
+			// show merged sp
+			Mat mimg(img.rows, img.cols, img.depth());
+			mimg.setTo(255);
+			img.copyTo(mimg, sp_collection[pair_id.x].mask);
+			rectangle(mimg, sp_collection[pair_id.x].box, CV_RGB(0,255,0), 1);
+			img.copyTo(mimg, sp_collection[pair_id.y].mask);
+			rectangle(mimg, sp_collection[pair_id.y].box, CV_RGB(0,0,255), 1);
+			imshow("merge", mimg);
+			waitKey(0);
+
+			// create new merged sp
+			SegSuperPixelFeature merged_sp;
+			MergeSegments(sp_collection[pair_id.x], sp_collection[pair_id.y], merged_sp);
+			merged_sp.id = merge_no++;
+
+			// add to collection
+			sp_collection[merged_sp.id] = merged_sp;
+
+			// update
+			// 1. update neighbors of merged sps
+			for(set<int>::iterator pi=merged_sp.neighbor_ids.begin();
+				pi!=merged_sp.neighbor_ids.end(); pi++)
+			{
+				SegSuperPixelFeature& cur_sp = sp_collection[*pi];
+				// remove merged sp neighbors
+				cur_sp.neighbor_ids.erase(pair_id.x);
+				cur_sp.neighbor_ids.erase(pair_id.y);
+				// compute saliency score
+				SegSuperPixelFeature tempseg;
+				MergeSegments(merged_sp, sp_features[*pi], tempseg);
+				float sal_score = 
+					sal_computer.ComputeSegmentSaliency(img, tempseg, sp_features, Composition);
+				merge_pair_prior_list[sal_score] = Point(merged_sp.id, *pi);
+			}
+
+			// remove from pair list
+			for(map<float, Point, greater<float>>::iterator pi=merge_pair_prior_list.begin(); 
+				pi!=merge_pair_prior_list.end(); (pi==merge_pair_prior_list.begin()? pi:pi++) )
+			{
+				Point cur_pt = pi->second;
+				if(cur_pt.x == pair_id.x || cur_pt.y == pair_id.y ||
+					cur_pt.y == pair_id.x || cur_pt.y == pair_id.y)
+				{
+					map<float, Point, greater<float>>::iterator backup_pi = pi;
+					backup_pi++;
+					merge_pair_prior_list.erase(pi);
+					if(backup_pi != merge_pair_prior_list.begin())
+						backup_pi--;
+					pi = backup_pi;
+				}
+			}
+
+			if(merge_pair_prior_list.empty())
+				break;
+
+		}
+		
+
+		return true;
 	}
 
 

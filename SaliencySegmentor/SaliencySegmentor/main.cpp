@@ -20,7 +20,7 @@ void onMouse( int event, int x, int y, int, void* )
 
 int main()
 {
-	img = imread("a3.jpg");
+	img = imread("D:\\imgs\\0_2_2310.jpg");
 	imshow("img", img);
 
 	
@@ -29,6 +29,8 @@ int main()
 	waitKey(0);
 
 	setMouseCallback("img", onMouse);
+
+	sal_segmentor.MineSalientObjectsByMergingPairs(img);
 
 
 	/*Mat sal_map;
