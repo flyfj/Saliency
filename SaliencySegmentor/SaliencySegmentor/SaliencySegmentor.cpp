@@ -256,21 +256,21 @@ namespace Saliency
 		for(size_t i=0; i<in_seg1.components.size(); i++)
 			out_seg.components[i] = in_seg1.components[i] || in_seg2.components[i];
 
-
 		if(onlyCombineFeat)
 			return dist;
+
 
 		// update adjacency matrix
 		// add neighbors of seg2 to seg1 list except merged ones
 		out_seg.neighbor_ids.clear();
 		for( set<int>::iterator pi=in_seg1.neighbor_ids.begin(); pi!=in_seg1.neighbor_ids.end(); pi++ )
 		{
-			if( !out_seg.components[*pi] )
+			if( *pi != in_seg1.id && *pi != in_seg2.id )
 				out_seg.neighbor_ids.insert(*pi);
 		}
 		for( set<int>::iterator pi=in_seg2.neighbor_ids.begin(); pi!=in_seg2.neighbor_ids.end(); pi++ )
 		{
-			if( !out_seg.components[*pi] )
+			if( *pi != in_seg1.id && *pi != in_seg2.id )
 				out_seg.neighbor_ids.insert(*pi);
 		}
 
@@ -459,29 +459,40 @@ namespace Saliency
 		}
 
 		int merge_no = prim_seg_num;
+
+		Mat best_obj_img(img.rows, img.cols, img.depth());
+		best_obj_img.setTo(255);
+		float best_saliency = 0;
 		// start actual merge
 		while(1)
 		{
 			// pick the most salient pair
 			map<float, Point, greater<float>>::iterator pi = merge_pair_prior_list.begin();
+			float cur_sal_score = pi->first;
 			cout<<"Current max saliency: "<<pi->first<<endl;
 
 			Point pair_id = pi->second;
 
 			// show merged sp
-			Mat mimg(img.rows, img.cols, img.depth());
-			mimg.setTo(255);
-			img.copyTo(mimg, sp_collection[pair_id.x].mask);
-			rectangle(mimg, sp_collection[pair_id.x].box, CV_RGB(0,255,0), 1);
-			img.copyTo(mimg, sp_collection[pair_id.y].mask);
-			rectangle(mimg, sp_collection[pair_id.y].box, CV_RGB(0,0,255), 1);
-			imshow("merge", mimg);
+			Mat cur_merged_pair_img(img.rows, img.cols, img.depth());
+			cur_merged_pair_img.setTo(255);
+			img.copyTo(cur_merged_pair_img, sp_collection[pair_id.x].mask);
+			rectangle(cur_merged_pair_img, sp_collection[pair_id.x].box, CV_RGB(0,255,0), 1);
+			img.copyTo(cur_merged_pair_img, sp_collection[pair_id.y].mask);
+			rectangle(cur_merged_pair_img, sp_collection[pair_id.y].box, CV_RGB(0,0,255), 1);
+			imshow("merge", cur_merged_pair_img);
 			waitKey(0);
 
 			// create new merged sp
 			SegSuperPixelFeature merged_sp;
 			MergeSegments(sp_collection[pair_id.x], sp_collection[pair_id.y], merged_sp);
 			merged_sp.id = merge_no++;
+
+			if(cur_sal_score > best_saliency && merged_sp.area < img.rows*img.cols*0.6)
+			{
+				best_saliency = cur_sal_score;
+				cur_merged_pair_img.copyTo(best_obj_img);
+			}
 
 			// add to collection
 			sp_collection[merged_sp.id] = merged_sp;
@@ -495,35 +506,45 @@ namespace Saliency
 				// remove merged sp neighbors
 				cur_sp.neighbor_ids.erase(pair_id.x);
 				cur_sp.neighbor_ids.erase(pair_id.y);
+				cur_sp.neighbor_ids.insert(merged_sp.id);
 				// compute saliency score
 				SegSuperPixelFeature tempseg;
-				MergeSegments(merged_sp, sp_features[*pi], tempseg);
+				MergeSegments(merged_sp, sp_collection[*pi], tempseg);
 				float sal_score = 
 					sal_computer.ComputeSegmentSaliency(img, tempseg, sp_features, Composition);
 				merge_pair_prior_list[sal_score] = Point(merged_sp.id, *pi);
 			}
 
 			// remove from pair list
-			for(map<float, Point, greater<float>>::iterator pi=merge_pair_prior_list.begin(); 
-				pi!=merge_pair_prior_list.end(); (pi==merge_pair_prior_list.begin()? pi:pi++) )
+			while(1)
 			{
-				Point cur_pt = pi->second;
-				if(cur_pt.x == pair_id.x || cur_pt.y == pair_id.y ||
-					cur_pt.y == pair_id.x || cur_pt.y == pair_id.y)
+				bool found = false;
+				for(map<float, Point, greater<float>>::iterator pi=merge_pair_prior_list.begin(); 
+					pi!=merge_pair_prior_list.end(); pi++ )
 				{
-					map<float, Point, greater<float>>::iterator backup_pi = pi;
-					backup_pi++;
-					merge_pair_prior_list.erase(pi);
-					if(backup_pi != merge_pair_prior_list.begin())
-						backup_pi--;
-					pi = backup_pi;
+					Point cur_pt = pi->second;
+					if(cur_pt.x == pair_id.x || cur_pt.x == pair_id.y ||
+						cur_pt.y == pair_id.x || cur_pt.y == pair_id.y)
+					{
+						merge_pair_prior_list.erase(pi);
+						found = true;
+						break;
+					}
 				}
+
+				if(!found)
+					break;
+
 			}
+			
 
 			if(merge_pair_prior_list.empty())
 				break;
 
 		}
+
+		imshow("best object", best_obj_img);
+		waitKey(0);
 		
 
 		return true;
