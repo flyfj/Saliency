@@ -452,6 +452,9 @@ namespace Saliency
 
 	bool SaliencySegmentor::MineSalientObjectsByMergingPairs(const Mat& img)
 	{
+
+		cout<<"Start to do salient object mining."<<endl;
+
 		map<float, Point, greater<float>> merge_pair_prior_list;	// ranked by descent saliency score 
 		map<int, SegSuperPixelFeature> sp_collection;	// used to save intermediate segments
 
@@ -482,6 +485,7 @@ namespace Saliency
 
 		int merge_no = prim_seg_num;
 
+		map<float, vector<bool>, greater<float>> minedObjects;
 		Mat best_obj_img(img.rows, img.cols, img.depth());
 		best_obj_img.setTo(255);
 		float best_saliency = 0;
@@ -496,24 +500,28 @@ namespace Saliency
 			Point pair_id = pi->second;
 
 			// show merged sp
-			Mat cur_merged_pair_img(img.rows, img.cols, img.depth());
+			/*Mat cur_merged_pair_img(img.rows, img.cols, img.depth());
 			cur_merged_pair_img.setTo(255);
 			img.copyTo(cur_merged_pair_img, sp_collection[pair_id.x].mask);
 			rectangle(cur_merged_pair_img, sp_collection[pair_id.x].box, CV_RGB(0,255,0), 1);
 			img.copyTo(cur_merged_pair_img, sp_collection[pair_id.y].mask);
 			rectangle(cur_merged_pair_img, sp_collection[pair_id.y].box, CV_RGB(0,0,255), 1);
 			imshow("merge", cur_merged_pair_img);
-			waitKey(0);
+			waitKey(0);*/
 
 			// create new merged sp
 			SegSuperPixelFeature merged_sp;
 			MergeSegments(sp_collection[pair_id.x], sp_collection[pair_id.y], merged_sp);
 			merged_sp.id = merge_no++;
 
+			// add to mined objects
+			if(merged_sp.area < img.rows*img.cols*0.6)
+				  minedObjects[pi->first] = merged_sp.components;
+
 			if(cur_sal_score > best_saliency && merged_sp.area < img.rows*img.cols*0.6)
 			{
 				best_saliency = cur_sal_score;
-				cur_merged_pair_img.copyTo(best_obj_img);
+				//cur_merged_pair_img.copyTo(best_obj_img);
 			}
 
 			// add to collection
@@ -563,6 +571,25 @@ namespace Saliency
 			if(merge_pair_prior_list.empty())
 				break;
 
+		}
+
+
+		cout<<"Done"<<endl;
+
+		// show top 5 minings
+		for(map<float, vector<bool>, greater<float>>::iterator pi = minedObjects.begin(); 
+			pi != minedObjects.end(); pi++)
+		{
+			Mat mine_img(img.rows, img.cols, img.depth());
+			mine_img.setTo(255);
+			for(size_t i=0; i<pi->second.size(); i++)
+			{
+				if(pi->second[i])
+					img.copyTo(mine_img, sp_features[i].mask);
+			}
+
+			imshow("Res", mine_img);
+			waitKey(0);
 		}
 
 		imshow("best object", best_obj_img);
