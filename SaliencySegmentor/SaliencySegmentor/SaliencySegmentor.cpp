@@ -32,6 +32,11 @@ namespace Saliency
 		// create data
 		sp_features.clear();
 		sp_features.resize(segment_num);
+		bg_sign.clear();
+		bg_sign.resize(segment_num, false);
+
+		Mat bg_show(img.rows, img.cols, CV_8U);
+		bg_show.setTo(0);
 
 		// compute perimeter and boundary pixel numbers, set bounding box
 		for(int y=0; y<img.rows; y++)
@@ -127,6 +132,11 @@ namespace Saliency
 			// init components to itself only
 			sp_features[i].components.resize(sp_features.size(), false);
 			sp_features[i].components[i] = true;	// set itself to true
+
+			if(sp_features[i].bnd_pixels > 0)
+			{
+				bg_sign[i] = true;	// boundary segment
+			}
 		}
 
 		// set mask
@@ -138,6 +148,18 @@ namespace Saliency
 				sp_features[seg_id].mask.at<uchar>(y,x) = 1;
 			}
 		}
+
+
+		// show bg
+		for(size_t i=0; i<bg_sign.size(); i++)
+		{
+			if(bg_sign[i])
+				bg_show.setTo(255, sp_features[i].mask);
+		}
+
+		// show bg
+		imshow("bg", bg_show);
+		waitKey(0);
 
 
 		// compute appearance feature: LAB histogram
@@ -432,7 +454,7 @@ namespace Saliency
 	{
 		map<float, Point, greater<float>> merge_pair_prior_list;	// ranked by descent saliency score 
 		map<int, SegSuperPixelFeature> sp_collection;	// used to save intermediate segments
-		
+
 		// set initial sp
 		for(size_t i=0; i<sp_features.size(); i++)
 			sp_collection[i] = sp_features[i];
@@ -565,6 +587,63 @@ namespace Saliency
 
 		return true;
 	}
+
+	bool SaliencySegmentor::ComputeSaliencyMapByBGPropagation(const Mat& img, Mat& sal_map)
+	{
+		sal_map.create(img.rows, img.cols, CV_32F);
+		sal_map.setTo(0);
+
+		map<float, Point> pair_collection;
+
+		for(size_t i=0; i<bg_sign.size(); i++)
+			if(bg_sign[i])
+			{
+				SegSuperPixelFeature& cur_seg = sp_features[i];
+				// add all pair dist into collection
+				for(set<int>::iterator pi=cur_seg.neighbor_ids.begin(); pi!= cur_seg.neighbor_ids.end(); pi++)
+				{
+					if( !bg_sign[*pi] )
+					{
+						float dist = SegSuperPixelFeature::FeatureIntersectionDistance(cur_seg, sp_features[*pi]) + cur_seg.saliency;
+						pair_collection[dist] = Point(i, *pi);
+					}
+				}
+			}
+
+		while( !pair_collection.empty() )
+		{
+			map<float, Point>::iterator pi = pair_collection.begin();
+			Point pair_ids = pi->second;
+			float score = pi->first;
+			pair_collection.erase(pi);
+
+			// add to pair
+			if( !bg_sign[pair_ids.y] )
+			{
+				sp_features[pair_ids.y].saliency = score;
+				bg_sign[pair_ids.y] = true;
+				
+				// add new pairs
+				SegSuperPixelFeature& cur_seg = sp_features[pair_ids.y];
+				for(set<int>::iterator pi=cur_seg.neighbor_ids.begin(); pi!= cur_seg.neighbor_ids.end(); pi++)
+				{
+					if( !bg_sign[*pi] )
+					{
+						float dist = SegSuperPixelFeature::FeatureIntersectionDistance(cur_seg, sp_features[*pi]) + cur_seg.saliency;
+						pair_collection[dist] = Point(pair_ids.y, *pi);
+					}
+				}
+			}
+		}
+
+		for(size_t i=0; i<sp_features.size(); i++)
+		{
+			sal_map.setTo(sp_features[i].saliency, sp_features[i].mask);
+		}
+
+		return true;
+	}
+
 
 }
 

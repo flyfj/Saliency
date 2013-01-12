@@ -29,6 +29,7 @@ namespace Saliency
 		vector<SegSuperPixelFeature> sp_features;
 		Mat lab_img;
 		int prim_seg_num;	// primitive superpixel number
+		vector<bool> bg_sign;
 
 		// processor
 		ImageSegmentor img_segmentor;
@@ -57,6 +58,8 @@ namespace Saliency
 		float SegmentDissimilarity(const SegSuperPixelFeature& seg1, const SegSuperPixelFeature& seg2);
 
 		bool ComputeSaliencyMap(const Mat& img, Mat& sal_map);
+
+		bool ComputeSaliencyMapByBGPropagation(const Mat& img, Mat& sal_map);
 
 	};
 }

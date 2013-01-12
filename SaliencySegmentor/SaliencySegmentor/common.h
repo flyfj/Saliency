@@ -74,7 +74,7 @@ namespace Saliency
 	struct SegSuperPixelFeature
 	{
 		SegSuperPixelFeature() : bnd_pixels(0), perimeter(0), 
-			area(0), id(-1)
+			area(0), id(-1), saliency(0)
 		{ box_pos[0].x = 100000; box_pos[0].y = 100000; box_pos[1].x = 0; box_pos[1].y = 0; }
 
 		vector<float> feat;	// feature vector
@@ -89,6 +89,7 @@ namespace Saliency
 		unsigned int id;
 		Mat mask;	// currently, same size as image for each superpixel
 		vector<bool> components;	// true: member
+		float saliency;
 
 		static bool InsideSegment(const Point& pt, const SegSuperPixelFeature& sp_feat)
 		{
