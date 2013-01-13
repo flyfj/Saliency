@@ -12,81 +12,6 @@
 #include "time_ex.h"
 
 
-float compute_downsample_ratio(Size oldSz, float downSampleFactor, Size& newSz)
-{
-	int imgWidth = oldSz.Width;
-	int imgHeight = oldSz.Height;
-	int newWidth = imgWidth, newHeight = imgHeight;
-	float down_ratio;
-	if (downSampleFactor < 1)		// downSampleFactor is in percentage
-	{
-		down_ratio = downSampleFactor;
-		newWidth = imgWidth * down_ratio + 0.5;
-		newHeight = imgHeight * down_ratio + 0.5;
-	}
-	else if (max(imgWidth, imgHeight) > downSampleFactor)
-		// downsize image such that the longer dimension equals downSampleFactor (in pixel), aspect ratio is preserved
-	{		
-		if (imgWidth > imgHeight)
-		{
-			newWidth = (int)downSampleFactor;
-			newHeight = (int)((float)(newWidth*imgHeight)/imgWidth);
-			down_ratio = (float)newWidth / imgWidth;
-		}
-		else
-		{			
-			newHeight = downSampleFactor;
-			newWidth = (int)((float)(newHeight*imgWidth)/imgHeight);
-			down_ratio = (float)newHeight / imgHeight;
-		}
-	}
-	else	// if smaller than specified dimension, ignore resize
-	{
-		down_ratio = 1;
-	}
-
-	newSz.Width = newWidth;
-	newSz.Height = newHeight;
-
-	return down_ratio;
-}
-
-bool down_sample_image(Bitmap& inputImg, float down_ratio, Bitmap& newImg)
-{
-	// set params
-	int imgWidth = inputImg.GetWidth();
-	int imgHeight = inputImg.GetHeight();
-	int newWidth = newImg.GetWidth();
-	int newHeight = newImg.GetHeight();
-	
-	// create new image
-	const float up_ratio = 1.0f / down_ratio;
-
-	// get bigmapdata
-	BitmapData old_data;
-	inputImg.LockBits(&Rect(0, 0, imgWidth, imgHeight), ImageLockModeRead, PixelFormat24bppRGB, &old_data);
-	BitmapData new_data;
-	newImg.LockBits(&Rect(0, 0, newWidth, newHeight), ImageLockModeRead, PixelFormat24bppRGB, &new_data);
-
-	// set image data
-	for(unsigned int y_out = 0; y_out < newImg.GetHeight(); y_out++)
-	{			
-		unsigned int y_in = unsigned int(y_out * up_ratio + 0.5f);
-		for(unsigned int x_out = 0; x_out < newImg.GetWidth(); x_out++)
-		{
-			unsigned int x_in = unsigned int(x_out * up_ratio + 0.5f);
-
-			BYTE* old_pt = (BYTE*)old_data.Scan0 + old_data.Stride*y_in + x_in*3;
-			BYTE* new_pt = (BYTE*)new_data.Scan0 + new_data.Stride*y_out + x_out*3;
-			new_pt[0] = old_pt[0]; new_pt[1] = old_pt[1]; new_pt[2] = old_pt[2];
-		}
-	}
-
-	inputImg.UnlockBits(&old_data);
-	newImg.UnlockBits(&new_data);
-
-	return true;
-}
 
 
 // multiple nms;  
@@ -146,11 +71,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		float down_ratio;
 		Size newSz;
 		Size oldSz(img.GetWidth(), img.GetHeight());
-		down_ratio = compute_downsample_ratio(oldSz, detector.g_para.downSampleFactor, newSz);
+		down_ratio = SalientRegionDetector::compute_downsample_ratio(oldSz, detector.g_para.downSampleFactor, newSz);
 		Bitmap new_img(newSz.Width, newSz.Height, img.GetPixelFormat());
 		{
 			Timer t;
-			down_sample_image(img, down_ratio, new_img);
+			SalientRegionDetector::down_sample_image(img, down_ratio, new_img);
 			detector.g_runinfo.downsize_t = t.Stamp();
 			printf("down size (%.2f) image to %d %d: %.1f ms\n", down_ratio, new_img.GetWidth(), new_img.GetHeight(), t.Stamp()*1000);
 		}

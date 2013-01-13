@@ -145,6 +145,8 @@ public:
 
 	void print_help();
 	bool read_para(int argc, _TCHAR* argv[]);
+	static float compute_downsample_ratio(Size oldSz, float downSampleFactor, Size& newSz);
+	static bool down_sample_image(Bitmap& inputImg, float down_ratio, Bitmap& newImg);
 
 	// save detection results (windows) to data file
 	void SaveDetectionResults(string save_img_prefix);
