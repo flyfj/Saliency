@@ -20,8 +20,11 @@ namespace Saliency
 		// do segmentation
 		img_segmentor.m_dMinArea = 100;
 		img_segmentor.m_dSmoothSigma = 0.5f;
-		img_segmentor.m_dThresholdK = 100.f;
+		img_segmentor.m_dThresholdK = 300.f;
+		double start_t = GetTickCount();
 		int segment_num = img_segmentor.DoSegmentation(img);
+		double dt = (GetTickCount() - start_t) / getTickFrequency();
+		cout<<"Time: "<<dt*1000<<endl;
 		cout<<"Total segments number: "<<segment_num<<endl;
 		prim_seg_num = segment_num;
 
@@ -159,7 +162,7 @@ namespace Saliency
 
 		// show bg
 		imshow("bg", bg_show);
-		waitKey(0);
+		waitKey(10);
 
 
 		// compute appearance feature: LAB histogram
@@ -298,6 +301,31 @@ namespace Saliency
 
 		return dist;
 
+	}
+
+	bool SaliencySegmentor::SegmentSaliencyMeasure(const Mat& img)
+	{
+		// measure saliency of each segment
+		map<float, int, greater<float>> seg_list;
+
+		for(size_t i=0; i<sp_features.size(); i++)
+		{
+			float score = sal_computer.ComputeSegmentSaliency(img, sp_features[i], sp_features, Composition);
+			seg_list[score] = i;
+		}
+
+		Mat disp = img.clone();
+		for(map<float,int,greater<float>>::iterator pi = seg_list.begin(); pi!=seg_list.end(); pi++)
+		{
+			disp.setTo(0);
+			cout<<pi->first<<endl;
+			img.copyTo(disp, sp_features[pi->second].mask);
+			imshow("rank", disp);
+			waitKey(0);
+		}
+
+
+		return true;
 	}
 
 
@@ -477,8 +505,8 @@ namespace Saliency
 
 				SegSuperPixelFeature mergedSeg;
 				MergeSegments(cur_feat, sp_features[*pi], mergedSeg);
-				float sal_score = 
-					sal_computer.ComputeSegmentSaliency(img, mergedSeg, sp_features, Composition);
+				float sal_score = 1 - SegmentDissimilarity(cur_feat, sp_features[*pi]);
+					//sal_computer.ComputeSegmentSaliency(img, mergedSeg, sp_features, Composition);
 				merge_pair_prior_list[sal_score] = Point(i, *pi);
 			}
 		}
@@ -570,7 +598,6 @@ namespace Saliency
 
 			if(merge_pair_prior_list.empty())
 				break;
-
 		}
 
 

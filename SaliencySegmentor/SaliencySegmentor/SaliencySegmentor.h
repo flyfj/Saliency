@@ -55,6 +55,8 @@ namespace Saliency
 
 		bool MineSalientObjectsByMergingPairs(const Mat& img);
 
+		bool SegmentSaliencyMeasure(const Mat& img);
+
 		float SegmentDissimilarity(const SegSuperPixelFeature& seg1, const SegSuperPixelFeature& seg2);
 
 		bool ComputeSaliencyMap(const Mat& img, Mat& sal_map);

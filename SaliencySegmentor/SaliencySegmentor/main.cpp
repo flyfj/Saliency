@@ -37,13 +37,15 @@ int main()
 	//sal_segmentor.MineSalientObjectsByMergingPairs(img);
 
 	Mat sal_map;
-	sal_segmentor.ComputeSaliencyMapByBGPropagation(img_rz, sal_map);
-	normalize(sal_map, sal_map, 1, 0, NORM_INF);
-	sal_map = sal_map * 255;
-	Mat sal_map_disp;
-	sal_map.convertTo(sal_map_disp, CV_8U, 1, 0);
+	sal_segmentor.SegmentSaliencyMeasure(img_rz);
+	//sal_segmentor.MineSalientObjectsByMergingPairs(img_rz);
+	//sal_segmentor.ComputeSaliencyMapByBGPropagation(img_rz, sal_map);
+	//normalize(sal_map, sal_map, 1, 0, NORM_INF);
+	//sal_map = sal_map * 255;
+	//Mat sal_map_disp;
+	//sal_map.convertTo(sal_map_disp, CV_8U, 1, 0);
 
-	imshow("Saliency map", sal_map_disp);
+	//imshow("Saliency map", sal_map_disp);
 	waitKey(0);
 
 	return 0;
