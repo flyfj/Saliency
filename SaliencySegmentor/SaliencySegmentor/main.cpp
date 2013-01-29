@@ -33,12 +33,12 @@ int main()
 	waitKey(0);
 
 	setMouseCallback("img", onMouse);
-
+    
 	//sal_segmentor.MineSalientObjectsByMergingPairs(img);
 
 	Mat sal_map;
-	sal_segmentor.SegmentSaliencyMeasure(img_rz);
-	//sal_segmentor.MineSalientObjectsByMergingPairs(img_rz);
+	//sal_segmentor.SegmentSaliencyMeasure(img_rz);
+	sal_segmentor.MineSalientObjectsByMergingPairs(img_rz);
 	//sal_segmentor.ComputeSaliencyMapByBGPropagation(img_rz, sal_map);
 	//normalize(sal_map, sal_map, 1, 0, NORM_INF);
 	//sal_map = sal_map * 255;

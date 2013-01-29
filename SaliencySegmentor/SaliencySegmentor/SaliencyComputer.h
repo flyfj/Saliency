@@ -31,7 +31,9 @@ namespace Saliency
 
 		bool InitCompositionFeature(vector<SegSuperPixelFeature>& prim_sp_feats);
 
-		float Compose(const SegSuperPixelFeature& sp_feat, vector<SegSuperPixelFeature>& prim_sp_feats);
+		float Compose(
+			const SegSuperPixelFeature& sp_feat, 
+			vector<SegSuperPixelFeature>& prim_sp_feats);
 
 		static float Point2RectDistance(int x, int y, const Rect& box);
 		static float HausdorffDist(Rect a, Rect b);
@@ -40,7 +42,7 @@ namespace Saliency
 		float ComputeSegmentSaliency(
 			const Mat& img, 
 			const SegSuperPixelFeature& sp_feat, 
-			vector<SegSuperPixelFeature>& prim_sp_feats, 
+			vector<SegSuperPixelFeature>& prim_sp_feats,
 			SaliencyType type);
 
 

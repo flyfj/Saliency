@@ -169,7 +169,7 @@ namespace Saliency
 	float SaliencyComputer::ComputeSegmentSaliency(
 		const Mat& img, 
 		const SegSuperPixelFeature& sp_feat, 
-		vector<SegSuperPixelFeature>& prim_sp_feats, 
+		vector<SegSuperPixelFeature>& prim_sp_feats,
 		SaliencyType type)
 	{
 
@@ -275,22 +275,33 @@ namespace Saliency
 	}
 
 
-	float SaliencyComputer::Compose(const SegSuperPixelFeature& sp_feat, vector<SegSuperPixelFeature>& prim_sp_feats)
+	float SaliencyComputer::Compose(
+		const SegSuperPixelFeature& sp_feat, vector<SegSuperPixelFeature>& prim_sp_feats)
 	{
-		
+		// compose whole window
+
 		vector<SegSuperPixelComposeFeature*> innerSegs;
 		innerSegs.reserve(prim_sp_feats.size());
 
-
+		float suma = 0;
 		// only change composition related data (area)
 		for(size_t i=0; i<prim_sp_feats.size(); i++)
 		{
 			SegSuperPixelFeature& cur_feat = prim_sp_feats[i];
-			if(sp_feat.components[i])
+			// compute inner window area
+			float inner_area = 
+				cur_feat.mask_integral.at<int>(sp_feat.box.br()) + 
+				cur_feat.mask_integral.at<int>(sp_feat.box.tl()) -
+				cur_feat.mask_integral.at<int>(sp_feat.box.br().y, sp_feat.box.x) -
+				cur_feat.mask_integral.at<int>(sp_feat.box.y, sp_feat.box.br().x);
+
+			suma += inner_area;
+
+			if(inner_area > 0)
 			{
 				// inner sp
-				cur_feat.compose_feat.leftInnerArea = cur_feat.area;	//MAX(0, 2*cur_feat.area-cur_feat.compose_feat.extendedArea);
-				cur_feat.compose_feat.leftOuterArea = 0;
+				cur_feat.compose_feat.leftInnerArea = inner_area;	//MAX(0, 2*cur_feat.area-cur_feat.compose_feat.extendedArea);
+				cur_feat.compose_feat.leftOuterArea = cur_feat.compose_feat.extendedArea - inner_area;
 			}
 			else
 			{
@@ -307,11 +318,13 @@ namespace Saliency
 			}
 		}
 
-
-
 		/************************************************************************/
 		/*   do composition
 		/************************************************************************/
+
+		// do initialization
+		//InitCompositionFeature(prim_sp_feats);
+
 
 		sort(innerSegs.begin(), innerSegs.end(), SegSuperPixelComposeFeature::comp_by_dist);
 		float rate = 0;	// compute weight ratio to penalize background window
@@ -359,7 +372,7 @@ namespace Saliency
 			winscore += curfeat.composition_cost;	// MODIFIED
 		}
 
-		const float winarea_inv = 1.0f / sp_feat.area;
+		const float winarea_inv = 1.0f / sp_feat.box.area();
 		rate *= winarea_inv;
 		return winscore * winarea_inv;	// * rate;
 

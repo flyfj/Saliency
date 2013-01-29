@@ -88,6 +88,7 @@ namespace Saliency
 		set<int> neighbor_ids;
 		unsigned int id;
 		Mat mask;	// currently, same size as image for each superpixel
+		Mat mask_integral;
 		vector<bool> components;	// true: member
 		float saliency;
 

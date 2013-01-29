@@ -28,6 +28,7 @@ namespace Saliency
 		cout<<"Total segments number: "<<segment_num<<endl;
 		prim_seg_num = segment_num;
 
+
 		// create first level segments
 		//////////////////////////////////////////////////////////////////////////
 		// compute features for each superpixel
@@ -150,6 +151,13 @@ namespace Saliency
 				int seg_id = img_segmentor.m_idxImg.at<int>(y,x);
 				sp_features[seg_id].mask.at<uchar>(y,x) = 1;
 			}
+		}
+
+		// compute mask integral
+		for(size_t i=0; i<sp_features.size(); i++)
+		{
+			sp_features[i].mask_integral.create(img.rows+1, img.cols+1, CV_32SC1);
+			integral( sp_features[i].mask, sp_features[i].mask_integral);
 		}
 
 
@@ -310,8 +318,8 @@ namespace Saliency
 
 		for(size_t i=0; i<sp_features.size(); i++)
 		{
-			float score = sal_computer.ComputeSegmentSaliency(img, sp_features[i], sp_features, Composition);
-			seg_list[score] = i;
+			//float score = sal_computer.ComputeSegmentSaliency(img, sp_features[i], sp_features, Composition);
+			//seg_list[score] = i;
 		}
 
 		Mat disp = img.clone();
@@ -503,9 +511,10 @@ namespace Saliency
 				if(*pi < i)
 					continue;
 
-				SegSuperPixelFeature mergedSeg;
-				MergeSegments(cur_feat, sp_features[*pi], mergedSeg);
-				float sal_score = 1 - SegmentDissimilarity(cur_feat, sp_features[*pi]);
+				//SegSuperPixelFeature mergedSeg;
+				//MergeSegments(cur_feat, sp_features[*pi], mergedSeg);
+				float sal_score = 
+					1 - SegSuperPixelFeature::FeatureIntersectionDistance(cur_feat, sp_features[*pi]);
 					//sal_computer.ComputeSegmentSaliency(img, mergedSeg, sp_features, Composition);
 				merge_pair_prior_list[sal_score] = Point(i, *pi);
 			}
@@ -513,10 +522,11 @@ namespace Saliency
 
 		int merge_no = prim_seg_num;
 
-		map<float, vector<bool>, greater<float>> minedObjects;
+		map<float, int, greater<float>> minedObjects;
 		Mat best_obj_img(img.rows, img.cols, img.depth());
 		best_obj_img.setTo(255);
 		float best_saliency = 0;
+
 		// start actual merge
 		while(1)
 		{
@@ -527,24 +537,14 @@ namespace Saliency
 
 			Point pair_id = pi->second;
 
-			// show merged sp
-			/*Mat cur_merged_pair_img(img.rows, img.cols, img.depth());
-			cur_merged_pair_img.setTo(255);
-			img.copyTo(cur_merged_pair_img, sp_collection[pair_id.x].mask);
-			rectangle(cur_merged_pair_img, sp_collection[pair_id.x].box, CV_RGB(0,255,0), 1);
-			img.copyTo(cur_merged_pair_img, sp_collection[pair_id.y].mask);
-			rectangle(cur_merged_pair_img, sp_collection[pair_id.y].box, CV_RGB(0,0,255), 1);
-			imshow("merge", cur_merged_pair_img);
-			waitKey(0);*/
-
 			// create new merged sp
 			SegSuperPixelFeature merged_sp;
 			MergeSegments(sp_collection[pair_id.x], sp_collection[pair_id.y], merged_sp);
 			merged_sp.id = merge_no++;
 
 			// add to mined objects
-			if(merged_sp.area < img.rows*img.cols*0.6)
-				  minedObjects[pi->first] = merged_sp.components;
+			/*if(merged_sp.area < img.rows*img.cols*0.6)
+				  minedObjects[pi->first] = merged_sp.components;*/
 
 			if(cur_sal_score > best_saliency && merged_sp.area < img.rows*img.cols*0.6)
 			{
@@ -561,15 +561,20 @@ namespace Saliency
 				pi!=merged_sp.neighbor_ids.end(); pi++)
 			{
 				SegSuperPixelFeature& cur_sp = sp_collection[*pi];
+
 				// remove merged sp neighbors
 				cur_sp.neighbor_ids.erase(pair_id.x);
 				cur_sp.neighbor_ids.erase(pair_id.y);
 				cur_sp.neighbor_ids.insert(merged_sp.id);
+
 				// compute saliency score
-				SegSuperPixelFeature tempseg;
-				MergeSegments(merged_sp, sp_collection[*pi], tempseg);
+				//SegSuperPixelFeature tempseg;
+				//MergeSegments(merged_sp, sp_collection[*pi], tempseg);
 				float sal_score = 
-					sal_computer.ComputeSegmentSaliency(img, tempseg, sp_features, Composition);
+					1 - SegSuperPixelFeature::FeatureIntersectionDistance(merged_sp, sp_collection[*pi]);
+				//float sal_score = 1 - SegmentDissimilarity(merged_sp, sp_collection[*pi]);
+					//sal_computer.ComputeSegmentSaliency(img, tempseg, sp_features, Composition);
+
 				merge_pair_prior_list[sal_score] = Point(merged_sp.id, *pi);
 			}
 
@@ -603,17 +608,33 @@ namespace Saliency
 
 		cout<<"Done"<<endl;
 
+		for(map<int, SegSuperPixelFeature>::iterator pi = sp_collection.begin(); 
+			pi != sp_collection.end(); pi++)
+		{
+			if(pi->second.box.area() > img.rows*img.cols*0.5)
+				continue;
+
+			float sal_score = 
+				sal_computer.ComputeSegmentSaliency(img, pi->second, sp_features, Composition);
+
+			minedObjects[sal_score] = pi->first;
+		}
+
 		// show top 5 minings
-		for(map<float, vector<bool>, greater<float>>::iterator pi = minedObjects.begin(); 
+		for(map<float, int, greater<float>>::iterator pi = minedObjects.begin(); 
 			pi != minedObjects.end(); pi++)
 		{
-			Mat mine_img(img.rows, img.cols, img.depth());
-			mine_img.setTo(255);
-			for(size_t i=0; i<pi->second.size(); i++)
+			cout<<pi->first<<endl;
+			
+			Mat mine_img = img(sp_collection[pi->second].box).clone();
+			
+			// draw bounding box
+			//rectangle(mine_img, sp_collection[pi->second].box, CV_RGB(255, 0, 0));
+			/*for(size_t i=0; i<pi->second.size(); i++)
 			{
 				if(pi->second[i])
 					img.copyTo(mine_img, sp_features[i].mask);
-			}
+			}*/
 
 			imshow("Res", mine_img);
 			waitKey(0);
