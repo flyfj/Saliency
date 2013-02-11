@@ -18,9 +18,9 @@ namespace Saliency
 	{
 
 		// do segmentation
-		img_segmentor.m_dMinArea = 100;
+		img_segmentor.m_dMinArea = 200;
 		img_segmentor.m_dSmoothSigma = 0.5f;
-		img_segmentor.m_dThresholdK = 300.f;
+		img_segmentor.m_dThresholdK = 400.f;
 		double start_t = GetTickCount();
 		int segment_num = img_segmentor.DoSegmentation(img);
 		double dt = (GetTickCount() - start_t) / getTickFrequency();
@@ -318,8 +318,8 @@ namespace Saliency
 
 		for(size_t i=0; i<sp_features.size(); i++)
 		{
-			//float score = sal_computer.ComputeSegmentSaliency(img, sp_features[i], sp_features, Composition);
-			//seg_list[score] = i;
+			float score = sal_computer.ComputeSegmentSaliency(img, sp_features[i], sp_features, Composition);
+			seg_list[score] = i;
 		}
 
 		Mat disp = img.clone();
@@ -608,6 +608,8 @@ namespace Saliency
 
 		cout<<"Done"<<endl;
 
+		vector<ScoredRect> det_boxes;
+
 		for(map<int, SegSuperPixelFeature>::iterator pi = sp_collection.begin(); 
 			pi != sp_collection.end(); pi++)
 		{
@@ -617,16 +619,18 @@ namespace Saliency
 			float sal_score = 
 				sal_computer.ComputeSegmentSaliency(img, pi->second, sp_features, Composition);
 
-			minedObjects[sal_score] = pi->first;
+			det_boxes.push_back( ScoredRect(pi->second.box, sal_score) );
 		}
 
+		// do nms
+		vector<ScoredRect> res_boxes = nms(det_boxes, 0.6);
+
 		// show top 5 minings
-		for(map<float, int, greater<float>>::iterator pi = minedObjects.begin(); 
-			pi != minedObjects.end(); pi++)
+		for(size_t i=0; i<res_boxes.size(); i++)
 		{
-			cout<<pi->first<<endl;
+			cout<<res_boxes[i].score<<endl;
 			
-			Mat mine_img = img(sp_collection[pi->second].box).clone();
+			Mat mine_img = img(res_boxes[i]).clone();
 			
 			// draw bounding box
 			//rectangle(mine_img, sp_collection[pi->second].box, CV_RGB(255, 0, 0));

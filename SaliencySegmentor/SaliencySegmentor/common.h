@@ -126,6 +126,20 @@ namespace Saliency
 
 	};
 
+
+	struct ScoredRect : public Rect
+	{
+		ScoredRect() : score(0){}
+		ScoredRect(const Rect& r) : Rect(r), score(0){}
+		ScoredRect(const Rect& r, float s) : Rect(r), score(s){}
+		float score;
+
+		static bool comp_by_score(const ScoredRect& a, const ScoredRect& b)
+		{
+			return a.score < b.score;
+		}
+	};
+
 	//used in paper: L_A_B 4 8 8
 	// R_G_B: 8 8 8
 	const int quantBins[3] = {4, 8, 8}; 
@@ -142,6 +156,53 @@ namespace Saliency
 	inline float l2_dist(const Point2f& p1, const Point2f& p2)
 	{
 		return l2_dist(p1.x, p1.y, p2.x, p2.y);
+	}
+
+
+
+	template<class ScoreRectType>
+	vector<ScoreRectType> nms(vector<ScoreRectType>& input, float overlapRate)
+	{
+		int wincount = 0;
+		vector<bool> flags(input.size(), false);
+
+		// sort windows by scores (low->high)
+		sort(input.begin(), input.end(), ScoredRect::comp_by_score);
+
+		for(size_t i=0; i<input.size(); i++)
+		{
+			for(size_t j=i+1; j<input.size(); j++)
+			{
+				int xx1 = max(input[i].x, input[j].x);
+				int yy1 = max(input[i].y, input[j].y);
+				int xx2 = min(input[i].br().x, input[j].br().x);
+				int yy2 = min(input[i].br().y, input[j].br().y);
+				float width = xx2-xx1+1;
+				float height = yy2-yy1+1;
+				if(width>0 && height>0)
+				{
+					float overlap = 
+						(width*height) / 
+						(input[i].width*input[i].height+input[j].width*input[j].height-width*height);
+					if(overlap > overlapRate)
+					{
+						flags[i] = true;	//suppressed
+						wincount++;
+						break;
+					}
+				}
+			}
+		}
+
+		vector<ScoredRect> res;
+		res.reserve(wincount);
+		for(int i=input.size()-1; i>=0; i--)
+		{
+			if(!flags[i])
+				res.push_back(input[i]);
+		}
+
+		return res;
 	}
 
 }
