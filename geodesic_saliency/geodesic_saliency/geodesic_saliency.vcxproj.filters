@@ -20,13 +20,13 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="BGMapExtractor_Grid.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GdiplusHelper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="GS_Grid_Sample.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BGMapExtractor_Grid.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

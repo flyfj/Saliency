@@ -1,11 +1,12 @@
 #include "BGMapExtractor_Grid.h"
 
-//#include "windows.h"
+#include "windows.h"
 #include "math.h"
-//#include "assert.h"
+#include "assert.h"
 #include <queue>
 #include <algorithm>
 #include <functional>
+using namespace std;
 
 #ifndef SAFE_DELETE
 #define SAFE_DELETE(p)              if (p != NULL) {delete p; p = NULL;}
@@ -105,31 +106,31 @@ bool BGMapExtractor_Grid::Initialize(int iMaxWidth, int iMaxHeight, int iPatchW,
 
     bool bRet = true;
     do{
-        m_pbyGridRgbPixels = new unsigned char[iMaxPatchNumX*iMaxPatchNumX*3];
+        m_pbyGridRgbPixels = new unsigned char[iMaxPatchNum*3];
         if (NULL == m_pbyGridRgbPixels)
         {
             bRet = false;
             break;
         }
-        m_pfGridLabPixels = new float[iMaxPatchNumX*iMaxPatchNumX*3];
+        m_pfGridLabPixels = new float[iMaxPatchNum*3];
         if (NULL == m_pfGridLabPixels)
         {
             bRet = false;
             break;
         }
-        m_piGridRgbSum = new int[iMaxPatchNumX*iMaxPatchNumX*3];
+        m_piGridRgbSum = new int[iMaxPatchNum*3];
         if (NULL == m_piGridRgbSum)
         {
             bRet = false;
             break;
         }
-        m_pfBGScores = new float[iMaxPatchNumX*iMaxPatchNumX];
+        m_pfBGScores = new float[iMaxPatchNum];
         if (NULL == m_pfBGScores)
         {
             bRet = false;
             break;
         }
-        m_piPreviousIds = new int[iMaxPatchNumX*iMaxPatchNumX];
+        m_piPreviousIds = new int[iMaxPatchNum];
         if (NULL == m_piPreviousIds)
         {
             bRet = false;
@@ -200,7 +201,6 @@ bool BGMapExtractor_Grid::BGMapExtract(const unsigned char *pbyRgbPixels, int iW
     }while(false);
     return bRet;
 }
-
 void BGMapExtractor_Grid::BuildGridRgbImage(const unsigned char *pRgbPixels, int iWidth, int iHeight, int iStride)
 {
     m_iWidth = iWidth;
@@ -298,7 +298,6 @@ void BGMapExtractor_Grid::BuildGridRgbImage(const unsigned char *pRgbPixels, int
     return;
 }
 
-
 void BGMapExtractor_Grid::ConvertToGridLabImage()
 {
     memset(m_pfGridLabPixels, 0, sizeof(float)*m_iPatchNum*3);
@@ -327,7 +326,7 @@ void BGMapExtractor_Grid::BuildNeighboringGraph()
         for (int j = 0; j < NEIGHBORSIZE; j++)
         {
             m_piNeighborPatchIds[idx0 + j] = -1;
-            m_pfNeighborPatchDists[idx0 + j] = (float)MAX_VAL;
+            m_pfNeighborPatchDists[idx0 + j] = (float)INFINITE;
         }
     }
 
@@ -385,12 +384,12 @@ void BGMapExtractor_Grid::BuildNeighboringGraph()
     float *pfDists = m_pfNeighborPatchDists;
     for (int i = 0; i < m_iPatchNum; i++)
     {
-        float fDisMin = (float)MAX_VAL;
+        float fDisMin = (float)INFINITE;
         for (int j = 0; j < NEIGHBORSIZE; j++)
         {
-            fDisMin = MIN(fDisMin, pfDists[j]);
+            fDisMin = min(fDisMin, pfDists[j]);
         }
-        if (fDisMin < (float)MAX_VAL)
+        if (fDisMin < (float)INFINITE)
         {
             fDisSum+=fDisMin;
             count++;
@@ -404,9 +403,9 @@ void BGMapExtractor_Grid::BuildNeighboringGraph()
     {
         for (int j = 0; j < NEIGHBORSIZE; j++)
         {
-            if (pfDists[j] < (float)MAX_VAL)
+            if (pfDists[j] < (float)INFINITE)
             {
-                pfDists[j] = MAX(0.f, pfDists[j]-m_fNeighborDistThre);
+                pfDists[j] = max(0.f, pfDists[j]-m_fNeighborDistThre);
             }
         }
         pfDists += NEIGHBORSIZE;
@@ -440,11 +439,11 @@ void BGMapExtractor_Grid::BoundaryAnalysis()
 
     int iNeighborSize = 10;
     float c = 3.f;
-    float fNorm = 1.f/MIN(m_iPatchNumX, m_iPatchNumY);
+    float fNorm = 1.f/min(m_iPatchNumX, m_iPatchNumY);
     m_iBoundaryPatchNum = (m_iPatchNumX + m_iPatchNumY)*2-4;
     std::vector<float> vCombinedDis(m_iBoundaryPatchNum, 0.f);
 
-    float fDisMin = (float)MAX_VAL;
+    float fDisMin = (float)INFINITE;
     float fDisMax = 0.f;
     for (int i = 0; i < m_iBoundaryPatchNum; i++)
     {
@@ -454,7 +453,7 @@ void BGMapExtractor_Grid::BoundaryAnalysis()
         {
             if (j == i)
             {
-                vCombinedDis[j] = (float)MAX_VAL;
+                vCombinedDis[j] = (float)INFINITE;
                 continue;
             }
             int id2 = m_piBoundaryIds[j];
@@ -464,7 +463,7 @@ void BGMapExtractor_Grid::BoundaryAnalysis()
                             +(pfId1[2] - pfId2[2]) * (pfId1[2] - pfId2[2]);
             fColorDis = sqrtf(fColorDis);
             int iPosDis = abs(i-j);
-            iPosDis = MIN(iPosDis, m_iBoundaryPatchNum-iPosDis);
+            iPosDis = min(iPosDis, m_iBoundaryPatchNum-iPosDis);
             vCombinedDis[j] = fColorDis/(1.f + c * iPosDis * fNorm);
         }
         std::partial_sort(vCombinedDis.begin(), vCombinedDis.begin()+iNeighborSize, vCombinedDis.end());
@@ -474,8 +473,8 @@ void BGMapExtractor_Grid::BoundaryAnalysis()
             fScore += vCombinedDis[j];
         }
         fScore/=iNeighborSize;
-        fDisMax = MAX(fDisMax, fScore);
-        fDisMin = MIN(fDisMin, fScore);
+        fDisMax = max(fDisMax, fScore);
+        fDisMin = min(fDisMin, fScore);
         m_pfBoundaryBgScores[i] = fScore;
     }
 
@@ -487,7 +486,7 @@ void BGMapExtractor_Grid::BoundaryAnalysis()
             float fProb = (m_pfBoundaryBgScores[i] - fDisMin)*fScale;
             if (fProb >= 0.8f)
             {
-                m_pfBoundaryBgScores[i] = (float)MAX_VAL;
+                m_pfBoundaryBgScores[i] = (float)INFINITE;
                 continue;
             }
             if (fProb < 0.5)
@@ -506,7 +505,7 @@ void BGMapExtractor_Grid::InitBGScores()
 {
     for (int i = 0; i < m_iPatchNum; i++)
     {
-        m_pfBGScores[i] = (float)MAX_VAL;
+        m_pfBGScores[i] = (float)INFINITE;
     }
     for (int i = 0; i < m_iBoundaryPatchNum; i++)
     {
@@ -528,7 +527,7 @@ bool BGMapExtractor_Grid::UpdateBGScores()
     {
         m_piPreviousIds[i] = -1;
         arrbInQueque[i] = false;
-        if (m_pfBGScores[i] < (float)MAX_VAL)
+        if (m_pfBGScores[i] < (float)INFINITE)
         {
             qIds.push(i);
             arrbInQueque[i] = true;
@@ -632,7 +631,7 @@ bool BGMapExtractor_Grid::NormalizeBGScores()
     
     for (int i = 0; i < m_iPatchNum; i++)
     {
-        m_pfBGScores[i] = MIN(fDistThre, m_pfBGScores[i])/fDistThre;
+        m_pfBGScores[i] = min(fDistThre, m_pfBGScores[i])/fDistThre;
     }
     delete[] pfBGScoresTemp;
     return true;
