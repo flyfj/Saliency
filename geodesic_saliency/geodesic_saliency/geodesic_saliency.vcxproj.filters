@@ -18,6 +18,9 @@
     <ClInclude Include="BGMapExtractor_Grid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GeodesicSaliencyDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="GdiplusHelper.cpp">
@@ -27,6 +30,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="cv_main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeodesicSaliencyDetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
