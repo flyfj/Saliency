@@ -61,7 +61,8 @@ namespace Saliency
 
 		//save saliency map
 		//int sizes[] = {h,w};
-		smap = Mat(h, w, CV_32F, pfBGMap);
+		smap = Mat(h, w, CV_32F);
+		memcpy(smap.data, pfBGMap, sizeof(float)*w*h);
 		smap.convertTo(smap, CV_32F, 255);
 
 		imwrite("saliencymap.jpg", smap);
