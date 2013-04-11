@@ -20,7 +20,7 @@ int wmain(int argc, wchar_t *argv[])
 
 	GeodesicSaliencyDetector detector;
 
-	Mat img = imread("ebay.jpg");
+	Mat img = imread("photos.jpg");
 	
 	// init
 	detector.Init(img.cols, img.rows, img.step);
@@ -29,6 +29,9 @@ int wmain(int argc, wchar_t *argv[])
 	// detect
 	Mat map;
 	detector.ComputeSaliencyMap(img, map);
+
+	imshow("sal", map);
+	waitKey(0);
 
 	double delth_t = (cv::getTickCount() - start_t) / cv::getTickFrequency();
 	std::cout<<"Processing time: "<<delth_t<<std::endl;
