@@ -127,6 +127,7 @@ public:
 
 //////////////////////////////////////////////////////////////////////////
 // mrf term function
+// pix: pixel id in 1d format; i: label
 MRF::CostVal dCost(int pix, int i);
 
 MRF::CostVal fnCost(int pix1, int pix2, int i, int j);

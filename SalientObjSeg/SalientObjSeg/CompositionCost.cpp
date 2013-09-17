@@ -47,7 +47,7 @@ float HausdorffDist(const Superpixel& a, const Superpixel& b)
 {
 	// compute approximate Hausdorff distance
 	// a->b
-	float mindist1 = INFINITE;
+	float mindist1 = 99999999999.f;
 	Rect box1 = a.bbox;
 	Rect box2 = b.bbox;
 
@@ -65,7 +65,7 @@ float HausdorffDist(const Superpixel& a, const Superpixel& b)
 	}
 
 	// b->a
-	float mindist2 = INFINITE;
+	float mindist2 = 999999999999.9f;
 	points[0] = Point(box2.x, box2.y);
 	points[1] = Point(box2.x, box2.y+box2.height-1);
 	points[2] = Point(box2.x+box2.width-1, box2.y);

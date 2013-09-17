@@ -25,14 +25,14 @@ MRF::CostVal dCost(int pix, int i)
 	if( i == 0 )
 	{
 		if(SalientObjSegmentor::seedMask.at<uchar>(pix_pos) > 0)	// fg
-			val = INFINITE;
+			val = 999999999.9f;
 		else
 			val = MAX( log(sval/(1-sval)) + SalientObjSegmentor::bias, -800 );
 	}
 	else	// foreground
 	{
 		if(SalientObjSegmentor::bgMask.at<uchar>(pix_pos) > 0)	// bg
-			val = INFINITE;
+			val = 99999999999.9f;
 		else
 			val = 0;	//MAX( -(log(sval/(1-sval)) + SalientObjSegmentor::bias), -800 );
 	}
@@ -70,10 +70,7 @@ MRF::CostVal fnCost(int pix1, int pix2, int i, int j)
 				(color1.val[1]-color2.val[1])*(color1.val[1]-color2.val[1])+ \
 				(color1.val[2]-color2.val[2])*(color1.val[2]-color2.val[2]);
 			dist = sqrt(dist/3);
-			Mat ext(1,1,CV_32F);
-			ext.at<float>(0,0) = dist;
-			log(ext, ext);
-			val = -ext.at<float>(0,0)*SalientObjSegmentor::tradeoff;
+			val = -cv::log(dist)*SalientObjSegmentor::tradeoff;
 		}
 	}
 	else if( pix1 == pix2 )	// same
@@ -84,7 +81,7 @@ MRF::CostVal fnCost(int pix1, int pix2, int i, int j)
 			val = INFINITE;
 		else
 			val = 0;*/
-		val = INFINITE;
+		val = 999999999.9f;
 	}
 
 	if(val < 0)
@@ -125,8 +122,6 @@ bool SalientObjSegmentor::Init(const Mat& img, string save_path, string imgname)
 	// create save directory (if already exist, ignore current image)
 	string dirname = m_savePath + m_imgname;
 	int ret = mkdir(dirname.c_str());
-	if( ret != 0 )
-		return false;
 
 	// init MRF params
 	fgSeedTh = 0.9f;
@@ -289,7 +284,7 @@ void SalientObjSegmentor::ComputePairwiseShortestPathCost(const Mat& img)
 	{
 		for(size_t j=0; j<patchAdjacencyMatrix[i].size(); j++)
 		{
-			tie(e, inserted) = add_edge(i, patchAdjacencyMatrix[i][j].first, pg);
+			boost::tuples::tie(e, inserted) = add_edge(i, patchAdjacencyMatrix[i][j].first, pg);
 			weightmap[e] = patchAdjacencyMatrix[i][j].second;
 		}
 	}
@@ -352,7 +347,7 @@ void SalientObjSegmentor::ComputeFGWeightMap(const Mat& img)
 		// loop each background setting
 		for(size_t k=0; k<boundaryPatches.size(); k++)
 		{
-			float minDist = INFINITE;
+			float minDist = 999999999.9f;
 			for(size_t j=0; j<boundaryPatches[k].size(); j++)
 			{
 				if(patchDistanceMap[i][boundaryPatches[k][j]] < minDist)
@@ -418,7 +413,6 @@ void SalientObjSegmentor::ComputeFGWeightMap(const Mat& img)
 	waitKey(10);
 }
 
-
 void SalientObjSegmentor::RunSegmentation(const Mat& img)
 {
 	// compute saliency map
@@ -468,12 +462,12 @@ void SalientObjSegmentor::RunSegmentation(const Mat& img)
 	assert(!m_patches.empty());
 	int samplingStep = 8;
 	Point steps(m_patches[0].size()/samplingStep, m_patches.size()/samplingStep);
-	for(size_t y=0; y<m_patches.size(); y+=steps.y)
+	/*for(size_t y=0; y<m_patches.size(); y+=steps.y)
 	{
-		for(size_t x=0; x<m_patches[y].size(); x+=steps.x)
-		{
+	for(size_t x=0; x<m_patches[y].size(); x+=steps.x)
+	{*/
 			// select seed patch
-			const Patch& seed = m_patches[y][x];
+			const Patch& seed = m_patches[3][3];
 			// use superpixel covering the patch as seeds
 			int bestId = -1;
 			float max_overlap = 0;
@@ -487,8 +481,8 @@ void SalientObjSegmentor::RunSegmentation(const Mat& img)
 				}
 			}
 			// skip background sp
-			if(sp_features[bestId].fgWeights[0] < bgSeedTh)
-				continue;
+			/*if(sp_features[bestId].fgWeights[0] < bgSeedTh)
+			continue;*/
 			// set current seed mask
 			seedMask.setTo(0);
 			seedMask.setTo(255, superpixels[bestId].sp_mask);
@@ -508,7 +502,7 @@ void SalientObjSegmentor::RunSegmentation(const Mat& img)
 			normalize(cur_spFGWeightmap, cur_spFGWeightmap, 1, 0, NORM_INF);
 			subtract(1, cur_spFGWeightmap, cur_spFGWeightmap);
 			imshow("data map", cur_spFGWeightmap);
-			waitKey(0);
+			waitKey(10);
 
 			// loop params to do graph-cut
 			for(size_t i=0; i<biases.size(); i++)
@@ -601,8 +595,8 @@ void SalientObjSegmentor::RunSegmentation(const Mat& img)
 					segmentRes.push_back(curResult);
 				}
 			}
-		}
-	}
+			/*	}
+			}*/
 	
 	// release mrf data
 	delete mrf;

@@ -7,8 +7,8 @@ using namespace std;
 
 int main()
 {
-	string imgdir = "D:\\test_samp\\cut\\test\\";	//BSDS300\\images\\test\\";
-	string savepath = "D:\\test_samp\\cut\\res\\";	//bsds300_res2\\";
+	string imgdir = "testimgs\\";	//BSDS300\\images\\test\\";
+	string savepath = "f:\\seg_res\\";	//bsds300_res2\\";
 	SalientObjSegmentor segmentor;
 
 	// read images from directory

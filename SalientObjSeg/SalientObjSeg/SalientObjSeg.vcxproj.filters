@@ -36,9 +36,6 @@
     <ClCompile Include="SalientObjSegmentor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="test_CC.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="mrf\BP-S.cpp">
       <Filter>MRF\Source</Filter>
     </ClCompile>
@@ -68,6 +65,9 @@
     </ClCompile>
     <ClCompile Include="mrf\TRW-S.cpp">
       <Filter>MRF\Source</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
