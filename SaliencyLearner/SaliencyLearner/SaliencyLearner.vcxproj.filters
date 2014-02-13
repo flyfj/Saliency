@@ -14,61 +14,85 @@
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
     <Filter Include="GraphBasedSegment">
-      <UniqueIdentifier>{c1030891-3899-4ab6-933b-3a51239a1bc3}</UniqueIdentifier>
+      <UniqueIdentifier>{b38a930a-bf6d-4193-b477-26facf9b6054}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="RandomTrees">
+      <UniqueIdentifier>{9a36c8e2-b9e7-4962-912b-d102b8ac16cd}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="Readme.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GraphBasedSegment\convolve.h">
-      <Filter>GraphBasedSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphBasedSegment\disjoint-set.h">
-      <Filter>GraphBasedSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphBasedSegment\filter.h">
-      <Filter>GraphBasedSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphBasedSegment\image.h">
-      <Filter>GraphBasedSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphBasedSegment\imconv.h">
-      <Filter>GraphBasedSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphBasedSegment\imutil.h">
-      <Filter>GraphBasedSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphBasedSegment\misc.h">
-      <Filter>GraphBasedSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphBasedSegment\segment-graph.h">
-      <Filter>GraphBasedSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphBasedSegment\segment-image.h">
-      <Filter>GraphBasedSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphBasedSegment\wrapper.h">
-      <Filter>GraphBasedSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="DecisionTree.h">
+    <ClInclude Include="SaliencyLearner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SaliencyLearner.h">
+    <ClInclude Include="GraphBasedSegmentor\convolve.h">
+      <Filter>GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\disjoint-set.h">
+      <Filter>GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\filter.h">
+      <Filter>GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\image.h">
+      <Filter>GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\imconv.h">
+      <Filter>GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\imutil.h">
+      <Filter>GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\misc.h">
+      <Filter>GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\segment-graph.h">
+      <Filter>GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\segment-image.h">
+      <Filter>GraphBasedSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageSegmentor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common_libs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomTrees\DecisionTree.h">
+      <Filter>RandomTrees</Filter>
+    </ClInclude>
+    <ClInclude Include="RandomTrees\RandomForest.h">
+      <Filter>RandomTrees</Filter>
+    </ClInclude>
+    <ClInclude Include="Tools.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ColorDescriptors.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="GraphBasedSegment\wrapper.cpp">
-      <Filter>GraphBasedSegment</Filter>
-    </ClCompile>
-    <ClCompile Include="DecisionTree.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SaliencyLearner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageSegmentor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomTrees\DecisionTree.cpp">
+      <Filter>RandomTrees</Filter>
+    </ClCompile>
+    <ClCompile Include="RandomTrees\RandomForest.cpp">
+      <Filter>RandomTrees</Filter>
+    </ClCompile>
+    <ClCompile Include="Tools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ColorDescriptors.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
