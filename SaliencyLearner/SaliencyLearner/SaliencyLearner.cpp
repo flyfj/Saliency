@@ -69,7 +69,7 @@ bool SaliencyLearner::ComputeSelfSimMap(int idx, cv::Mat& feat, cv::Mat& outmap)
 	//cout<<spSimMat.row(idx)<<endl;
 	
 	// make grids on outmap to downsample
-	cv::Size gridDim(15, 15);
+	cv::Size gridDim(20, 20);
 	cv::Size gridSize(outmap.cols / gridDim.width, outmap.rows / gridDim.height);
 	feat.create(1, gridDim.width*gridDim.height, CV_32F);
 	for(int i=0; i<gridDim.height; i++)
@@ -95,7 +95,7 @@ bool SaliencyLearner::LoadTrainingData(string imgfoler, string maskfolder)
 	// 0: negative; 1: positive
 	trainSamples.objects.resize(2);
 
-	int len = MIN(100, imgfiles.size());
+	int len = MIN(1000, imgfiles.size());
 	for(size_t i=0; i<len; i++)
 	{
 		string filename = imgfiles[i].filename.substr(0, imgfiles[i].filename.length()-4);
@@ -152,9 +152,9 @@ bool SaliencyLearner::Train(string savefile, bool ifLoad)
 	if( !ifLoad )
 	{
 		learners::DTreeTrainingParams params;
-		params.MaxLevel = 8;
-		params.min_samp_num = 20;
-		params.feature_num = 100;
+		params.MaxLevel = 10;
+		params.min_samp_num = 30;
+		params.feature_num = 500;
 		params.th_num = 50;
 
 		// create labels
@@ -192,7 +192,7 @@ bool SaliencyLearner::Train(string savefile, bool ifLoad)
 	return true;
 }
 
-bool SaliencyLearner::Run(const cv::Mat& colorImg, cv::Mat& salmap)
+bool SaliencyLearner::Run(const cv::Mat& colorImg, cv::Mat& salmap, bool verbose)
 {
 	// resize
 	cv::Mat img;
@@ -213,6 +213,14 @@ bool SaliencyLearner::Run(const cv::Mat& colorImg, cv::Mat& salmap)
 		dtree.Predict(feat, scores);
 		cout<<scores[0]<<" "<<scores[1]<<endl;
 		salmap.setTo(scores[1], sps[i].mask);
+
+		if(verbose)
+		{
+			cv::imshow("cur_mask", sps[i].mask*255);
+			cv::imshow("ssmap", outmap);
+			cv::waitKey(0);
+		}
+		
 	}
 
 

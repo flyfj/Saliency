@@ -12,6 +12,7 @@ using namespace tools;
 using namespace visualsearch;
 using namespace visualsearch::features;
 
+
 class SaliencyLearner
 {
 private:
@@ -52,7 +53,7 @@ public:
 
 	bool Train(string savefile, bool ifLoad);
 
-	bool Run(const cv::Mat& colorImg, cv::Mat& salmap);
+	bool Run(const cv::Mat& colorImg, cv::Mat& salmap, bool verbose = false);
 
 };
 
