@@ -1,11 +1,12 @@
 
 
 #include "ImageSpaceManager.h"
-
+#include <string>
 
 int main()
 {
-	cv::Mat img = cv::imread("F:\\Images\\2_75_75971.jpg");
+	std::string imgdir = "E:\\Datasets\\Saliency\\MSRA\\ImageB\\";
+	cv::Mat img = cv::imread(imgdir + "2_76_76326.jpg");
 	cv::imshow("input", img);
 	cv::waitKey(10);
 

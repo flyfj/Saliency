@@ -81,9 +81,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="a9wins\DisjointSet.h" />
+    <ClInclude Include="a9wins\Rectangle.h" />
+    <ClInclude Include="a9wins\SmartWindowing.h" />
     <ClInclude Include="ImageSpaceManager.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="a9wins\Rectangle.cpp" />
+    <ClCompile Include="a9wins\SmartWindowing.cpp" />
     <ClCompile Include="ImageSpaceManager.cpp" />
     <ClCompile Include="main.cpp" />
   </ItemGroup>

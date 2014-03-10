@@ -3,8 +3,8 @@
 
 ImageSpaceManager::ImageSpaceManager(void)
 {
-	minWinArea = 500;
-	maxLevel = 15;
+	minWinArea = 1000;
+	maxLevel = 10;
 	crit = DIV_MEANCOLORDIFF;
 }
 
@@ -49,12 +49,17 @@ bool ImageSpaceManager::ComputeColorIntegrals(const cv::Mat& color_img)
 
 	colorIntegrals.resize(3);
 
+	// convert to lab
+	cv::Mat labImg;
+	cv::cvtColor(color_img, labImg, CV_BGR2Lab);
+
 	// split channels
 	std::vector<cv::Mat> colorChannels(3);
-	cv::split(color_img, colorChannels);
-	//cv::imshow("b", colorChannels[0]);
-	//cv::imshow("g", colorChannels[1]);
-	//cv::imshow("r", colorChannels[2]);
+	cv::split(labImg, colorChannels);
+	/*cv::imshow("b", colorChannels[0]);
+	cv::imshow("g", colorChannels[1]);
+	cv::imshow("r", colorChannels[2]);
+	cv::waitKey(0);*/
 
 	// compute integrals
 	for(int i=0; i<3; i++) cv::integral(colorChannels[i], colorIntegrals[i], CV_64F);
@@ -71,7 +76,8 @@ bool ImageSpaceManager::Divide(ImgWin& rootWin)
 	cv::Rect childWin1;
 	cv::Rect childWin2;
 	// try vertical
-	for(int r=1; r<rootWin.box.height; r++)
+	int minHeight = rootWin.box.height/8;
+	for(int r=minHeight; r<rootWin.box.height-minHeight; r++)
 	{
 		// compute mean color in each side
 		cv::Rect topRect(rootWin.box.tl().x, rootWin.box.tl().y, rootWin.box.width, r);
@@ -88,7 +94,8 @@ bool ImageSpaceManager::Divide(ImgWin& rootWin)
 		if(dist > maxdist) { maxdist = dist; childWin1 = topRect; childWin2 = bottomRect; }
 	}
 	// try horizontal
-	for(int c=1; c<rootWin.box.width; c++)
+	int minWidth = rootWin.box.width/8;
+	for(int c=minWidth; c<rootWin.box.width-minWidth ; c++)
 	{
 		// compute mean color in each side
 		cv::Rect leftRect(rootWin.box.tl().x, rootWin.box.tl().y, c, rootWin.box.height);
@@ -144,6 +151,31 @@ bool ImageSpaceManager::DivideImage(cv::Mat& color_img)
 
 	Divide(rootWin);
 
+	std::cout<<"Total windows: "<<wins.size()<<std::endl;
+
+	return true;
+}
+
+bool ImageSpaceManager::A9Split(const cv::Mat& color_img)
+{
+	cv::Mat grayimg;
+	cv::cvtColor(color_img, grayimg, CV_BGR2GRAY);
+	cv::Mat integralImg;
+	cv::integral(grayimg, integralImg, CV_32S); 
+
+	const unsigned int num_leaves = 100;
+	std::vector<Shape::Rectangle> rectangles(num_leaves);
+
+	SplitImage(integralImg, num_leaves, rectangles);
+
+	wins.clear();
+	for(size_t i=0; i<rectangles.size(); i++)
+	{
+		ImgWin curwin;
+		curwin.box = cv::Rect(cv::Point(rectangles[i].x1, rectangles[i].y1), cv::Point(rectangles[i].x2, rectangles[i].y2));
+		wins.push_back(curwin);
+	}
+
 	return true;
 }
 
@@ -154,8 +186,10 @@ bool ImageSpaceManager::DrawWins(const cv::Mat& color_img, std::vector<ImgWin>& 
 	for(size_t i=0; i<allwins.size(); i++)
 	{
 		cv::rectangle(dispimg, allwins[i].box, CV_RGB(rng.next()%255, rng.next()%500, rng.next()%255));
+		cv::imshow("wins", dispimg);
+		cv::waitKey(0);
 	}
-	cv::imshow("wins", dispimg);
+	
 
 	return true;
 }

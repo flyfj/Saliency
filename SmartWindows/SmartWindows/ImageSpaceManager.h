@@ -10,6 +10,7 @@
 #include <map>
 #include <vector>
 #include <math.h>
+#include "a9wins\SmartWindowing.h"
 
 
 enum DivideCriteria
@@ -52,6 +53,8 @@ public:
 
 	// recursively divide image window based separation criteria
 	bool Divide(ImgWin& rootWin);
+
+	bool A9Split(const cv::Mat& color_img);
 
 	// draw generated windows
 	bool DrawWins(const cv::Mat& color_img, std::vector<ImgWin>& allwins);

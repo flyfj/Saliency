@@ -13,10 +13,22 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="a9wins">
+      <UniqueIdentifier>{1e4ef555-1f22-4180-be33-7f226214aea7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ImageSpaceManager.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="a9wins\DisjointSet.h">
+      <Filter>a9wins</Filter>
+    </ClInclude>
+    <ClInclude Include="a9wins\Rectangle.h">
+      <Filter>a9wins</Filter>
+    </ClInclude>
+    <ClInclude Include="a9wins\SmartWindowing.h">
+      <Filter>a9wins</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -25,6 +37,12 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="a9wins\Rectangle.cpp">
+      <Filter>a9wins</Filter>
+    </ClCompile>
+    <ClCompile Include="a9wins\SmartWindowing.cpp">
+      <Filter>a9wins</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
