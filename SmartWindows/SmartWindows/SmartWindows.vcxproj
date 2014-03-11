@@ -85,12 +85,15 @@
     <ClInclude Include="a9wins\Rectangle.h" />
     <ClInclude Include="a9wins\SmartWindowing.h" />
     <ClInclude Include="ImageSpaceManager.h" />
+    <ClInclude Include="common.h" />
+    <ClInclude Include="WindowEvaluator.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="a9wins\Rectangle.cpp" />
     <ClCompile Include="a9wins\SmartWindowing.cpp" />
     <ClCompile Include="ImageSpaceManager.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="WindowEvaluator.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

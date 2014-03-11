@@ -30,6 +30,12 @@
     <ClInclude Include="a9wins\SmartWindowing.h">
       <Filter>a9wins</Filter>
     </ClInclude>
+    <ClInclude Include="WindowEvaluator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageSpaceManager.cpp">
@@ -43,6 +49,9 @@
     </ClCompile>
     <ClCompile Include="a9wins\SmartWindowing.cpp">
       <Filter>a9wins</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowEvaluator.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -6,10 +6,7 @@
 
 #pragma once
 
-#include <opencv2\opencv.hpp>
-#include <map>
-#include <vector>
-#include <math.h>
+#include "common.h"
 #include "a9wins\SmartWindowing.h"
 
 
@@ -18,16 +15,9 @@ enum DivideCriteria
 	DIV_MEANCOLORDIFF
 };
 
-struct ImgWin
-{
-	cv::Rect box;
-	int id;
-	int parentId;
-	int level;
-};
 
-
-
+// this class is aimed to give a set of windows as candidate 
+// for further ranking to give high precision of object windows
 class ImageSpaceManager
 {
 private:
