@@ -46,8 +46,5 @@ public:
 
 	bool A9Split(const cv::Mat& color_img);
 
-	// draw generated windows
-	bool DrawWins(const cv::Mat& color_img, std::vector<ImgWin>& allwins);
-
 };
 

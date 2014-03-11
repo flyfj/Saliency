@@ -1,0 +1,300 @@
+<html xmlns:mwsh="http://www.mathworks.com/namespace/mcode/v1/syntaxhighlight.dtd">
+   <head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   
+      <!--
+This HTML is auto-generated from an M-file.
+To make changes, update the M-file and republish this document.
+      -->
+      <title>Compute a colored Area on top of a curved surface</title>
+      <meta name="generator" content="MATLAB 7.0.1">
+      <meta name="date" content="2004-08-18">
+      <meta name="m-file" content="ColorArea"><style>
+body {
+  background-color: white;
+  margin:10px;
+}
+h1 {
+  color: #990000; 
+  font-size: x-large;
+}
+h2 {
+  color: #990000;
+  font-size: medium;
+}
+p.footer {
+  text-align: right;
+  font-size: xx-small;
+  font-weight: lighter;
+  font-style: italic;
+  color: gray;
+}
+
+pre.codeinput {
+  margin-left: 30px;
+}
+
+span.keyword {color: #0000FF}
+span.comment {color: #228B22}
+span.string {color: #A020F0}
+span.untermstring {color: #B20000}
+span.syscmd {color: #B28C00}
+
+pre.showbuttons {
+  margin-left: 30px;
+  border: solid black 2px;
+  padding: 4px;
+  background: #EBEFF3;
+}
+
+pre.codeoutput {
+  color: gray;
+  font-style: italic;
+}
+pre.error {
+  color: red;
+}
+
+/* Make the text shrink to fit narrow windows, but not stretch too far in 
+wide windows.  On Gecko-based browsers, the shrink-to-fit doesn't work. */ 
+p,h1,h2,div {
+  /* for MATLAB's browser */
+  width: 600px;
+  /* for Mozilla, but the "width" tag overrides it anyway */
+  max-width: 600px;
+  /* for IE */
+  width:expression(document.body.clientWidth > 620 ? "600px": "auto" );
+}
+
+    </style></head>
+   <body>
+      <h1>Compute a colored Area on top of a curved surface</h1>
+      <introduction></introduction>
+      <h2>Contents</h2>
+      <div>
+         <ul>
+            <li><a href="#1">background: a customer wanted to study a curved surface.</a></li>
+            <li><a href="#2">get the image</a></li>
+            <li><a href="#3">Use triangles to compute the area of the surface:</a></li>
+            <li><a href="#4">image resoved at surface resolution</a></li>
+            <li><a href="#5">find triangles, that have at least 2 red corners</a></li>
+         </ul>
+      </div>
+      <h2>background: a customer wanted to study a curved surface.<a name="1"></a></h2>
+      <p>The surface is heated up by radiation. Image analysis should be used to compute the area above a certain temperature level.
+         Here the mandrill serves instead of an IR-image
+      </p><pre class="codeinput">disp(<span class="string">'This demo is meant to run in cell mode.'</span>)
+<span class="keyword">return</span>;
+</pre><pre class="codeoutput">This demo is meant to run in cell mode.
+</pre><h2>get the image<a name="2"></a></h2><pre class="codeinput">load <span class="string">mandrill</span>
+im=ind2rgb(X,map);
+sz=size(im);
+ix=sz(1);
+iy=sz(2);
+
+<span class="comment">% filter the image</span>
+h=fspecial(<span class="string">'average'</span>,5);
+filtim=imfilter(im,h);
+
+<span class="comment">% create reference surface</span>
+[x,y,z]=peaks(30);
+sz=size(z);
+sx=sz(1);
+sy=sz(2);
+
+<span class="comment">% scaling</span>
+xfkt=sx/ix;
+yfkt=sy/iy;
+
+<span class="comment">% plot image on surface</span>
+warp(z,filtim)
+hold <span class="string">on</span>;
+
+<span class="comment">% compute isoline for red level</span>
+<span class="comment">% and plot 1st isoline only</span>
+rlevel=0.84
+[c,h]=contour(filtim(:,:,1),[rlevel]);
+idx=2:c(2,1);
+plot3(c(1,idx)*xfkt,c(2,idx)*yfkt,idx*0+5,<span class="string">'b.'</span>)
+axis([0 sx 0 sy -10 10])
+title([<span class="string">'cut-level: '</span> num2str(rlevel)])
+</pre><pre class="codeoutput">rlevel =
+    0.8400
+</pre><img vspace="5" hspace="5" src="ColorArea_01.png"> <h2>Use triangles to compute the area of the surface:<a name="3"></a></h2>
+      <p>delaunay the surface, resize the image to the surface's points; make sure there are enough triangles covering the the color
+         area of interest
+      </p><pre class="codeinput">tri = delaunay(x,y);
+ptsim=imresize(filtim,[sx sy]);
+rptsim=ptsim(:,:,1);
+figure
+mesh(rptsim)
+title(<span class="string">'smmothed red part of image'</span>)
+</pre><img vspace="5" hspace="5" src="ColorArea_02.png"> <h2>image resoved at surface resolution<a name="4"></a></h2><pre class="codeinput">figure
+warp(x,y,z,ptsim)
+title(<span class="string">'resized to surface resolution'</span>)
+hold <span class="string">on</span>
+</pre><img vspace="5" hspace="5" src="ColorArea_03.png"> <h2>find triangles, that have at least 2 red corners<a name="5"></a></h2><pre class="codeinput">rptsim=rptsim(:);
+rlevel=0.84;
+ridx=find(rptsim&gt;rlevel);
+rtrue=zeros(sx*sy,1);
+rtrue(ridx)=1;
+
+count=rtrue(tri(:,1));
+count=count+rtrue(tri(:,2));
+count=count+rtrue(tri(:,3));
+
+<span class="comment">% try also 1 or 3 red corners: its fun to see</span>
+idx=find(count&gt;=2);
+rtri=tri(idx,:);
+
+<span class="comment">% and display them on top of the image</span>
+trisurf(rtri,x,y,z)
+
+
+<span class="comment">% compute the area of the triangles under</span>
+<span class="comment">% consideration, formula taken from a</span>
+<span class="comment">% textbook: Area=1/2*c*hc, hc=b*sin(alpha).</span>
+ntri=length(rtri);
+triarea=0;
+<span class="keyword">for</span> k=1:ntri,
+    xt=x(rtri(k,:));
+    yt=y(rtri(k,:));
+    zt=z(rtri(k,:));
+    A=[xt(1) yt(1) zt(1)];  <span class="comment">% corner vectors of triangle</span>
+    B=[xt(2) yt(2) zt(2)];
+    C=[xt(3) yt(3) zt(3)];
+    va=B-C;                 <span class="comment">% side vectors of triangle</span>
+    vb=A-C;
+    vc=A-B;
+    a=sqrt(va*va');         <span class="comment">% side lengths of triangle</span>
+    b=sqrt(vb*vb');
+    c=sqrt(vc*vc');
+    <span class="keyword">if</span> abs(a*b*c)&lt;1e-8      <span class="comment">% avoid 1/0</span>
+        triarea(k)=0;
+    <span class="keyword">else</span>                    <span class="comment">% compute area per triangle</span>
+        hh=(vb*vc')^2/((vb*vb')*(vc*vc'));
+        triarea(k) = 0.5*c*b*sqrt(1-hh);
+    <span class="keyword">end</span>
+<span class="keyword">end</span>
+
+title([<span class="string">'Area of triangles in square pixels: '</span> num2str(sum(triarea))])
+</pre><img vspace="5" hspace="5" src="ColorArea_04.png"> <p class="footer"><br>
+         Published with MATLAB&reg; 7.0.1<br></p>
+      <!--
+##### SOURCE BEGIN #####
+%% Compute a colored Area on top of a curved surface
+
+%% background: a customer wanted to study a curved surface.
+% The surface is heated up by radiation.
+% Image analysis should be used to compute the area above
+% a certain temperature level.
+% Here the mandrill serves instead of an IR-image
+
+disp('This demo is meant to run in cell mode.')
+return;
+
+%% get the image
+load mandrill
+im=ind2rgb(X,map);
+sz=size(im);
+ix=sz(1);
+iy=sz(2);
+
+% filter the image
+h=fspecial('average',5);
+filtim=imfilter(im,h);
+
+% create reference surface
+[x,y,z]=peaks(30);
+sz=size(z);
+sx=sz(1);
+sy=sz(2);
+
+% scaling
+xfkt=sx/ix;
+yfkt=sy/iy;
+
+% plot image on surface
+warp(z,filtim)
+hold on;
+
+% compute isoline for red level
+% and plot 1st isoline only
+rlevel=0.84
+[c,h]=contour(filtim(:,:,1),[rlevel]);
+idx=2:c(2,1);
+plot3(c(1,idx)*xfkt,c(2,idx)*yfkt,idx*0+5,'b.')
+axis([0 sx 0 sy -10 10])
+title(['cut-level: ' num2str(rlevel)])
+
+
+%% Use triangles to compute the area of the surface:
+% delaunay the surface, 
+% resize the image to the surface's points;
+% make sure there are enough triangles covering the
+% the color area of interest
+tri = delaunay(x,y);
+ptsim=imresize(filtim,[sx sy]);
+rptsim=ptsim(:,:,1);
+figure
+mesh(rptsim)
+title('smmothed red part of image')
+
+
+%% image resoved at surface resolution
+figure
+warp(x,y,z,ptsim)
+title('resized to surface resolution')
+hold on
+
+%% find triangles, that have at least 2 red corners
+rptsim=rptsim(:);
+rlevel=0.84;
+ridx=find(rptsim>rlevel);
+rtrue=zeros(sx*sy,1);
+rtrue(ridx)=1;
+
+count=rtrue(tri(:,1));
+count=count+rtrue(tri(:,2));
+count=count+rtrue(tri(:,3));
+
+% try also 1 or 3 red corners: its fun to see
+idx=find(count>=2);
+rtri=tri(idx,:);
+
+% and display them on top of the image
+trisurf(rtri,x,y,z)
+
+
+% compute the area of the triangles under
+% consideration, formula taken from a 
+% textbook: Area=1/2*c*hc, hc=b*sin(alpha).
+ntri=length(rtri);
+triarea=0;
+for k=1:ntri,
+    xt=x(rtri(k,:));
+    yt=y(rtri(k,:));
+    zt=z(rtri(k,:));
+    A=[xt(1) yt(1) zt(1)];  % corner vectors of triangle
+    B=[xt(2) yt(2) zt(2)];
+    C=[xt(3) yt(3) zt(3)];
+    va=B-C;                 % side vectors of triangle
+    vb=A-C;
+    vc=A-B;
+    a=sqrt(va*va');         % side lengths of triangle
+    b=sqrt(vb*vb');
+    c=sqrt(vc*vc');
+    if abs(a*b*c)<1e-8      % avoid 1/0
+        triarea(k)=0;
+    else                    % compute area per triangle
+        hh=(vb*vc')^2/((vb*vb')*(vc*vc'));
+        triarea(k) = 0.5*c*b*sqrt(1-hh);
+    end
+end
+
+title(['Area of triangles in square pixels: ' num2str(sum(triarea))])
+
+##### SOURCE END #####
+-->
+   </body>
+</html>
