@@ -3,6 +3,7 @@
 
 WindowEvaluator::WindowEvaluator(void)
 {
+	gtdir = "F:\\Datasets\\PASCAL_VOC07\\VOCtrainval_06-Nov-2007\\VOCdevkit\\VOC2007\\ImageSets\\";
 }
 
 bool WindowEvaluator::LoadVOC07Boxes(const std::string& filename, std::vector<ImgWin>& boxes)

@@ -9,6 +9,8 @@
 
 class WindowEvaluator
 {
+private:
+	string gtdir;	
 
 public:
 	WindowEvaluator(void);
