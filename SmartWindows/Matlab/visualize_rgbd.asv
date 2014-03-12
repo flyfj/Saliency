@@ -1,0 +1,45 @@
+
+%% to visualize rgbd images as 3d
+
+clear
+
+usedepth = 1;
+
+imgfile = 'E:\Datasets\RGBD Dataset\NYU\img\115_img.png';
+depthfile = 'E:\Datasets\RGBD Dataset\NYU\img\115_depth.txt';
+
+img = imread(imgfile);
+[m ,n,c] = size(img);
+% m = 100, n = 100;
+X = repmat(1:n, m, 1);
+Y = repmat((1:m)', 1, n);
+
+% convert to gray
+grayimg = rgb2gray(img);
+grayimg = double(grayimg);
+
+dmap = load(depthfile);
+
+% visualize in a row
+figure(1)
+[xx, yy] = meshgrid(1: size(grayi
+scatter3
+colormap jet
+hold on
+
+subplot(1,3,1)
+imshow(img)
+hold on
+
+subplot(1,3,2)
+surf(X, Y, grayimg)
+hold on
+
+if usedepth
+    subplot(1,3,3)
+    surf(X, Y, dmap)
+    hold on
+end
+
+pause
+close all

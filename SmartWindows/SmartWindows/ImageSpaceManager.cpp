@@ -178,18 +178,3 @@ bool ImageSpaceManager::A9Split(const cv::Mat& color_img)
 
 	return true;
 }
-
-bool ImageSpaceManager::DrawWins(const cv::Mat& color_img, std::vector<ImgWin>& allwins)
-{
-	cv::RNG rng(cv::getTickCount());
-	cv::Mat dispimg = color_img.clone();
-	for(size_t i=0; i<allwins.size(); i++)
-	{
-		cv::rectangle(dispimg, allwins[i].box, CV_RGB(rng.next()%255, rng.next()%500, rng.next()%255));
-		cv::imshow("wins", dispimg);
-		cv::waitKey(0);
-	}
-	
-
-	return true;
-}
