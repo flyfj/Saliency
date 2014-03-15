@@ -1,0 +1,22 @@
+//////////////////////////////////////////////////////////////////////////
+// generic object detector
+// jiefeng@2014-3-14
+//////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "common.h"
+#include "WindowEvaluator.h"
+#include "ImageSpaceManager.h"
+
+
+
+class ObjectDetector
+{
+private:
+
+
+public:
+	ObjectDetector(void);
+};
+

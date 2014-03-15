@@ -17,6 +17,8 @@ struct ImgWin
 	int level;
 };
 
+typedef vector<vector<ImgWin>> WinSamps;
+
 
 class Tools
 {

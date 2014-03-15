@@ -10,7 +10,6 @@
 class WindowEvaluator
 {
 private:
-	string gtdir;	
 
 	ImgWin LoadBox(FileNode& fn);
 
@@ -21,5 +20,11 @@ public:
 	WindowEvaluator(void);
 
 	bool LoadVOC07Boxes(const vector<std::string>& imgnames, std::map<string, vector<ImgWin>>& gtwins);
+
+	//////////////////////////////////////////////////////////////////////////
+	// database analysis
+	//////////////////////////////////////////////////////////////////////////
+	// 
+	bool GenerateWinSamps(const vector<string>& imgnames);
 };
 
