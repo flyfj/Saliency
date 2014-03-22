@@ -6,6 +6,7 @@
 #include <map>
 #include <vector>
 #include <math.h>
+#include <windows.h>
 using namespace std;
 using namespace cv;
 
