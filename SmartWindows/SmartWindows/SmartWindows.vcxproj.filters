@@ -36,6 +36,9 @@
     <ClInclude Include="common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectDetector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ImageSpaceManager.cpp">
@@ -51,6 +54,9 @@
       <Filter>a9wins</Filter>
     </ClCompile>
     <ClCompile Include="WindowEvaluator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectDetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
