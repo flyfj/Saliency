@@ -47,11 +47,9 @@ imshow(gx, [])
 subplot(1, 3, 3)
 imshow(gy, [])
 
-
 figure(4)
 [X, Y] = meshgrid(1:2:size(grayimg, 2), 1:2:size(grayimg, 1));
 quiver(X(:), Y(:), gx(sub2ind(size(gx), Y(:), X(:))), gy(sub2ind(size(gy), Y(:), X(:))))
-
 
 pause
 close all
