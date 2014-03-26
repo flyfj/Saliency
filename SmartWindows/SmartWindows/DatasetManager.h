@@ -42,7 +42,7 @@ private:
 
 public:
 
-	VOC07Manager();
+	VOC07Manager() {}
 
 	bool GetImageList(vector<string>& imgfiles);
 
@@ -67,6 +67,5 @@ public:
 	// generate positive and negative object windows
 	bool GenerateWinSamps(const vector<string>& imgnames);
 
-	
 };
 

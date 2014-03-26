@@ -10,33 +10,27 @@
 using namespace std;
 using namespace cv;
 
-struct ImgWin
+class Win: public Rect
 {
-	cv::Rect box;
-	int id;
-	int parentId;
-	int level;
+public:
+	Win() {}
+	Win(int x, int y, int w, int h): Rect(x, y, w, h) {}
 };
+
+class ImgWin: public Win
+{
+public:
+	ImgWin(): Win() {}
+	ImgWin(int x, int y, int w, int h): Win(x, y, w, h){}
+	double score;
+
+	inline bool operator < (const ImgWin& rwin) const
+	{
+		return score < rwin.score;
+	}
+};
+
+
 
 typedef vector<vector<ImgWin>> WinSamps;
 
-
-class Tools
-{
-public:
-
-	static bool DrawWins(const Mat& color_img, vector<ImgWin>& wins)
-	{
-		cv::RNG rng(cv::getTickCount());
-		cv::Mat dispimg = color_img.clone();
-		for(size_t i=0; i<wins.size(); i++)
-		{
-			cv::rectangle(dispimg, wins[i].box, CV_RGB(rng.next()%255, rng.next()%500, rng.next()%255));
-			cv::imshow("wins", dispimg);
-			cv::waitKey(0);
-		}
-
-		return true;
-	}
-
-};
