@@ -24,5 +24,7 @@ public:
 	// visualize float precision image
 	static bool DrawFloatImg(string winname, const Mat& img, Mat& oimg, bool toDraw = true);
 
+	static bool DrawShapes(const Mat& img, const vector<BasicShape>& shapes);
+
 };
 

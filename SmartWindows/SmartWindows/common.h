@@ -31,6 +31,20 @@ public:
 };
 
 
-
 typedef vector<vector<ImgWin>> WinSamps;
 
+
+typedef std::vector<cv::Point> Contour;
+typedef std::vector<Contour> Contours;
+
+struct BasicShape
+{
+	Contour original_contour;
+	Contour approx_contour;
+	int area;
+	int perimeter;
+	cv::Rect bbox;
+	cv::Mat mask;
+	cv::RotatedRect minRect;
+	bool isConvex;
+};

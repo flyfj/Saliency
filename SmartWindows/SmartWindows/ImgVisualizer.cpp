@@ -45,3 +45,28 @@ bool ImgVisualizer::DrawFloatImg(string winname, const Mat& img, Mat& oimg, bool
 
 	return true;
 }
+
+bool ImgVisualizer::DrawShapes(const Mat& img, const vector<BasicShape>& shapes)
+{
+	if(img.channels() != 1 || img.channels() != 3)
+		return false;
+
+	cv::Mat colorimg;
+	if(img.channels() == 1)
+		cvtColor(img, colorimg, CV_GRAY2BGR);
+	else
+		colorimg = img.clone();
+
+	cv::RNG rng_gen;
+	for (size_t i=0; i<shapes.size(); i++)
+	{
+		CvScalar cur_color = CV_RGB(rng_gen.uniform(0,255), rng_gen.uniform(0,255), rng_gen.uniform(0,255));
+		Contours curves;
+		curves.push_back(shapes[i].approx_contour);
+		drawContours(colorimg, curves, 0, cur_color);
+	}
+	imshow("contours", colorimg);
+	cv::waitKey(10);
+
+	return true;
+}
