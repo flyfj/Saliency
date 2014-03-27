@@ -16,6 +16,6 @@ public:
 	ShapeAnalyzer(void);
 
 	// get basic contour shapes
-	bool ExtractShapes(const cv::Mat& img, double cannyTh_low, double cannyTh_high, int contour_mode, vector<BasicShape>& shapes);
+	bool ExtractShapes(const cv::Mat& img, double edgeTh, int contour_mode, vector<BasicShape>& shapes);
 };
 

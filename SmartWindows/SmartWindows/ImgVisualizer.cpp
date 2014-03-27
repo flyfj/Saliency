@@ -48,7 +48,7 @@ bool ImgVisualizer::DrawFloatImg(string winname, const Mat& img, Mat& oimg, bool
 
 bool ImgVisualizer::DrawShapes(const Mat& img, const vector<BasicShape>& shapes)
 {
-	if(img.channels() != 1 || img.channels() != 3)
+	if(img.channels() != 1 && img.channels() != 3)
 		return false;
 
 	cv::Mat colorimg;

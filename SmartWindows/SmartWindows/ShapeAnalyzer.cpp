@@ -9,7 +9,7 @@ ShapeAnalyzer::ShapeAnalyzer(void)
 
 //////////////////////////////////////////////////////////////////////////
 
-bool ShapeAnalyzer::ExtractShapes(const cv::Mat& img, double cannyTh_low, double cannyTh_high, int contour_mode, vector<BasicShape>& shapes)
+bool ShapeAnalyzer::ExtractShapes(const cv::Mat& img, double edgeTh, int contour_mode, vector<BasicShape>& shapes)
 {
 	cv::Mat grayimg;
 	if(img.channels() ==3 )
@@ -18,14 +18,20 @@ bool ShapeAnalyzer::ExtractShapes(const cv::Mat& img, double cannyTh_low, double
 		grayimg = img.clone();	// should optimize
 
 	cv::Mat edgemap;
-	cv::Canny(grayimg, edgemap, cannyTh_low, cannyTh_high);
-	cv::dilate(edgemap, edgemap, cv::Mat());
+	Mat Gx, Gy, Gmag;
+	cv::Sobel(grayimg, Gx, CV_32F, 1, 0);
+	cv::Sobel(grayimg, Gy, CV_32F, 0, 1);
+	magnitude(Gx, Gy, Gmag);
+	normalize(Gmag, Gmag, 1, 0, NORM_MINMAX);
+	threshold(Gmag, edgemap, edgeTh, 255, CV_THRESH_BINARY);
+	/*cv::dilate(edgemap, edgemap, cv::Mat());
 	cv::dilate(edgemap, edgemap, cv::Mat());
 	cv::erode(edgemap, edgemap, cv::Mat());
-	cv::erode(edgemap, edgemap, cv::Mat());
+	cv::erode(edgemap, edgemap, cv::Mat());*/
 	//cv::erode(edgemap, edgemap, cv::Mat());
-	//cv::imshow("canny", edgemap);
-	//cv::waitKey(10);
+	edgemap.convertTo(edgemap, CV_8U);
+	cv::imshow("edge", edgemap);
+	cv::waitKey(10);
 
 	// connect broken lines
 	//dilate(edgemap, edgemap, Mat(), Point(-1,-1));
