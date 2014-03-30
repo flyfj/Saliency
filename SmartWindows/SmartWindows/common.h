@@ -17,12 +17,15 @@ public:
 	Win(int x, int y, int w, int h): Rect(x, y, w, h) {}
 };
 
+
 class ImgWin: public Win
 {
 public:
 	ImgWin(): Win() {}
 	ImgWin(int x, int y, int w, int h): Win(x, y, w, h){}
 	double score;
+
+	string class_name;
 
 	inline bool operator < (const ImgWin& rwin) const
 	{

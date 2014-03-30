@@ -16,6 +16,9 @@
     <Filter Include="a9wins">
       <UniqueIdentifier>{1e4ef555-1f22-4180-be33-7f226214aea7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DataManager">
+      <UniqueIdentifier>{0a009577-af64-4503-9705-f0d36b751dc6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="a9wins\DisjointSet.h">
@@ -33,14 +36,23 @@
     <ClInclude Include="ImgVisualizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="DatasetManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GenericObjectDetector.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ShapeAnalyzer.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DataManager\DataManagerInterface.h">
+      <Filter>DataManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DataManager\Berkeley3DDataManager.h">
+      <Filter>DataManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DataManager\VOCDataManager.h">
+      <Filter>DataManager</Filter>
+    </ClInclude>
+    <ClInclude Include="DataManager\DatasetManager.h">
+      <Filter>DataManager</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -56,14 +68,20 @@
     <ClCompile Include="ImgVisualizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="DatasetManager.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GenericObjectDetector.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ShapeAnalyzer.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DataManager\Berkeley3DDataManager.cpp">
+      <Filter>DataManager</Filter>
+    </ClCompile>
+    <ClCompile Include="DataManager\VOCDataManager.cpp">
+      <Filter>DataManager</Filter>
+    </ClCompile>
+    <ClCompile Include="DataManager\DatasetManager.cpp">
+      <Filter>DataManager</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
