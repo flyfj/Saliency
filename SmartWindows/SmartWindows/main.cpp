@@ -5,6 +5,7 @@
 #include "GenericObjectDetector.h"
 #include "ShapeAnalyzer.h"
 #include "ImgVisualizer.h"
+#include "DataManager/Berkeley3DDataManager.h"
 #include <string>
 using namespace std;
 
@@ -13,21 +14,23 @@ int main()
 	std::string imgdir = "E:\\Datasets\\VOC2007\\VOCtrainval_06-Nov-2007\\VOC2007\\JPEGImages\\";
 	std::string imgname = "000019";
 
+	ShapeAnalyzer shaper;
+	GenericObjectDetector detector;
+	Berkeley3DDataManager berkeleyManager;
+	
 	// load image
-	cv::Mat img = cv::imread("tiger.jpg");
-	cv::imshow("input", img);
+	FileInfos imgs;
+	berkeleyManager.GetImageList(imgs);
+	cv::Mat curimg = imread(imgs[0].filepath);
+	imshow("img", curimg);
 	cv::waitKey(10);
+	//cv::Mat img = cv::imread("tiger.jpg");
+	//cvtColor(img, img, CV_BGR2GRAY);
 
 	// process
 	double start_t = cv::getTickCount();
 	
-	ShapeAnalyzer shaper;
-	GenericObjectDetector detector;
-
-	vector<BasicShape> shapes;
-	shaper.ExtractShapes(img, 0.05, CV_RETR_TREE, shapes);
-	ImgVisualizer::DrawShapes(img, shapes);
-	//detector.Run(img);
+	detector.Run(curimg);
 
 	std::cout<<"Process time: "<<(cv::getTickCount()-start_t) / cv::getTickFrequency()<<"s."<<std::endl;
 

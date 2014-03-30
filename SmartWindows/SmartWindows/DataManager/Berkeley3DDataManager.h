@@ -13,16 +13,20 @@ class Berkeley3DDataManager: public DataManagerInterface
 private:
 
 
-
 public:
 	Berkeley3DDataManager(void)
 	{
-		imgdir = "E:\\Datasets\\RGBD Dataset\\Berkeley\\VOCB3DO\\KinectColor\\";
-		gtdir = "E:\\Datasets\\RGBD Dataset\\Berkeley\\VOCB3DO\\DepthData\\";
+		imgdir = "E:\\Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\KinectColor\\";
+		depthdir = "E:\\Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\RegisteredDepthData\\";
+		gtdir = "E:\\Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\Annotations\\";
 	}
 
-	bool GetImageList(vector<string>& imgfiles);
+	bool GetImageList(FileInfos& imgfiles);
 
-	bool LoadGTWins(const vector<string>& imgfiles, map<string, vector<ImgWin>>& gtwins);
+	bool GetDepthmapList(FileInfos& depthfiles);
+
+	bool LoadDepthData(const string& depthfile, cv::Mat& depthmap);
+
+	//bool LoadGTWins(const FileInfos& imgfiles, map<string, vector<ImgWin>>& gtwins);
 };
 

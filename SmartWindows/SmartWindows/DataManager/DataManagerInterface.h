@@ -3,6 +3,7 @@
 #pragma once
 
 #include "common.h"
+#include "Tools.h"
 
 enum DatasetName
 {
@@ -23,12 +24,17 @@ public:
 
 	// data
 	string imgdir;
+	string depthdir;
 	string gtdir;
 
 	// methods
 	// get all image files
-	virtual bool GetImageList(vector<string>& imgfiles) = 0;
+	virtual bool GetImageList(FileInfos& imgfiles) { return true; };
+	// get all depth maps
+	virtual bool GetDepthmapList(FileInfos& depthfiles) { return true; };
+	// load depth map data
+	virtual bool LoadDepthData(const string& depthfile, cv::Mat& depthmap) { return true; };
 	// get corresponding labels for image windows
-	virtual bool LoadGTWins(const vector<string>& imgfiles, map<string, vector<ImgWin>>& gtwins) = 0;
+	virtual bool LoadGTWins(const FileInfos& imgfiles, map<string, vector<ImgWin>>& gtwins) { return true; };
 };
 

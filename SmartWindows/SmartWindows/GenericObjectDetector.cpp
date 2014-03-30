@@ -38,6 +38,12 @@ bool GenericObjectDetector::Preprocess(const cv::Mat& color_img)
 	cv::integral(Gx, integralGx, CV_64F);
 	cv::integral(Gy, integralGy, CV_64F);
 
+
+	// prepare data
+	FileInfos dmaps;
+	b3dmanager.GetDepthmapList(dmaps);
+	b3dmanager.LoadDepthData(dmaps[0].filepath, depthMap);
+
 	return true;
 }
 
@@ -56,6 +62,15 @@ double GenericObjectDetector::ComputeObjectScore(Rect win)
 
 	return 1 / sqrt(sumgx*sumgx + sumgy*sumgy);
 }
+
+double GenericObjectDetector::ComputeDepthVariance(Rect win)
+{
+	cv::Scalar mean, stddev;
+	meanStdDev(depthMap(win), mean, stddev);
+	return 1.f / (stddev.val[0]+0.000005f);
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 bool GenericObjectDetector::ShiftWindow(const Point& seedPt, Size winSz, Point& newPt)
 {
@@ -107,7 +122,7 @@ bool GenericObjectDetector::RunSlidingWin(const cv::Mat& color_img, Size winsz)
 		for(int c=0; c<imgSize.width-winsz.width-1; c++)
 		{
 			ImgWin curwin(c, r, winsz.width, winsz.height);
-			curwin.score = ComputeObjectScore(curwin);
+			curwin.score = ComputeDepthVariance(curwin); //ComputeObjectScore(curwin);
 			scoremap.at<double>(r+winsz.height/2, c+winsz.width/2) = curwin.score;
 
 			wins.push_back(curwin);
@@ -129,7 +144,7 @@ bool GenericObjectDetector::Run(const cv::Mat& color_img)
 		return false;
 
 	// test with simple sliding window
-	RunSlidingWin(color_img, Size(150, 150));
+	RunSlidingWin(color_img, Size(100, 100));
 
 
 	return true;

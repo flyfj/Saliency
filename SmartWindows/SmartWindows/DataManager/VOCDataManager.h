@@ -25,9 +25,9 @@ public:
 		gtdir = "F:\\Datasets\\PASCAL_VOC07\\VOC2007_AnnotationsOpenCV_Readable\\";
 	}
 
-	bool GetImageList(vector<string>& imgfiles);
+	bool GetImageList(FileInfos& imgfiles);
 
-	bool LoadGTWins(const vector<string>& imgfiles, map<string, vector<ImgWin>>& gtwins);
+	bool LoadGTWins(const FileInfos& imgfiles, map<string, vector<ImgWin>>& gtwins);
 
 };
 

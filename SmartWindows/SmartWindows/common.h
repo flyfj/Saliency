@@ -7,6 +7,7 @@
 #include <vector>
 #include <math.h>
 #include <windows.h>
+#include <fstream>
 using namespace std;
 using namespace cv;
 

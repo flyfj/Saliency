@@ -93,6 +93,7 @@
     <ClInclude Include="ImgVisualizer.h" />
     <ClInclude Include="GenericObjectDetector.h" />
     <ClInclude Include="ShapeAnalyzer.h" />
+    <ClInclude Include="Tools.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="a9wins\Rectangle.cpp" />
@@ -104,6 +105,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="GenericObjectDetector.cpp" />
     <ClCompile Include="ShapeAnalyzer.cpp" />
+    <ClCompile Include="Tools.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

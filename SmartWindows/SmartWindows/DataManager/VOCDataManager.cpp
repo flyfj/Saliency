@@ -2,7 +2,7 @@
 
 
 
-bool VOCDataManager::GetImageList(vector<string>& imgfiles)
+bool VOCDataManager::GetImageList(FileInfos& imgfiles)
 {
 
 	return true;
@@ -26,13 +26,13 @@ ImgWin VOCDataManager::LoadVOC07Box(FileNode& fn)
 }
 
 
-bool VOCDataManager::LoadGTWins(const vector<string>& imgfiles, map<string, vector<ImgWin>>& gtwins)
+bool VOCDataManager::LoadGTWins(const FileInfos& imgfiles, map<string, vector<ImgWin>>& gtwins)
 {
 	gtwins.clear();
 	for(size_t i=0; i<imgfiles.size(); i++)
 	{
 		cv::FileStorage fs;
-		string gtfile = gtdir + imgfiles[i] + ".yml";
+		string gtfile = gtdir + imgfiles[i].filename + ".yml";
 		if( !fs.open(gtfile, cv::FileStorage::READ) )
 		{
 			cerr<<"Can't open gt file: "<<gtfile<<endl;
@@ -45,13 +45,13 @@ bool VOCDataManager::LoadGTWins(const vector<string>& imgfiles, map<string, vect
 			for (cv::FileNodeIterator it = fn.begin(), it_end = fn.end(); it != it_end; it++)
 			{
 				ImgWin curbox = LoadVOC07Box(*it);
-				gtwins[imgfiles[i]].push_back(curbox);
+				gtwins[imgfiles[i].filename].push_back(curbox);
 			}
 		}
 		else
 		{
 			ImgWin curbox = LoadVOC07Box(fn);
-			gtwins[imgfiles[i]].push_back(curbox);
+			gtwins[imgfiles[i].filename].push_back(curbox);
 		}
 	}
 
