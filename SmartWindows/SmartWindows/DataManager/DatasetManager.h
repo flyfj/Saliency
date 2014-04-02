@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include "ImgVisualizer.h"
 #include "DataManager/VOCDataManager.h"
 #include "DataManager/Berkeley3DDataManager.h"
 
@@ -14,16 +15,20 @@ class DatasetManager
 {
 private:
 
-	VOCDataManager voc07_man;
+	VOCDataManager voc_man;
+	Berkeley3DDataManager b3d_man;
+
+	DatasetName dbName;
 
 public:
-	DatasetManager(void);
 
-
+	DatasetManager(DatasetName dbname);
 
 	//////////////////////////////////////////////////////////////////////////
 	// database analysis
 	//////////////////////////////////////////////////////////////////////////
+	// loop over all images for visualization
+	void BrowseDBImages(bool showGT = true);
 	// generate positive and negative object windows
 	bool GenerateWinSamps(DatasetName dname);
 

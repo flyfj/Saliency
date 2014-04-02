@@ -4,6 +4,7 @@
 
 bool VOCDataManager::GetImageList(FileInfos& imgfiles)
 {
+	ToolFactory::GetFilesFromDir(imgdir, "*.jpg", imgfiles);
 
 	return true;
 }
@@ -32,7 +33,7 @@ bool VOCDataManager::LoadGTWins(const FileInfos& imgfiles, map<string, vector<Im
 	for(size_t i=0; i<imgfiles.size(); i++)
 	{
 		cv::FileStorage fs;
-		string gtfile = gtdir + imgfiles[i].filename + ".yml";
+		string gtfile = gtdir + imgfiles[i].filename.substr(0, imgfiles[i].filename.length()-4) + ".yml";
 		if( !fs.open(gtfile, cv::FileStorage::READ) )
 		{
 			cerr<<"Can't open gt file: "<<gtfile<<endl;

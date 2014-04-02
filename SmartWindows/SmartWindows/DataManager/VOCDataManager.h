@@ -17,12 +17,30 @@ private:
 	// load ground truth
 	ImgWin LoadVOC07Box(FileNode& fn);
 
+	DatasetName dbName;
+
 public:
 
-	VOCDataManager() 
+	VOCDataManager(): dbName(DB_VOC07)
 	{ 
-		imgdir = "F:\\Datasets\\PASCAL_VOC07\\VOCtrainval_06-Nov-2007\\VOCdevkit\\VOC2007\\ImageSets\\";
-		gtdir = "F:\\Datasets\\PASCAL_VOC07\\VOC2007_AnnotationsOpenCV_Readable\\";
+		Init(dbName);
+	}
+
+	bool Init(DatasetName dbname)
+	{
+		if(dbname != DB_VOC07 && dbname != DB_VOC10)
+		{
+			std::cerr<<"Only 07 and 10 VOC are supported."<<endl;
+			return false;
+		}
+
+		dbName = dbname;
+		if(dbName == DB_VOC07)
+		{
+			imgdir = "E:\\Datasets\\VOC2007\\VOCtrainval_06-Nov-2007\\VOC2007\\JPEGImages\\";
+			gtdir = "E:\\Datasets\\VOC2007\\VOC2007_AnnotationsOpenCV_Readable\\";
+		}
+		
 	}
 
 	bool GetImageList(FileInfos& imgfiles);

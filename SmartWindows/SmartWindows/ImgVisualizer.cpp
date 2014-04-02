@@ -19,7 +19,7 @@ bool ImgVisualizer::DrawImgWins(const Mat& img, const vector<ImgWin>& wins)
 		cvtColor(dispimg, dispimg, CV_GRAY2BGR);
 	}
 
-	for(size_t i=wins.size()-1; i>=wins.size()-20; i--)
+	for(size_t i=0; i<wins.size(); i++)
 	{
 		cv::rectangle(dispimg, wins[i], CV_RGB(rng.next()%255, rng.next()%255, rng.next()%255), 2);
 	}

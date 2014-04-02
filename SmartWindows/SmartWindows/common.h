@@ -22,7 +22,7 @@ public:
 class ImgWin: public Win
 {
 public:
-	ImgWin(): Win() {}
+	ImgWin(): Win() { score = 0.f; }
 	ImgWin(int x, int y, int w, int h): Win(x, y, w, h){}
 	double score;
 

@@ -27,6 +27,6 @@ public:
 
 	bool LoadDepthData(const string& depthfile, cv::Mat& depthmap);
 
-	//bool LoadGTWins(const FileInfos& imgfiles, map<string, vector<ImgWin>>& gtwins);
+	bool LoadGTWins(const FileInfos& imgfiles, map<string, vector<ImgWin>>& gtwins);
 };
 
