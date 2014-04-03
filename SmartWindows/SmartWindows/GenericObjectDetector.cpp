@@ -41,8 +41,8 @@ bool GenericObjectDetector::Preprocess(const cv::Mat& color_img)
 
 	// prepare data
 	FileInfos dmaps;
-	b3dmanager.GetDepthmapList(dmaps);
-	b3dmanager.LoadDepthData(dmaps[0].filepath, depthMap);
+	db_man.GetDepthmapList(dmaps);
+	db_man.LoadDepthData(dmaps[0].filepath, depthMap);
 
 	return true;
 }
@@ -71,6 +71,24 @@ double GenericObjectDetector::ComputeDepthVariance(Rect win)
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+bool GenericObjectDetector::test()
+{
+	// test oversegmentation
+	// get one image and depth map
+	FileInfos imglist;
+	db_man.GetImageList(imglist);
+	img = imread(imglist[0].filepath);
+	db_man.GetDepthmapList(imglist);
+	db_man.LoadDepthData(imglist[0].filepath, depthMap);
+
+	vector<visualsearch::SuperPixel> sps;
+	segmentor.ExtractRGBDSuperpixel(img, depthMap, sps);
+	// visualize
+
+
+	return true;
+}
 
 bool GenericObjectDetector::ShiftWindow(const Point& seedPt, Size winSz, Point& newPt)
 {

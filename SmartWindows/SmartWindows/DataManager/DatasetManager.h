@@ -22,7 +22,9 @@ private:
 
 public:
 
-	DatasetManager(DatasetName dbname);
+	DatasetManager();
+
+	bool Init(DatasetName dbname);
 
 	//////////////////////////////////////////////////////////////////////////
 	// database analysis

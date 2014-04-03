@@ -9,8 +9,8 @@
 #include "ImgVisualizer.h"
 //#include "WindowEvaluator.h"
 //#include "ImageSpaceManager.h"
-#include "DataManager/Berkeley3DDataManager.h"
-
+#include "DataManager/DatasetManager.h"
+#include "ObjectSegmentor.h"
 
 class GenericObjectDetector
 {
@@ -25,8 +25,8 @@ private:
 
 	cv::TermCriteria shiftCrit;
 
-	Berkeley3DDataManager b3dmanager;
-
+	Berkeley3DDataManager db_man;
+	visualsearch::ObjectSegmentor segmentor;
 
 
 	bool ShiftWindow(const Point& seedPt, Size winSz, Point& newPt);
@@ -36,9 +36,12 @@ private:
 	double ComputeDepthVariance(Rect win);
 
 public:
+	
 	GenericObjectDetector(void);
 
 	bool Preprocess(const cv::Mat& color_img);
+
+	bool test();
 
 	bool Run(const cv::Mat& color_img);
 	

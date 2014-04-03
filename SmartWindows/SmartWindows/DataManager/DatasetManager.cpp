@@ -4,10 +4,16 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-DatasetManager::DatasetManager(DatasetName dbname)
+DatasetManager::DatasetManager()
+{
+}
+
+bool DatasetManager::Init(DatasetName dbname)
 {
 	dbName = dbname;
 	voc_man.Init(dbName);
+
+	return true;
 }
 
 void DatasetManager::BrowseDBImages(bool showGT)

@@ -89,25 +89,36 @@
     <ClInclude Include="a9wins\DisjointSet.h" />
     <ClInclude Include="a9wins\Rectangle.h" />
     <ClInclude Include="a9wins\SmartWindowing.h" />
+    <ClInclude Include="ColorGMM.h" />
     <ClInclude Include="DataManager\Berkeley3DDataManager.h" />
     <ClInclude Include="DataManager\DataManagerInterface.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="DataManager\DatasetManager.h" />
     <ClInclude Include="DataManager\VOCDataManager.h" />
+    <ClInclude Include="gcgraph.hpp" />
+    <ClInclude Include="GrabCutter.h" />
+    <ClInclude Include="ImageSegmentor.h" />
     <ClInclude Include="ImgVisualizer.h" />
     <ClInclude Include="GenericObjectDetector.h" />
+    <ClInclude Include="ObjectSegmentor.h" />
+    <ClInclude Include="RGBDTools.h" />
     <ClInclude Include="ShapeAnalyzer.h" />
     <ClInclude Include="Tools.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="a9wins\Rectangle.cpp" />
     <ClCompile Include="a9wins\SmartWindowing.cpp" />
+    <ClCompile Include="ColorGMM.cpp" />
     <ClCompile Include="DataManager\Berkeley3DDataManager.cpp" />
     <ClCompile Include="DataManager\DatasetManager.cpp" />
     <ClCompile Include="DataManager\VOCDataManager.cpp" />
+    <ClCompile Include="GrabCutter.cpp" />
+    <ClCompile Include="ImageSegmentor.cpp" />
     <ClCompile Include="ImgVisualizer.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="GenericObjectDetector.cpp" />
+    <ClCompile Include="ObjectSegmentor.cpp" />
+    <ClCompile Include="RGBDTools.cpp" />
     <ClCompile Include="ShapeAnalyzer.cpp" />
     <ClCompile Include="Tools.cpp" />
   </ItemGroup>
