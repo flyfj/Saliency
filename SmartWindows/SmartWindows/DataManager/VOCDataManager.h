@@ -37,8 +37,8 @@ public:
 		dbName = dbname;
 		if(dbName == DB_VOC07)
 		{
-			imgdir = "E:\\Datasets\\VOC2007\\VOCtrainval_06-Nov-2007\\VOC2007\\JPEGImages\\";
-			gtdir = "E:\\Datasets\\VOC2007\\VOC2007_AnnotationsOpenCV_Readable\\";
+			imgdir = "F:\\Datasets\\VOC2007\\VOCtrainval_06-Nov-2007\\VOC2007\\JPEGImages\\";
+			gtdir = "F:\\Datasets\\VOC2007\\VOC2007_AnnotationsOpenCV_Readable\\";
 		}
 		
 	}

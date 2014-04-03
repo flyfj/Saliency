@@ -26,7 +26,8 @@ private:
 	cv::TermCriteria shiftCrit;
 
 	Berkeley3DDataManager db_man;
-	visualsearch::ObjectSegmentor segmentor;
+	VOCDataManager voc_man;
+	visualsearch::ImageSegmentor segmentor;
 
 
 	bool ShiftWindow(const Point& seedPt, Size winSz, Point& newPt);

@@ -7,6 +7,8 @@ GenericObjectDetector::GenericObjectDetector(void)
 {
 	shiftCrit.maxCount = 10;
 	shiftCrit.epsilon = 0.0001f;
+
+	
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -77,15 +79,16 @@ bool GenericObjectDetector::test()
 	// test oversegmentation
 	// get one image and depth map
 	FileInfos imglist;
-	db_man.GetImageList(imglist);
+	voc_man.GetImageList(imglist);
 	img = imread(imglist[0].filepath);
-	db_man.GetDepthmapList(imglist);
-	db_man.LoadDepthData(imglist[0].filepath, depthMap);
+	imshow("img", img);
+	//db_man.GetDepthmapList(imglist);
+	//db_man.LoadDepthData(imglist[0].filepath, depthMap);
 
 	vector<visualsearch::SuperPixel> sps;
-	segmentor.ExtractRGBDSuperpixel(img, depthMap, sps);
+	segmentor.DoSegmentation(img);
 	// visualize
-
+	imshow("seg", segmentor.m_segImg);
 
 	return true;
 }

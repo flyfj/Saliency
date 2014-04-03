@@ -19,7 +19,7 @@ int main()
 	GenericObjectDetector detector;
 	DatasetManager dbMan;
 	dbMan.Init(DB_VOC07);
-	visualsearch::ObjectSegmentor segmentor;
+	visualsearch::ImageSegmentor segmentor;
 
 	// process
 	double start_t = cv::getTickCount();
