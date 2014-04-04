@@ -7,7 +7,7 @@ ImgVisualizer::ImgVisualizer(void)
 
 //////////////////////////////////////////////////////////////////////////
 
-bool ImgVisualizer::DrawImgWins(const Mat& img, const vector<ImgWin>& wins)
+bool ImgVisualizer::DrawImgWins(string winname, const Mat& img, const vector<ImgWin>& wins)
 {
 	cv::RNG rng(cv::getTickCount());
 	cv::Mat dispimg;
@@ -23,7 +23,7 @@ bool ImgVisualizer::DrawImgWins(const Mat& img, const vector<ImgWin>& wins)
 	{
 		cv::rectangle(dispimg, wins[i], CV_RGB(rng.next()%255, rng.next()%255, rng.next()%255), 2);
 	}
-	cv::imshow("wins", dispimg);
+	cv::imshow(winname, dispimg);
 	cv::waitKey(10);
 
 	return true;

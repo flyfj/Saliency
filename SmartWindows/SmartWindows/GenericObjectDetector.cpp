@@ -8,7 +8,10 @@ GenericObjectDetector::GenericObjectDetector(void)
 	shiftCrit.maxCount = 10;
 	shiftCrit.epsilon = 0.0001f;
 
-	
+	// detection window size
+	winconfs.push_back(WinConfig(100, 100));
+	winconfs.push_back(WinConfig(200, 200));
+	winconfs.push_back(WinConfig(100, 200));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -79,16 +82,31 @@ bool GenericObjectDetector::test()
 	// test oversegmentation
 	// get one image and depth map
 	FileInfos imglist;
-	voc_man.GetImageList(imglist);
+	db_man.Init(DB_VOC07);
+	if( !db_man.GetImageList(imglist) )
+		return false;
 	img = imread(imglist[0].filepath);
-	imshow("img", img);
 	//db_man.GetDepthmapList(imglist);
 	//db_man.LoadDepthData(imglist[0].filepath, depthMap);
 
-	vector<visualsearch::SuperPixel> sps;
 	segmentor.DoSegmentation(img);
-	// visualize
-	imshow("seg", segmentor.m_segImg);
+	const vector<visualsearch::SuperPixel>& sps = segmentor.superPixels;
+
+	// select a segment
+	int sel_id = rand()%sps.size();
+	vector<ImgWin> imgwins;
+	// place window at center
+	ImgWin curwin;
+	curwin.x = sps[sel_id].box.x+sps[sel_id].box.width/2 - winconfs[0].width/2;
+	curwin.y = sps[sel_id].box.y+sps[sel_id].box.height/2 - winconfs[0].height/2;
+	curwin.width = winconfs[0].width;
+	curwin.height = winconfs[0].height;
+	imgwins.push_back(curwin);
+	curwin = ImgWin(sps[sel_id].box.x, sps[sel_id].box.y, sps[sel_id].box.width, sps[sel_id].box.height);
+	imgwins.push_back(curwin);
+	ImgVisualizer::DrawImgWins("img", img, imgwins);
+	ImgVisualizer::DrawImgWins("seg", segmentor.m_segImg, imgwins);
+	ImgVisualizer::DrawImgWins("meancolor", segmentor.m_mean_img, imgwins);
 
 	return true;
 }
@@ -153,7 +171,7 @@ bool GenericObjectDetector::RunSlidingWin(const cv::Mat& color_img, Size winsz)
 	sort(wins.begin(), wins.end());
 
 	ImgVisualizer::DrawFloatImg("scoremap", scoremap, Mat());
-	ImgVisualizer::DrawImgWins(color_img, wins);
+	ImgVisualizer::DrawImgWins("img", color_img, wins);
 	waitKey(10);
 
 	return true;

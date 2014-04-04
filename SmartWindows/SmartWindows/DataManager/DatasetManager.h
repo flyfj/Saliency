@@ -7,23 +7,38 @@
 #pragma once
 
 #include "ImgVisualizer.h"
+#include "DataManager/DataManagerInterface.h"
 #include "DataManager/VOCDataManager.h"
 #include "DataManager/Berkeley3DDataManager.h"
 
 
-class DatasetManager
+// a wrapper for managers of various datasets
+class DatasetManager: public DataManagerInterface
 {
 private:
 
 	DatasetName dbName;
 
-public:
-
 	DataManagerInterface* db_man;
 
-	DatasetManager();
+public:
+
+	DatasetManager() { Init(DB_VOC07); }
+	~DatasetManager() 
+	{ 
+		if(db_man != NULL)  
+		{
+			delete db_man;
+			db_man = NULL;
+		}
+	}
 
 	bool Init(DatasetName dbname);
+
+	// interface implementation
+	bool GetImageList(FileInfos& imgfiles);
+
+	bool LoadGTWins(const FileInfos& imgfiles, map<string, vector<ImgWin>>& gtwins);
 
 	//////////////////////////////////////////////////////////////////////////
 	// database analysis

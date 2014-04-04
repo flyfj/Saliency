@@ -12,6 +12,14 @@
 #include "DataManager/DatasetManager.h"
 #include "ObjectSegmentor.h"
 
+
+struct WinConfig
+{
+	int width;
+	int height;
+	WinConfig(int w, int h) { width = w; height = h; }
+};
+
 class GenericObjectDetector
 {
 private:
@@ -25,9 +33,10 @@ private:
 
 	cv::TermCriteria shiftCrit;
 
-	Berkeley3DDataManager db_man;
-	VOCDataManager voc_man;
+	DatasetManager db_man;
 	visualsearch::ImageSegmentor segmentor;
+
+	vector<WinConfig> winconfs;
 
 
 	bool ShiftWindow(const Point& seedPt, Size winSz, Point& newPt);

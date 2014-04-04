@@ -4,10 +4,6 @@
 
 //////////////////////////////////////////////////////////////////////////
 
-DatasetManager::DatasetManager()
-{
-	db_man = NULL;
-}
 
 bool DatasetManager::Init(DatasetName dbname)
 {
@@ -22,13 +18,28 @@ bool DatasetManager::Init(DatasetName dbname)
 		db_man = new Berkeley3DDataManager();
 	if(dbName == DB_VOC07 || dbName == DB_VOC10)
 	{
-		VOCDataManager voc_man;
-		voc_man.Init(dbName);
-		db_man = &voc_man;
+		db_man = new VOCDataManager();
+		((VOCDataManager*)db_man)->Init(dbName);
 	}
 
 	return true;
 }
+
+bool DatasetManager::GetImageList(FileInfos& imgfiles)
+{
+	if(db_man == NULL) return false;
+
+	return db_man->GetImageList(imgfiles);
+}
+
+
+bool DatasetManager::LoadGTWins(const FileInfos& imgfiles, map<string, vector<ImgWin>>& gtwins)
+{
+	if(db_man == NULL) return false;
+
+	return db_man->LoadGTWins(imgfiles, gtwins);
+}
+
 
 void DatasetManager::BrowseDBImages(bool showGT)
 {
@@ -47,7 +58,7 @@ void DatasetManager::BrowseDBImages(bool showGT)
 		cout<<"Image: "<<i<<endl;
 		// show color image
 		cv::Mat color_img = cv::imread(cimgs[i].filepath);
-		ImgVisualizer::DrawImgWins(color_img, gtwins[cimgs[i].filename]);
+		ImgVisualizer::DrawImgWins("", color_img, gtwins[cimgs[i].filename]);
 			
 		if( !dmaps.empty() )
 		{

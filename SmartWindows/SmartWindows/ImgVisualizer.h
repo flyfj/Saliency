@@ -19,7 +19,7 @@ public:
 	ImgVisualizer(void);
 
 	// draw image windows
-	static bool DrawImgWins(const Mat& img, const vector<ImgWin>& wins);
+	static bool DrawImgWins(string winname, const Mat& img, const vector<ImgWin>& wins);
 
 	// visualize float precision image
 	static bool DrawFloatImg(string winname, const Mat& img, Mat& oimg, bool toDraw = true);

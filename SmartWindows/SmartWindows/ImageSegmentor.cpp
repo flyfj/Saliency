@@ -89,7 +89,7 @@ namespace visualsearch
 		}
 
 		// compute mean image
-		cv::Mat mean_img = img.clone();
+		m_mean_img = img.clone();
 		double maxval, minval;
 		cv::minMaxLoc(m_idxImg, &minval, &maxval);
 		for(int i=minval; i<=maxval; i++)
@@ -97,7 +97,8 @@ namespace visualsearch
 			cv::Mat cur_mask;
 			cv::compare(m_idxImg, cv::Scalar(i), cur_mask, cv::CMP_EQ);
 			cv::Scalar cur_mean = cv::mean(img, cur_mask);
-			mean_img.setTo(cur_mean, cur_mask);
+			superPixels[i].meancolor = cur_mean;
+			m_mean_img.setTo(cur_mean, cur_mask);
 		}
 
 		return num_ccs;
