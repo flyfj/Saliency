@@ -6,12 +6,26 @@
 
 DatasetManager::DatasetManager()
 {
+	db_man = NULL;
 }
 
 bool DatasetManager::Init(DatasetName dbname)
 {
 	dbName = dbname;
-	voc_man.Init(dbName);
+	if(db_man != NULL)
+	{
+		delete db_man;
+		db_man = NULL;
+	}
+
+	if (dbName == DB_BERKELEY3D)
+		db_man = new Berkeley3DDataManager();
+	if(dbName == DB_VOC07 || dbName == DB_VOC10)
+	{
+		VOCDataManager voc_man;
+		voc_man.Init(dbName);
+		db_man = &voc_man;
+	}
 
 	return true;
 }
@@ -20,11 +34,6 @@ void DatasetManager::BrowseDBImages(bool showGT)
 {
 	FileInfos cimgs, dmaps;
 	map<string, vector<ImgWin>> gtwins;
-	DataManagerInterface* db_man = NULL;
-	if(dbName == DB_BERKELEY3D)
-		db_man = &b3d_man;
-	if(dbName == DB_VOC07 || dbName == DB_VOC10)
-		db_man = &voc_man;
 
 	db_man->GetImageList(cimgs);
 	db_man->GetDepthmapList(dmaps);
@@ -44,7 +53,7 @@ void DatasetManager::BrowseDBImages(bool showGT)
 		{
 			// show depth image
 			Mat dmap;
-			b3d_man.LoadDepthData(dmaps[i].filepath, dmap);
+			db_man->LoadDepthData(dmaps[i].filepath, dmap);
 			ImgVisualizer::DrawFloatImg(cimgs[i].filename, dmap, Mat());
 		}
 			

@@ -15,12 +15,11 @@ class DatasetManager
 {
 private:
 
-	VOCDataManager voc_man;
-	Berkeley3DDataManager b3d_man;
-
 	DatasetName dbName;
 
 public:
+
+	DataManagerInterface* db_man;
 
 	DatasetManager();
 
