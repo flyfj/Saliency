@@ -16,9 +16,9 @@ private:
 public:
 	Berkeley3DDataManager(void)
 	{
-		imgdir = "E:\\Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\KinectColor\\";
-		depthdir = "E:\\Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\RegisteredDepthData\\";
-		gtdir = "E:\\Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\Annotations\\";
+		imgdir = DB_ROOT + "Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\KinectColor\\";
+		depthdir = DB_ROOT + "Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\RegisteredDepthData\\";
+		gtdir = DB_ROOT + "Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\Annotations\\";
 	}
 
 	bool GetImageList(FileInfos& imgfiles);

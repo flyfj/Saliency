@@ -7,6 +7,7 @@
 #include <vector>
 #include <math.h>
 #include <windows.h>
+#include <time.h>
 #include <fstream>
 using namespace std;
 using namespace cv;
@@ -52,3 +53,6 @@ struct BasicShape
 	cv::RotatedRect minRect;
 	bool isConvex;
 };
+
+
+const string DB_ROOT = "E:\\";

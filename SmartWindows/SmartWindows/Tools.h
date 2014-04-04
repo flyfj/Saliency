@@ -48,4 +48,8 @@ public:
 	static void GetFilesFromDir(const string& dir, const string& type, FileInfos& fileInfos);
 	static void GetDirsFromDir(const string& dir, DirInfos& dirInfos, const string& outputFile="");
 	static void RemoveEmptyDir(const string& dir, const string& type);
+
+	//////////////////////////////////////////////////////////////////////////
+	// computation
+	static double GetIntegralValue(const cv::Mat& integralImg, cv::Rect box);
 };

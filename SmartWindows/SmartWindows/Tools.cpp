@@ -87,3 +87,14 @@ void ToolFactory::RemoveEmptyDir(const string& dir, const string& type)
 		cout<<"Finish "<<dir_infos[i].dirpath<<endl;
 	}
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+double ToolFactory::GetIntegralValue(const cv::Mat& integralImg, cv::Rect box)
+{
+	double val = integralImg.at<double>(box.br().y, box.br().x);
+	val += integralImg.at<double>(box.tl().y, box.tl().x);
+	val -= integralImg.at<double>(box.tl().y, box.br().x);
+	val -= integralImg.at<double>(box.br().y, box.tl().x);
+	return val;
+}
