@@ -121,7 +121,7 @@ double GenericObjectDetector::ComputeCenterSurroundMeanColorDiff(ImgWin win)
 
 bool GenericObjectDetector::WinCenterRange(const Rect spbox, const WinConfig winconf, Point& minPt, Point& maxPt)
 {
-	if(spbox.area() >= winconf.width*winconf.height)
+	if(spbox.width >= winconf.width || spbox.height >= winconf.height)
 	{
 		cerr<<"Detection window is smaller than superpixel box."<<endl;
 		return false;
@@ -180,6 +180,8 @@ bool GenericObjectDetector::SampleWinLocs(const Point startPt, const WinConfig w
 		wins[i].height = winconf.height;
 	}
 
+	cout<<"Sampled window locations."<<endl;
+
 	return true;
 }
 
@@ -233,6 +235,8 @@ bool GenericObjectDetector::test()
 		//ImgWin minWin(minpt.x-winconfs[0].width/2, minpt.y-winconfs[0].height/2, winconfs[])
 
 		Point curpt(sps[sel_id].box.x+sps[sel_id].box.width/2, sps[sel_id].box.y+sps[sel_id].box.height/2);
+		double bestscore = 0;
+		ImgWin bestWin;
 		// do shifting
 		for(int i=0; i<10; i++)
 		{
@@ -244,12 +248,18 @@ bool GenericObjectDetector::test()
 
 			// sort
 			sort(wins.begin(), wins.end());
+			
+			const ImgWin selWin = wins[wins.size()-1];
+			cout<<"Best score: "<<selWin.score<<endl;
+			if(selWin.score > bestscore)
+			{
+				// shift to max point
+				curpt.x = selWin.x + selWin.width/2;
+				curpt.y = selWin.y + selWin.height/2;
 
-			// shift to max point
-			const ImgWin& bestWin = wins[wins.size()-1];
-			cout<<"Best score: "<<bestWin.score<<endl;
-			curpt.x = bestWin.x + bestWin.width/2;
-			curpt.y = bestWin.y + bestWin.height/2;
+				// update
+				bestWin = selWin;
+			}
 
 			// visualize
 			vector<ImgWin> imgwins2;
