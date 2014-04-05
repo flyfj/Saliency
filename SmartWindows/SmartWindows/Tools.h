@@ -52,4 +52,6 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	// computation
 	static double GetIntegralValue(const cv::Mat& integralImg, cv::Rect box);
+
+	static Rect RefineBox(Rect inBox, Size rangeLimit);
 };

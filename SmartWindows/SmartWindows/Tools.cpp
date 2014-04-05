@@ -98,3 +98,23 @@ double ToolFactory::GetIntegralValue(const cv::Mat& integralImg, cv::Rect box)
 	val -= integralImg.at<double>(box.br().y, box.tl().x);
 	return val;
 }
+
+Rect ToolFactory::RefineBox(Rect inBox, Size rangeLimit)
+{
+	Rect newBox;
+	newBox.x = MAX(inBox.x, 0);
+	newBox.y = MAX(inBox.y, 0);
+	int maxx = MIN(inBox.br().x, rangeLimit.width);
+	int maxy = MIN(inBox.br().y, rangeLimit.height);
+	newBox.width = maxx - newBox.x - 1;
+	newBox.height = maxy - newBox.y - 1;
+
+	if(newBox.width <= 0 || newBox.height <= 0)
+	{
+		cerr<<"Invalid new box."<<endl;
+		newBox.width = 1;
+		newBox.height = 1;
+	}
+
+	return newBox;
+}

@@ -94,7 +94,7 @@ double GenericObjectDetector::ComputeCenterSurroundMeanColorDiff(ImgWin win)
 	int miny = MAX(win.y - win.height/2, 0);
 	int maxx = MIN(win.br().x + win.width/2, imgSize.width-1);
 	int maxy = MIN(win.br().y + win.height/2, imgSize.height-1);
-	Rect contextWin(minx, miny, maxx-minx, maxy-miny);
+	Rect contextWin(minx, miny, maxx-minx-1, maxy-miny-1);
 
 	// center mean
 	Scalar centerMean, contextMean;
@@ -259,16 +259,19 @@ bool GenericObjectDetector::test()
 
 				// update
 				bestWin = selWin;
+
+				// visualize
+				vector<ImgWin> imgwins2;
+				ImgWin spwin = ImgWin(sps[sel_id].box.x, sps[sel_id].box.y, sps[sel_id].box.width, sps[sel_id].box.height);
+				imgwins2.push_back(spwin);
+				imgwins2.push_back(bestWin);
+				ImgVisualizer::DrawImgWins("shift", img, imgwins2);
+				cv::waitKey(0);
+				cv::destroyWindow("shift");
+
+				cout<<"Updated best score."<<endl;
 			}
 
-			// visualize
-			vector<ImgWin> imgwins2;
-			ImgWin spwin = ImgWin(sps[sel_id].box.x, sps[sel_id].box.y, sps[sel_id].box.width, sps[sel_id].box.height);
-			imgwins2.push_back(spwin);
-			imgwins2.push_back(bestWin);
-			ImgVisualizer::DrawImgWins("shift", img, imgwins2);
-			cv::waitKey(0);
-			cv::destroyWindow("shift");
 		}
 
 		cnt--;
