@@ -40,7 +40,9 @@ private:
 	vector<WinConfig> winconfs;
 
 	// window shifting tools
-	bool WinCenterRange(const Rect spbox, const WinConfig winconf, Point& minPt, Point& maxPt);
+	// given a segment box, window size and image size, the range of window locations 
+	// are computed to include the segment
+	bool WinLocRange(const Rect spbox, const WinConfig winconf, Point& minPt, Point& maxPt);
 
 	bool SampleWinLocs(const Point startPt, const WinConfig winconf, const Point minPt, const Point maxPt, int num, vector<ImgWin>& wins);
 

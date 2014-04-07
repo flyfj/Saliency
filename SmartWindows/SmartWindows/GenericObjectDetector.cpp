@@ -119,7 +119,7 @@ double GenericObjectDetector::ComputeCenterSurroundMeanColorDiff(ImgWin win)
 
 //////////////////////////////////////////////////////////////////////////
 
-bool GenericObjectDetector::WinCenterRange(const Rect spbox, const WinConfig winconf, Point& minPt, Point& maxPt)
+bool GenericObjectDetector::WinLocRange(const Rect spbox, const WinConfig winconf, Point& minPt, Point& maxPt)
 {
 	if(spbox.width >= winconf.width || spbox.height >= winconf.height)
 	{
@@ -127,22 +127,12 @@ bool GenericObjectDetector::WinCenterRange(const Rect spbox, const WinConfig win
 		return false;
 	}
 
-	minPt.x = spbox.br().x - winconf.width / 2;
-	minPt.y = spbox.br().y - winconf.height / 2;
-	minPt.x = MAX(minPt.x, winconf.width/2);
-	minPt.y = MAX(minPt.y, winconf.height/2);
-	maxPt.x = spbox.x + winconf.width / 2;
-	maxPt.y = spbox.y + winconf.height / 2;
-	maxPt.x = MIN(maxPt.x, imgSize.width-winconf.width/2-1);
-	maxPt.y = MIN(maxPt.y, imgSize.height-winconf.height/2-1);
-
-	minPt.x = MIN(minPt.x, maxPt.x);
-	minPt.y = MIN(minPt.y, maxPt.y);
-	maxPt.x = MAX(minPt.x, maxPt.x);
-	maxPt.y = MAX(minPt.y, maxPt.y);
-
-	cout<<spbox.x+spbox.width/2<<" "<<spbox.y+spbox.height/2<<endl;
-	cout<<minPt.x<<" "<<minPt.y<<" "<<maxPt.x<<" "<<maxPt.y<<endl;
+	minPt.x = spbox.br().x - winconf.width;
+	minPt.y = spbox.br().y - winconf.height;
+	minPt.x = MAX(minPt.x, 0);
+	minPt.y = MAX(minPt.y, 0);
+	maxPt.x = spbox.x;
+	maxPt.y = spbox.y;
 
 	assert(minPt.x <= maxPt.x && minPt.y <= maxPt.y);
 
@@ -158,12 +148,16 @@ bool GenericObjectDetector::SampleWinLocs(const Point startPt, const WinConfig w
 	}*/
 
 	// x range; y range
+	Point startTLPt(startPt.x - winconf.width/2, startPt.y - winconf.height/2);
+	if(startTLPt.x < 0 || startTLPt.y < 0)
+		return false;
+
 	// restrict to move in a bounding box
-	double minx = startPt.x - minPt.x;
-	double maxx = maxPt.x - startPt.x;
+	double minx = startTLPt.x - minPt.x;
+	double maxx = maxPt.x - startTLPt.x;
 	double xrange = MIN(minx, maxx);
-	double miny = startPt.y - minPt.y;
-	double maxy = maxPt.y - startPt.y;
+	double miny = startTLPt.y - minPt.y;
+	double maxy = maxPt.y - startTLPt.y;
 	double yrange = MIN(miny, maxy);
 
 	cv::RNG rng;
@@ -174,8 +168,14 @@ bool GenericObjectDetector::SampleWinLocs(const Point startPt, const WinConfig w
 		// select a new center
 		double xdiff = rng.uniform(-xrange, xrange);
 		double ydiff = rng.uniform(-yrange, yrange);
-		wins[i].x = startPt.x + xdiff - winconf.width/2;
-		wins[i].y = startPt.y + ydiff - winconf.height/2;
+		wins[i].x = startTLPt.x + xdiff;
+		wins[i].y = startTLPt.y + ydiff;
+		if(wins[i].x + winconf.width >= imgSize.width || wins[i].y + winconf.height >= imgSize.height)
+		{
+			// remove invalid window
+			i--;
+			continue;
+		}
 		wins[i].width = winconf.width;
 		wins[i].height = winconf.height;
 	}
@@ -228,7 +228,7 @@ bool GenericObjectDetector::test()
 
 		// compute adjust range
 		Point minpt, maxpt;
-		if( !WinCenterRange(sps[sel_id].box, winconfs[0], minpt, maxpt) )
+		if( !WinLocRange(sps[sel_id].box, winconfs[0], minpt, maxpt) )
 			continue;
 
 		// check range
@@ -243,6 +243,9 @@ bool GenericObjectDetector::test()
 			// generate locations
 			vector<ImgWin> wins;
 			SampleWinLocs(curpt, winconfs[0], minpt, maxpt, 6, wins);
+			if(wins.empty())
+				continue;
+
 			for(size_t j=0; j<wins.size(); j++)
 				wins[j].score = ComputeCenterSurroundMeanColorDiff(wins[j]);
 
