@@ -64,7 +64,9 @@ public:
 
 	bool test();
 
-	bool Run(const cv::Mat& color_img);
+	bool RunVOC();
+
+	bool Run(const cv::Mat& color_img, vector<ImgWin>& det_wins);
 	
 	bool RunSlidingWin(const cv::Mat& color_img, Size winsz);
 

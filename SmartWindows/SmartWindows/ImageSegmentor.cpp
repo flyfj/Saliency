@@ -17,6 +17,8 @@ namespace visualsearch
 
 	int ImageSegmentor::DoSegmentation(const cv::Mat& img)
 	{
+		double start_t = cv::getTickCount();
+
 		int height = img.rows;
 		int width = img.cols;
 
@@ -24,11 +26,12 @@ namespace visualsearch
 		rgb val;
 		for(int y=0; y<height; y++)
 		{
+			const uchar* row_pt = img.ptr(y);
 			for(int x=0; x<width; x++)
 			{
-				val.b = img.at<cv::Vec3b>(y, x).val[0];
-				val.g = img.at<cv::Vec3b>(y, x).val[1];
-				val.r = img.at<cv::Vec3b>(y, x).val[2];
+				val.b = *row_pt++; //img.at<cv::Vec3b>(y, x).val[0];
+				val.g = *row_pt++; //img.at<cv::Vec3b>(y, x).val[1];
+				val.r = *row_pt++; //img.at<cv::Vec3b>(y, x).val[2];
 				input.access[y][x] = val;
 			}
 		}
@@ -101,8 +104,9 @@ namespace visualsearch
 			m_mean_img.setTo(cur_mean, cur_mask);
 		}
 
-		return num_ccs;
+		cout<<"Segmentation time: "<<(getTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
 
+		return num_ccs;
 	}
 
 	bool ImageSegmentor::ComputeAdjacencyMat(const std::vector<SuperPixel>& sps, cv::Mat& adjacencyMat)

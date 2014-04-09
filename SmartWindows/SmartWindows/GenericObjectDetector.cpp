@@ -9,9 +9,10 @@ GenericObjectDetector::GenericObjectDetector(void)
 	shiftCrit.epsilon = 0.0001f;
 
 	// detection window size
-	winconfs.push_back(WinConfig(100, 100));
-	winconfs.push_back(WinConfig(200, 200));
 	winconfs.push_back(WinConfig(100, 200));
+	//winconfs.push_back(WinConfig(200, 200));
+	winconfs.push_back(WinConfig(200, 300));
+	winconfs.push_back(WinConfig(300, 200));
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -22,26 +23,26 @@ bool GenericObjectDetector::Preprocess(const cv::Mat& color_img)
 	imgSize.height = color_img.rows;
 
 	// convert to gray
-	Mat grayimg;
-	cv::cvtColor(color_img, grayimg, CV_BGR2GRAY);
+	//Mat grayimg;
+	//cv::cvtColor(color_img, grayimg, CV_BGR2GRAY);
 
-	// compute gradient
-	Sobel(grayimg, Gx, CV_32F, 1, 0, 3);
-	double maxv, minv;
-	minMaxLoc(Gx, &minv, &maxv);
-	Sobel(grayimg, Gy, CV_32F, 0, 1, 3);
-	/*ImgVisualizer::DrawFloatImg("gx", Gx, Mat());
-	ImgVisualizer::DrawFloatImg("gy", Gy, Mat());*/
+	//// compute gradient
+	//Sobel(grayimg, Gx, CV_32F, 1, 0, 3);
+	//double maxv, minv;
+	//minMaxLoc(Gx, &minv, &maxv);
+	//Sobel(grayimg, Gy, CV_32F, 0, 1, 3);
+	///*ImgVisualizer::DrawFloatImg("gx", Gx, Mat());
+	//ImgVisualizer::DrawFloatImg("gy", Gy, Mat());*/
 
-	// magnitude
-	magnitude(Gx, Gy, Gmag);
-	ImgVisualizer::DrawFloatImg("gmag", Gmag, Mat());
+	//// magnitude
+	//magnitude(Gx, Gy, Gmag);
+	//ImgVisualizer::DrawFloatImg("gmag", Gmag, Mat());
 
-	phase(Gx, Gy, Gdir, true);
+	//phase(Gx, Gy, Gdir, true);
 
-	// compute integrals for gx, gy
-	cv::integral(Gx, integralGx, CV_64F);
-	cv::integral(Gy, integralGy, CV_64F);
+	//// compute integrals for gx, gy
+	//cv::integral(Gx, integralGx, CV_64F);
+	//cv::integral(Gy, integralGy, CV_64F);
 
 	// compute color integrals
 	cv::Mat labImg;
@@ -54,7 +55,6 @@ bool GenericObjectDetector::Preprocess(const cv::Mat& color_img)
 	// compute integrals
 	colorIntegrals.resize(3);
 	for(int i=0; i<3; i++) cv::integral(colorChannels[i], colorIntegrals[i], CV_64F);
-
 
 	// prepare data
 	/*FileInfos dmaps;
@@ -180,7 +180,7 @@ bool GenericObjectDetector::SampleWinLocs(const Point startPt, const WinConfig w
 		wins[i].height = winconf.height;
 	}
 
-	cout<<"Sampled window locations."<<endl;
+	//cout<<"Sampled window locations."<<endl;
 
 	return true;
 }
@@ -361,14 +361,94 @@ bool GenericObjectDetector::RunSlidingWin(const cv::Mat& color_img, Size winsz)
 	return true;
 }
 
-bool GenericObjectDetector::Run(const cv::Mat& color_img)
+bool GenericObjectDetector::Run(const cv::Mat& color_img, vector<ImgWin>& det_wins)
 {
 	if( !Preprocess(color_img) )
 		return false;
 
-	// test with simple sliding window
-	RunSlidingWin(color_img, Size(100, 100));
 
+	return true;
+}
+
+bool GenericObjectDetector::RunVOC()
+{
+
+	FileInfos imglist;
+	db_man.Init(DB_VOC07);
+	if( !db_man.GetImageList(imglist) )
+		return false;
+
+	for(size_t id=0; id<10; id++)
+	{
+		double start_t = getTickCount();
+
+		img = imread(imglist[id].filepath);
+
+		// preprocessing
+		Preprocess(img);
+
+		segmentor.DoSegmentation(img);
+		const vector<visualsearch::SuperPixel>& sps = segmentor.superPixels;
+
+		vector<ImgWin> det_wins;
+
+		// loop all segment
+		for (size_t sel_id=0; sel_id<sps.size(); sel_id++)
+		{
+			// test all window settings
+			for(size_t win_id=0; win_id<winconfs.size(); win_id++)
+			{
+				// compute adjust range
+				Point minpt, maxpt;
+				if( !WinLocRange(sps[sel_id].box, winconfs[win_id], minpt, maxpt) )
+					continue;
+
+				Point curpt(sps[sel_id].box.x+sps[sel_id].box.width/2, sps[sel_id].box.y+sps[sel_id].box.height/2);
+				double bestscore = 0;
+				ImgWin bestWin;
+				// do shifting
+				for(int i=0; i<10; i++)
+				{
+					// generate locations
+					vector<ImgWin> wins;
+					SampleWinLocs(curpt, winconfs[win_id], minpt, maxpt, 6, wins);
+					if(wins.empty())
+						continue;
+
+					for(size_t j=0; j<wins.size(); j++)
+						wins[j].score = ComputeCenterSurroundMeanColorDiff(wins[j]);
+
+					// sort
+					sort(wins.begin(), wins.end());
+
+					const ImgWin selWin = wins[wins.size()-1];
+					//cout<<"Best score: "<<selWin.score<<endl;
+					if(selWin.score > bestscore)
+					{
+						// shift to max point
+						curpt.x = selWin.x + selWin.width/2;
+						curpt.y = selWin.y + selWin.height/2;
+
+						// update
+						bestWin = selWin;
+					}
+				}
+
+				det_wins.push_back(bestWin);
+			}
+		}
+
+		sort(det_wins.begin(), det_wins.end());
+
+		cout<<"Time for image "<<id<<": "<<(getTickCount()-start_t) / getTickFrequency()<<"s"<<endl;
+
+		// visualize final results
+		reverse(det_wins.begin(), det_wins.end());
+
+		ImgVisualizer::DrawImgWins("final", img, det_wins);
+
+		waitKey(0);
+	}
 
 	return true;
 }

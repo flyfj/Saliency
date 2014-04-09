@@ -24,12 +24,11 @@ int main()
 	// process
 	double start_t = cv::getTickCount();
 	
-	detector.test();
+	detector.RunVOC();
 	//dbMan.BrowseDBImages();
 	//detector.Run(curimg);
 
 	std::cout<<"Process time: "<<(cv::getTickCount()-start_t) / cv::getTickFrequency()<<"s."<<std::endl;
-
 
 	cv::waitKey(0);
 	cv::destroyAllWindows();
