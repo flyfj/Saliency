@@ -75,6 +75,12 @@
     <ClInclude Include="gcgraph.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="a9wins\A9Window.h">
+      <Filter>a9wins</Filter>
+    </ClInclude>
+    <ClInclude Include="WindowEvaluator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -120,6 +126,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ColorGMM.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="a9wins\A9Window.cpp">
+      <Filter>a9wins</Filter>
+    </ClCompile>
+    <ClCompile Include="WindowEvaluator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

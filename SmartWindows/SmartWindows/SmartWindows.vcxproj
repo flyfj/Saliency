@@ -86,6 +86,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="a9wins\A9Window.h" />
     <ClInclude Include="a9wins\DisjointSet.h" />
     <ClInclude Include="a9wins\Rectangle.h" />
     <ClInclude Include="a9wins\SmartWindowing.h" />
@@ -104,8 +105,10 @@
     <ClInclude Include="RGBDTools.h" />
     <ClInclude Include="ShapeAnalyzer.h" />
     <ClInclude Include="Tools.h" />
+    <ClInclude Include="WindowEvaluator.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="a9wins\A9Window.cpp" />
     <ClCompile Include="a9wins\Rectangle.cpp" />
     <ClCompile Include="a9wins\SmartWindowing.cpp" />
     <ClCompile Include="ColorGMM.cpp" />
@@ -121,6 +124,7 @@
     <ClCompile Include="RGBDTools.cpp" />
     <ClCompile Include="ShapeAnalyzer.cpp" />
     <ClCompile Include="Tools.cpp" />
+    <ClCompile Include="WindowEvaluator.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

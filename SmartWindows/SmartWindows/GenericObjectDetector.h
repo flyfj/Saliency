@@ -11,6 +11,8 @@
 //#include "ImageSpaceManager.h"
 #include "DataManager/DatasetManager.h"
 #include "ObjectSegmentor.h"
+#include "a9wins/A9Window.h"
+#include "WindowEvaluator.h"
 
 
 struct WinConfig
@@ -36,6 +38,8 @@ private:
 
 	DatasetManager db_man;
 	visualsearch::ImageSegmentor segmentor;
+
+	A9Window a9win;
 
 	vector<WinConfig> winconfs;
 

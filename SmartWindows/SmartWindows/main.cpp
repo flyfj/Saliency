@@ -8,6 +8,7 @@
 #include "DataManager/DatasetManager.h"
 #include <string>
 #include "ObjectSegmentor.h"
+#include "a9wins/A9Window.h"
 using namespace std;
 
 int main()
@@ -24,7 +25,7 @@ int main()
 	// process
 	double start_t = cv::getTickCount();
 	
-	detector.RunVOC();
+	detector.test();
 	//dbMan.BrowseDBImages();
 	//detector.Run(curimg);
 

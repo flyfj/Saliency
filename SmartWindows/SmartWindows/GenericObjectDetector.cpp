@@ -196,9 +196,22 @@ bool GenericObjectDetector::test()
 	db_man.Init(DB_VOC07);
 	if( !db_man.GetImageList(imglist) )
 		return false;
-	img = imread(imglist[0].filepath);
+	map<string, vector<ImgWin>> gt_wins;
+	db_man.LoadGTWins(imglist, gt_wins);
+	img = imread(imglist[58].filepath);
 	//db_man.GetDepthmapList(imglist);
 	//db_man.LoadDepthData(imglist[0].filepath, depthMap);
+
+	vector<ImgWin> wins;
+	a9win.GenerateBlocks(img, wins);
+	ImgVisualizer::DrawImgWins("detection", img, wins);
+
+	WindowEvaluator wineval;
+	vector<ImgWin> bestWins;
+	wineval.FindBestWins(wins, gt_wins[imglist[58].filename], bestWins);
+	ImgVisualizer::DrawImgWins("matches", img, bestWins);
+
+	return true;
 
 	// preprocessing
 	Preprocess(img);
