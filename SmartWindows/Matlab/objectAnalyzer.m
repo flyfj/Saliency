@@ -1,13 +1,14 @@
 
-imgfile = 'E:\Datasets\RGBD Dataset\NYU\img\115_img.png';
-depthfile = 'E:\Datasets\RGBD Dataset\NYU\img\115_depth.txt';
+imgfile = 'E:\Datasets\RGBD_Dataset\NYU\img\115_img.png';
+depthfile = 'E:\Datasets\RGBD_Dataset\NYU\img\115_depth.txt';
 
 
 %% analyze boundary in images
 
-cimg = imread('red.jpg');
+cimg = imread(imgfile);
+dmap = load(depthfile);
 
-visualize_rgbd(cimg);
+visualize_rgbd(cimg, dmap);
 
 grayimg = rgb2gray(cimg);
 figure(1)

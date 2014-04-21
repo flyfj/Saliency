@@ -10,7 +10,7 @@ else
     usedepth = 1;
 end
 
-scale = 0.4;
+scale = 0.3;
 
 cimg = imresize(cimg, scale);
 
