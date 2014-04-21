@@ -397,12 +397,14 @@ void SplitImage(const cv::Mat& integral_image, size_t num_rectangles, std::vecto
 
     priority_queue.pop();
 
+	// first half
     split_type new_split;
     new_split.r = split.r1;
     new_split.s = split.s1;
     FindBestSplit<integral_type, sum_type>(integral_image, new_split);
     priority_queue.push(new_split);
 
+	// second half
     new_split.r = split.r2;
     new_split.s = split.s2;
     FindBestSplit<integral_type, sum_type>(integral_image, new_split);
