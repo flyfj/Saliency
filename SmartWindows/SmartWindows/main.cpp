@@ -13,20 +13,18 @@ using namespace std;
 
 int main()
 {
-	std::string imgdir = "E:\\Datasets\\VOC2007\\VOCtrainval_06-Nov-2007\\VOC2007\\JPEGImages\\";
-	std::string imgname = "000019";
-
 	ShapeAnalyzer shaper;
 	GenericObjectDetector detector;
 	DatasetManager dbMan;
-	dbMan.Init(DB_VOC07);
+	dbMan.Init(DB_BERKELEY3D);
 	visualsearch::ImageSegmentor segmentor;
 
 	// process
 	double start_t = cv::getTickCount();
 	
-	detector.test();
+	//detector.test();
 	//dbMan.BrowseDBImages();
+	dbMan.GenerateWinSamps();
 	//detector.Run(curimg);
 
 	std::cout<<"Process time: "<<(cv::getTickCount()-start_t) / cv::getTickFrequency()<<"s."<<std::endl;

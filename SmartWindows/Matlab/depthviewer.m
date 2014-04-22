@@ -22,7 +22,7 @@ function varargout = depthviewer(varargin)
 
 % Edit the above text to modify the response to help depthviewer
 
-% Last Modified by GUIDE v2.5 20-Apr-2014 19:44:18
+% Last Modified by GUIDE v2.5 21-Apr-2014 13:16:34
 
 % Begin initialization code - DO NOT EDIT
 gui_Singleton = 1;
@@ -42,7 +42,7 @@ else
     gui_mainfcn(gui_State, varargin{:});
 end
 % End initialization code - DO NOT EDIT
-
+end
 
 % --- Executes just before depthviewer is made visible.
 function depthviewer_OpeningFcn(hObject, eventdata, handles, varargin)
@@ -60,7 +60,7 @@ guidata(hObject, handles);
 
 % UIWAIT makes depthviewer wait for user response (see UIRESUME)
 % uiwait(handles.figure1);
-
+end
 
 % --- Outputs from this function are returned to the command line.
 function varargout = depthviewer_OutputFcn(hObject, eventdata, handles) 
@@ -71,6 +71,8 @@ function varargout = depthviewer_OutputFcn(hObject, eventdata, handles)
 
 % Get default command line output from handles structure
 varargout{1} = handles.output;
+
+end
 
 
 % --- Executes on slider movement.
@@ -96,6 +98,7 @@ imshow(sel_depth, 'Parent', handles.depth_th_axis);
 colormap jet
 colorbar
 
+end
 
 % --- Executes during object creation, after setting all properties.
 function depth_slider_CreateFcn(hObject, eventdata, handles)
@@ -108,6 +111,7 @@ if isequal(get(hObject,'BackgroundColor'), get(0,'defaultUicontrolBackgroundColo
     set(hObject,'BackgroundColor',[.9 .9 .9]);
 end
 
+end
 
 % --------------------------------------------------------------------
 function op_menu_Callback(hObject, eventdata, handles)
@@ -120,32 +124,52 @@ set(handles.depth_slider, 'Enable', 'On');
 set(handles.depth_slider, 'Value', 0);
 set(handles.slider_val_label, 'String', '0');
 
-[filename, pathname] = uigetfile('E:\Datasets\RGBD_Dataset\Berkeley\VOCB3DO\KinectColor\*.png; *.jpg; *.txt', 'Color Data');
-
+[filename, ~] = uigetfile('E:\Datasets\RGBD_Dataset\Berkeley\VOCB3DO\KinectColor\*.png; *.jpg; *.txt', 'Color Data');
 
 % color image
 cimgpath = ['E:\Datasets\RGBD_Dataset\Berkeley\VOCB3DO\KinectColor\' filename];
 handles.colorImg = imread(cimgpath);
 % show
 imshow(handles.colorImg, 'Parent', handles.color_axis);
-colormap jet
-colorbar
+% colormap jet
+% colorbar
+
+% compute color edge map
+grayimg = rgb2gray(handles.colorImg);
+[handles.colorEdgeMap, ~] = imgradient(grayimg, 'sobel');
+handles.colorEdgeMap = getnormimg(handles.colorEdgeMap);
+% show
+imshow(handles.colorEdgeMap, [], 'Parent', handles.color_edge_map);
+% colormap jet
+% colorbar
 
 % depth map
-[~, fname, ~] = fileparts(filename) 
+[~, fname, ~] = fileparts(filename);
 dmappath = ['E:\Datasets\RGBD_Dataset\Berkeley\VOCB3DO\RegisteredDepthData\' fname '_abs_smooth.png'];
 dmap = imread(dmappath);
 dmap = im2double(dmap);
-handles.depthImg = (dmap-min(dmap(:))) ./ (max(dmap(:))-min(dmap(:)))
+handles.depthImg = getnormimg(dmap);
 % show
 imshow(handles.depthImg, 'Parent', handles.depth_axis);
+% colormap jet
+% colorbar
+
+% depth edge map
+[handles.depthEdgeMap, ~] = imgradient(dmap, 'sobel');
+handles.depthEdgeMap = getnormimg(handles.depthEdgeMap);
+% show
+imshow(handles.depthEdgeMap, [], 'Parent', handles.depth_edge_map);
+% colormap jet
+% colorbar
+
+% combined edge map
+handles.fusedEdgeMap = sqrt(handles.colorEdgeMap.^2 + handles.depthEdgeMap.^2);
+handles.fusedEdgeMap = getnormimg(handles.fusedEdgeMap);
+imshow(handles.fusedEdgeMap, [], 'Parent', handles.fused_edge_map);
 colormap jet
 colorbar
-% show 3d depth
-% figure
-% surf(handles.depthImg, 'FaceColor', 'texturemap');
 
-
+% init label image
 labelimg = ones(size(dmap));
 imshow(labelimg, 'Parent', handles.depth_th_axis);
 colormap jet
@@ -154,4 +178,54 @@ colorbar
 % set data
 % handles.mindepth = min(min(handles.depthImg));
 % handles.maxdepth = max(max(handles.depthImg));
-guidata(hObject, handles);  % update
+% update
+guidata(hObject, handles);
+
+while 1
+    rect = getrect(handles.fused_edge_map);
+    % show normed gradient patch
+    smallimg = imcrop(handles.fusedEdgeMap, rect);
+    smallimg = imresize(smallimg, [8 8]);
+    smallimg = imresize(smallimg, [64, 64]);
+    smallimg = smallimg ./ max(smallimg(:));
+    h = figure(1);
+    imshow(smallimg)
+    hold on
+    pause
+    close(h)
+end
+
+end
+
+% reconstruct 3d point cloud from depth and compute normal vector for each
+% point
+function norm3d = computeNormalForDepthmap(depthimg)
+% create 3d point cloud
+invF = [594.21 0 320/594.21; 0 591.04 240/594.21; 0 0 1];
+
+% homogeneous coordinates
+[rows, cols] = find(depthimg>=0);
+dvals = depthimg(sub2ind(size(depthimg), rows, cols));
+homo_coord = [cols'; rows'; dvals'];
+dvalmap = [dvals'; dvals'; dvals'];
+homo_coord = homo_coord ./ dvalmap;
+
+% get local coordinates
+local_coord = invF \ homo_coord;
+local_coord = local_coord .* dvalmap;
+
+% show 3d
+% figure;
+% scatter3(local_coord(1,1:50:end), local_coord(2,1:50:end), local_coord(3,1:50:end)); 
+% hold on
+
+% compute normal
+norm3d = normnd(local_coord');
+
+end
+
+function normimg = getnormimg(img)
+
+normimg = (img-min(img(:))) ./ (max(img(:))-min(img(:)));
+
+end

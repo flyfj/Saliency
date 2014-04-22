@@ -46,7 +46,7 @@ public:
 	// loop over all images for visualization
 	void BrowseDBImages(bool showGT = true);
 	// generate positive and negative object windows
-	bool GenerateWinSamps(DatasetName dname);
+	bool GenerateWinSamps();
 
 };
 

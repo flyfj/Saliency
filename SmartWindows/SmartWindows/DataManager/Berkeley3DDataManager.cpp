@@ -29,8 +29,8 @@ bool Berkeley3DDataManager::LoadDepthData(const string& depthfile, cv::Mat& dept
 	fs["depth"] >> depthmap;
 	fs.release();*/
 
-	depthmap = cv::imread(depthfile, 0);
-	depthmap.convertTo(depthmap, CV_32F, 256);
+	depthmap = cv::imread(depthfile, CV_LOAD_IMAGE_UNCHANGED);
+	depthmap.convertTo(depthmap, CV_32F, 1);
 
 	return true;
 }
