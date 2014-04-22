@@ -131,13 +131,14 @@ bool DatasetManager::GenerateWinSamps()
 			{
 				Mat dobjimg = dmap(gtwins[cimgs[i].filename][j]);
 				ImgVisualizer::DrawFloatImg("dobj", dobjimg, Mat());
-				savefile = possave + cimgs[i].filename + string(str) + "_d.png";
-				dobjimg.convertTo(dobjimg, CV_16U);
-				imwrite(savefile, dobjimg);
+				savefile = possave + cimgs[i].filename + string(str) + "_d.xml";
+				FileStorage fs(savefile, FileStorage::WRITE);
+				fs<<"dmap"<<dobjimg;
+				fs.release();
 			}
 
-			waitKey(0);
-			destroyAllWindows();
+			//waitKey(0);
+			//destroyAllWindows();
 		}
 
 		// get negative windows
