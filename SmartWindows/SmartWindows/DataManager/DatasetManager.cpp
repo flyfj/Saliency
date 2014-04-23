@@ -161,8 +161,10 @@ bool DatasetManager::GenerateWinSamps()
 			Rect neg_win;
 			neg_win.x = rand() % (color_img.cols*2/3);
 			neg_win.y = rand() % (color_img.rows*2/3);
-			neg_win.width = rand() % (color_img.cols-neg_win.x);
-			neg_win.height = rand() % (color_img.rows-neg_win.y);
+			neg_win.width = rand() % (color_img.cols-neg_win.x) + 5;
+			neg_win.height = rand() % (color_img.rows-neg_win.y) + 5;
+			neg_win.width = MIN(color_img.cols-neg_win.x-1, neg_win.width);
+			neg_win.height = MIN(color_img.rows-neg_win.y-1, neg_win.height);
 
 			Mat objimg = color_img(neg_win);
 			imshow("neg_obj", objimg);

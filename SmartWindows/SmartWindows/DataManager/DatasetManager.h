@@ -10,7 +10,7 @@
 #include "DataManager/DataManagerInterface.h"
 #include "DataManager/VOCDataManager.h"
 #include "DataManager/Berkeley3DDataManager.h"
-
+#include "common.h"
 
 // a wrapper for managers of various datasets
 class DatasetManager: public DataManagerInterface
