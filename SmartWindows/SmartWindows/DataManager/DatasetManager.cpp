@@ -4,6 +4,26 @@
 
 //////////////////////////////////////////////////////////////////////////
 
+void DatasetManager::SaveMatToText(const cv::Mat& img, const string& filename)
+{
+	ofstream out(filename);
+	if( !out.is_open() || img.depth() != CV_32F )
+	{
+		cerr<<"Incorrect input."<<endl;
+		return;
+	}
+
+	for(int r=0; r<img.rows; r++)
+	{
+		for(int c=0; c<img.cols; c++)
+		{
+			out<<(c==0? "": " ")<<img.at<float>(r, c);
+		}
+		out<<endl;
+	}
+}
+
+//////////////////////////////////////////////////////////////////////////
 
 bool DatasetManager::Init(DatasetName dbname)
 {
@@ -120,9 +140,9 @@ bool DatasetManager::GenerateWinSamps()
 
 		// get positive windows
 		for(size_t j=0; j<gtwins[cimgs[i].filename].size(); j++)
-		{
+		{	
 			Mat objimg = color_img(gtwins[cimgs[i].filename][j]);
-			imshow("obj", objimg);
+			imshow("pos_obj", objimg);
 			sprintf(str, "%d", j);
 			string savefile = possave + cimgs[i].filename + string(str) + ".jpg";
 			imwrite(savefile, objimg);
@@ -130,20 +150,37 @@ bool DatasetManager::GenerateWinSamps()
 			if(useDepth)
 			{
 				Mat dobjimg = dmap(gtwins[cimgs[i].filename][j]);
-				ImgVisualizer::DrawFloatImg("dobj", dobjimg, Mat());
-				savefile = possave + cimgs[i].filename + string(str) + "_d.xml";
-				FileStorage fs(savefile, FileStorage::WRITE);
-				fs<<"dmap"<<dobjimg;
-				fs.release();
+				ImgVisualizer::DrawFloatImg("pos_dobj", dobjimg, Mat());
+				savefile = possave + cimgs[i].filename + string(str) + "_d.txt";
+				SaveMatToText(dobjimg, savefile);
 			}
-
-			//waitKey(0);
-			//destroyAllWindows();
 		}
+		// get negative windows (random)
+		for(size_t j=0; j<10; j++)
+		{
+			Rect neg_win;
+			neg_win.x = rand() % (color_img.cols*2/3);
+			neg_win.y = rand() % (color_img.rows*2/3);
+			neg_win.width = rand() % (color_img.cols-neg_win.x);
+			neg_win.height = rand() % (color_img.rows-neg_win.y);
 
-		// get negative windows
+			Mat objimg = color_img(neg_win);
+			imshow("neg_obj", objimg);
+			sprintf(str, "%d", j);
+			string savefile = negsave + cimgs[i].filename + string(str) + ".jpg";
+			imwrite(savefile, objimg);
 
-		if( waitKey(0) == 'q')
+			if(useDepth)
+			{
+				Mat dobjimg = dmap(neg_win);
+				ImgVisualizer::DrawFloatImg("neg_dobj", dobjimg, Mat());
+				savefile = negsave + cimgs[i].filename + string(str) + "_d.txt";
+				SaveMatToText(dobjimg, savefile);
+			}
+		}
+		
+
+		if( waitKey(10) == 'q')
 			break;
 
 		destroyAllWindows();

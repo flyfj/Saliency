@@ -147,8 +147,9 @@ imshow(handles.colorEdgeMap, [], 'Parent', handles.color_edge_map);
 [~, fname, ~] = fileparts(filename);
 dmappath = ['E:\Datasets\RGBD_Dataset\Berkeley\VOCB3DO\RegisteredDepthData\' fname '_abs_smooth.png'];
 dmap = imread(dmappath);
-dmap = im2double(dmap);
+dmap = double(dmap);
 handles.depthImg = getnormimg(dmap);
+computeNormalForDepthmap(dmap);
 % show
 imshow(handles.depthImg, 'Parent', handles.depth_axis);
 % colormap jet
@@ -201,18 +202,22 @@ end
 % point
 function norm3d = computeNormalForDepthmap(depthimg)
 % create 3d point cloud
-invF = [594.21 0 320/594.21; 0 591.04 240/594.21; 0 0 1];
+% invF = [594.21 0 320/594.21; 0 591.04 240/594.21; 0 0 1];
+% 
+% % homogeneous coordinates
+% [rows, cols] = find(depthimg>=0);
+% dvals = depthimg(sub2ind(size(depthimg), rows, cols));
+% homo_coord = [cols'; rows'; dvals'];
+% dvalmap = [dvals'; dvals'; dvals'];
+% homo_coord = homo_coord ./ dvalmap;
+% 
+% % get local coordinates
+% local_coord = invF \ homo_coord;
+% local_coord = local_coord .* dvalmap;
 
-% homogeneous coordinates
-[rows, cols] = find(depthimg>=0);
-dvals = depthimg(sub2ind(size(depthimg), rows, cols));
-homo_coord = [cols'; rows'; dvals'];
-dvalmap = [dvals'; dvals'; dvals'];
-homo_coord = homo_coord ./ dvalmap;
+[pcl, ~] = depthToCloud(depthimg);
 
-% get local coordinates
-local_coord = invF \ homo_coord;
-local_coord = local_coord .* dvalmap;
+SavePointCloudPLY('samp.ply', pcl);
 
 % show 3d
 % figure;
@@ -220,9 +225,26 @@ local_coord = local_coord .* dvalmap;
 % hold on
 
 % compute normal
-norm3d = normnd(local_coord');
+%norm3d = normnd(local_coord');
 
 end
+
+function SavePointCloudPLY(savefile, model_data)
+
+% output to ply file for rendering
+fn = savefile;
+fp = fopen(fn, 'w');
+fprintf(fp, 'ply\nformat ascii 1.0\nelement vertex %d\nproperty float32 x\nproperty float32 y\nproperty float32 z\n', size(model_data, 1)*size(model_data, 2));
+fprintf(fp, 'end_header\n\n');
+for i = 1:size(model_data, 1)
+    for j=1:size(model_data, 2)
+        fprintf(fp, '%f %f %f\n', model_data(i,j,1:3));
+    end
+end
+fclose(fp);
+
+end
+
 
 function normimg = getnormimg(img)
 

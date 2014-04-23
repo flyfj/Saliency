@@ -21,6 +21,8 @@ private:
 
 	DataManagerInterface* db_man;
 
+	void SaveMatToText(const cv::Mat& img, const string& filename);
+
 public:
 
 	DatasetManager() { Init(DB_VOC07); }
