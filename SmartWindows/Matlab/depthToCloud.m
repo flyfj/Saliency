@@ -21,14 +21,14 @@ depth(depth == 0) = nan;
 % RGB-D camera constants
 center = [320 240];
 [imh, imw] = size(depth);
-constant = 570.3;
+constant = 585.6;   %570.3;
 MM_PER_M = 1000;
 
 % convert depth image to 3d point clouds
 pcloud = zeros(imh,imw,3);
 xgrid = ones(imh,1)*(1:imw) + (topleft(1)-1) - center(1);
 ygrid = (1:imh)'*ones(1,imw) + (topleft(2)-1) - center(2);
-pcloud(:,:,1) = xgrid.*depth/constant/MM_PER_M;
+pcloud(:,:,1) = xgrid.*depth/constant/MM_PER_M; % convert to meter
 pcloud(:,:,2) = ygrid.*depth/constant/MM_PER_M;
 pcloud(:,:,3) = depth/MM_PER_M;
 distance = sqrt(sum(pcloud.^2,3));
