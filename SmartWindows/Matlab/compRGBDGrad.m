@@ -10,8 +10,8 @@ cgrad = getnormimg(cgrad);
 dimg = double(dimg);
 [dgrad, ~] = imgradient(dimg, 'sobel');
 dgrad = getnormimg(dgrad);
-imshow(dgrad)
-pause
+% imshow(dgrad)
+% pause
 
 % combine
 gradimg = sqrt(cgrad.^2 + dgrad.^2);
