@@ -34,3 +34,14 @@ pcloud(:,:,2) = ygrid.*depth/constant/MM_PER_M;
 pcloud(:,:,3) = depth/MM_PER_M;
 distance = sqrt(sum(pcloud.^2,3));
 
+% convert to 1D array
+v = zeros(3, imh*imw);
+cnt = 1;
+for i=1:imh
+    for j=1:imw
+        v(:, cnt) = pcloud(i, j, :);
+        cnt = cnt + 1;
+    end
+end
+
+pcloud = v;

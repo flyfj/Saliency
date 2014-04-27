@@ -124,9 +124,10 @@ set(handles.depth_slider, 'Enable', 'On');
 set(handles.depth_slider, 'Value', 0);
 set(handles.slider_val_label, 'String', '0');
 
-datapath = 'E:\Datasets\objectness\pos\';
+datapath = 'E:\Datasets\objectness\b3d_pos\';
 [filename, ~] = uigetfile([datapath '\*.jpg'], 'Color Data');
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % color image
 cimgpath = [datapath filename];
 handles.colorImg = imread(cimgpath);
@@ -144,13 +145,19 @@ imshow(handles.colorEdgeMap, [], 'Parent', handles.color_edge_map);
 % colormap jet
 % colorbar
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % depth map
 [~, fname, ~] = fileparts(filename);
 dmappath = [datapath fname '_d.txt'];
 dmap = load(dmappath);
 dmap = double(dmap);
 handles.depthImg = getnormimg(dmap);
-computeNormalForDepthmap(dmap);
+% convert to point cloud
+[pcl, ~] = depthToCloud(dmap);
+mesh.v = pcl;
+mesh.vn = size(pcl, 2);
+SavePointCloudPLY([datapath fname '.ply'], mesh.v);
+
 % show
 imshow(handles.depthImg, 'Parent', handles.depth_axis);
 % colormap jet
@@ -164,6 +171,18 @@ imshow(handles.depthEdgeMap, [], 'Parent', handles.depth_edge_map);
 % colormap jet
 % colorbar
 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% draw normal vector
+config.k = 10;
+mesh = computeNeighbors(config, mesh);
+mesh.n = -mesh.n;
+%DrawNormalVectors(mesh);
+nmap = ComputeNormalBoundaryMap(mesh, size(dmap, 2), size(dmap, 1));
+figure
+nmap = nmap ./ max(nmap(:));
+imshow(nmap)
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % combined edge map
 handles.fusedEdgeMap = sqrt(handles.colorEdgeMap.^2 + handles.depthEdgeMap.^2);
 handles.fusedEdgeMap = getnormimg(handles.fusedEdgeMap);
@@ -190,7 +209,7 @@ while 1
     smallimg = imresize(smallimg, [8 8]);
     smallimg = imresize(smallimg, [64, 64]);
     smallimg = smallimg ./ max(smallimg(:));
-    h = figure(1);
+    h = figure(13);
     imshow(smallimg)
     hold on
     pause
@@ -216,6 +235,7 @@ function norm3d = computeNormalForDepthmap(depthimg)
 % local_coord = invF \ homo_coord;
 % local_coord = local_coord .* dvalmap;
 
+% 
 [pcl, ~] = depthToCloud(depthimg);
 
 SavePointCloudPLY('samp.ply', pcl);
@@ -230,17 +250,55 @@ SavePointCloudPLY('samp.ply', pcl);
 
 end
 
+function DrawNormalVectors(mesh)
+
+ids = 1:10:size(mesh.v, 2);
+figure(33)
+scatter3(mesh.v(1,ids), mesh.v(2,ids), mesh.v(3,ids))
+hold on
+quiver3(mesh.v(1, ids), mesh.v(2,ids), mesh.v(3,ids), mesh.n(1,ids), mesh.n(2,ids), mesh.n(3,ids))
+hold on
+pause
+hold off
+
+end
+
+function nmap = ComputeNormalBoundaryMap(mesh, imgw, imgh)
+% compute a boundary map using normal vectors in each pixel
+% convert to 2d
+ns = zeros(imgh, imgw, 3);
+cnt = 1;
+for i=1:imgh
+    for j=1:imgw
+        ns(i, j, :) = mesh.n(:, cnt);
+        cnt = cnt + 1;
+    end
+end
+
+% compute a 3d boundary map by checking each pixel normal with its
+% neighbors
+nmap = zeros(imgh, imgw);
+for i=2:imgh-1
+    for j=2:imgw-1
+        ln = ns(i, j,:)-ns(i,j-1,:);
+        tn = ns(i,j,:)-ns(i-1,j,:);
+        rn = ns(i, j,:)-ns(i,j+1,:);
+        bn = ns(i, j,:)-ns(i+1,j,:);
+        nmap(i,j) = norm(ln(:)) + norm(tn(:)) + norm(rn(:)) + norm(bn(:));
+    end
+end
+
+end
+
 function SavePointCloudPLY(savefile, model_data)
 
 % output to ply file for rendering
 fn = savefile;
 fp = fopen(fn, 'w');
-fprintf(fp, 'ply\nformat ascii 1.0\nelement vertex %d\nproperty float32 x\nproperty float32 y\nproperty float32 z\n', size(model_data, 1)*size(model_data, 2));
+fprintf(fp, 'ply\nformat ascii 1.0\nelement vertex %d\nproperty float32 x\nproperty float32 y\nproperty float32 z\n', size(model_data,2));
 fprintf(fp, 'end_header\n\n');
-for i = 1:size(model_data, 1)
-    for j=1:size(model_data, 2)
-        fprintf(fp, '%f %f %f\n', model_data(i,j,1:3));
-    end
+for j=1:size(model_data, 2)
+    fprintf(fp, '%f %f %f\n', model_data(:,j));
 end
 fclose(fp);
 

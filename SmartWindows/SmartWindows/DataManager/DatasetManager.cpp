@@ -106,8 +106,8 @@ bool DatasetManager::GenerateWinSamps()
 {
 	char str[100];
 	
-	string possave = DB_ROOT + "Datasets\\objectness\\voc_pos\\";
-	string negsave = DB_ROOT + "Datasets\\objectness\\voc_neg\\";
+	string possave = DB_ROOT + "Datasets\\objectness\\b3d_pos\\";
+	string negsave = DB_ROOT + "Datasets\\objectness\\b3d_neg\\";
 	_mkdir(possave.c_str());
 	_mkdir(negsave.c_str());
 
