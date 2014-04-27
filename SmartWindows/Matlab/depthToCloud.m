@@ -19,7 +19,8 @@ depth= double(depth);
 depth(depth == 0) = nan;
 
 % RGB-D camera constants
-center = [320 240];
+% center = [320 240];
+center = size(depth) ./ 2;
 [imh, imw] = size(depth);
 constant = 585.6;   %570.3;
 MM_PER_M = 1000;

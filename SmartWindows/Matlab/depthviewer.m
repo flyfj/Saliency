@@ -124,10 +124,11 @@ set(handles.depth_slider, 'Enable', 'On');
 set(handles.depth_slider, 'Value', 0);
 set(handles.slider_val_label, 'String', '0');
 
-[filename, ~] = uigetfile('E:\Datasets\RGBD_Dataset\Berkeley\VOCB3DO\KinectColor\*.png; *.jpg; *.txt', 'Color Data');
+datapath = 'E:\Datasets\objectness\pos\';
+[filename, ~] = uigetfile([datapath '\*.jpg'], 'Color Data');
 
 % color image
-cimgpath = ['E:\Datasets\RGBD_Dataset\Berkeley\VOCB3DO\KinectColor\' filename];
+cimgpath = [datapath filename];
 handles.colorImg = imread(cimgpath);
 % show
 imshow(handles.colorImg, 'Parent', handles.color_axis);
@@ -145,8 +146,8 @@ imshow(handles.colorEdgeMap, [], 'Parent', handles.color_edge_map);
 
 % depth map
 [~, fname, ~] = fileparts(filename);
-dmappath = ['E:\Datasets\RGBD_Dataset\Berkeley\VOCB3DO\RegisteredDepthData\' fname '_abs_smooth.png'];
-dmap = imread(dmappath);
+dmappath = [datapath fname '_d.txt'];
+dmap = load(dmappath);
 dmap = double(dmap);
 handles.depthImg = getnormimg(dmap);
 computeNormalForDepthmap(dmap);
