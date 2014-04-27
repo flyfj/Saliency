@@ -1,14 +1,16 @@
 
 % params
-posdir = 'E:\Datasets\objectness\pos\';
-negdir = 'E:\Datasets\objectness\neg\';
+posdir = 'E:\Datasets\objectness\voc_pos\';
+negdir = 'E:\Datasets\objectness\voc_neg\';
 
 
 %% load data and compute features
+datafile = 'vod_objdata.mat';
+usedepth = 0;
 
-if exist('objdata.mat', 'file')
+if exist(datafile, 'file')
 
-    objdata = load('objdata.mat');
+    objdata = load(datafile);
     posdata = objdata.posdata;
     negdata = objdata.negdata;
 
@@ -17,6 +19,7 @@ else
 % positive samples
 poscimgs = dir([posdir '*.jpg']);
 poscn = length(poscimgs);
+poscn = floor(poscn / 100);
 
 showimg = 0;
 
@@ -25,16 +28,21 @@ for i=1:poscn
     cfn = poscimgs(i).name;
     cimg = imread([posdir cfn]);
     [~, tfn, ~] = fileparts(cfn);
-    dfn = [tfn '_d.txt'];
-    dimg = load([posdir dfn]);
-    dimg = double(dimg);
+    dimg = [];
+    if(usedepth==1)
+        dfn = [tfn '_d.txt'];
+        dimg = load([posdir dfn]);
+        dimg = double(dimg);
+    end
     
-    assert(size(cimg,1) == size(dimg, 1) && size(cimg, 2) == size(dimg, 2));
+    %assert(size(cimg,1) == size(dimg, 1) && size(cimg, 2) == size(dimg, 2));
     
     gradimg = compRGBDGrad(cimg, dimg);
     gradimg = imresize(gradimg, [8, 8]);
     posdata(i, :) = gradimg(:);
-    dimg = dimg ./ max(dimg(:));
+    gradimg = gradimg ./ max(gradimg(:));
+    gradimg = imresize(gradimg, [64, 64]);
+    %dimg = dimg ./ max(dimg(:));
     
     if showimg == 1
         figure(1)
@@ -57,20 +65,24 @@ negcimgs = dir([negdir '*.jpg']);
 negdimgs = dir([negdir '*.txt']);
 negcn = length(negcimgs);
 negdn = length(negdimgs);
+negcn = floor(negcn / 100);
 
 negdata = zeros(negcn, 64);
 for i=1:negcn
     cfn = negcimgs(i).name;
     cimg = imread([negdir cfn]);
     [~, tfn, ~] = fileparts(cfn);
-    dfn = [tfn '_d.txt'];
-    dimg = load([negdir dfn]);
-    dimg = double(dimg);
+    dimg = [];
+    if(usedepth == 1)
+        dfn = [tfn '_d.txt'];
+        dimg = load([negdir dfn]);
+        dimg = double(dimg);
+    end
     
     gradimg = compRGBDGrad(cimg, dimg);
     gradimg = imresize(gradimg, [8, 8]);
     negdata(i, :) = gradimg(:);
-    dimg = dimg ./ max(dimg(:));
+%     dimg = dimg ./ max(dimg(:));
     
     if showimg == 1
         figure(1)
@@ -87,26 +99,30 @@ for i=1:negcn
     
 end
 
-save('objdata.mat', 'posdata', 'negdata');
+save(datafile, 'posdata', 'negdata');
 
 end
 
 %% train svm
 
-addpath('libsvm');
+%addpath(genpath('libsvm'));
 % select 80% samples as training data
 posnum = size(posdata, 1);
 posbound = floor(posnum*0.8);
 negnum = size(negdata, 1);
 negbound = floor(negnum*0.8);
 traindata = [posdata(1:posbound, :); negdata(1:negbound, :)];
-testdata = [posdata(posbound+1:end, :); negdata(negbound+1, :)];
+testdata = [posdata(posbound+1:end, :); negdata(negbound+1:end, :)];
 trainlabels = [ones(posbound, 1); zeros(negbound, 1)-1];
-testlabels = [ones(posnum-posbound+1, 1); zeros(negnum-negbound+1, 1)-1];
+testlabels = [ones(posnum-posbound, 1); zeros(negnum-negbound, 1)-1];
 
-svmmodel = svmtrain( trainlabels, traindata, '-t 0');
+options.MaxIter = 150000;
+svmStruct = svmtrain(traindata, trainlabels);
 
 
 %% testing
 
-[pred_labels, accuracy, scores] = svmpredict(testlabels, testdata, svmmodel);
+C = svmclassify(svmStruct, testdata);
+err_rate = sum(testlabels ~= C) / length(testlabels);
+
+

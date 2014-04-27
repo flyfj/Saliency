@@ -106,8 +106,8 @@ bool DatasetManager::GenerateWinSamps()
 {
 	char str[100];
 	
-	string possave = DB_ROOT + "Datasets\\objectness\\pos\\";
-	string negsave = DB_ROOT + "Datasets\\objectness\\neg\\";
+	string possave = DB_ROOT + "Datasets\\objectness\\voc_pos\\";
+	string negsave = DB_ROOT + "Datasets\\objectness\\voc_neg\\";
 	_mkdir(possave.c_str());
 	_mkdir(negsave.c_str());
 
@@ -150,9 +150,12 @@ bool DatasetManager::GenerateWinSamps()
 			if(useDepth)
 			{
 				Mat dobjimg = dmap(gtwins[cimgs[i].filename][j]);
-				ImgVisualizer::DrawFloatImg("pos_dobj", dobjimg, Mat());
+				Mat dimg;
+				ImgVisualizer::DrawFloatImg("pos_dobj", dobjimg, dimg);
 				savefile = possave + cimgs[i].filename + string(str) + "_d.txt";
 				SaveMatToText(dobjimg, savefile);
+				savefile = possave + cimgs[i].filename + string(str) + "_d.png";
+				imwrite(savefile, dimg);
 			}
 		}
 		// get negative windows (random)
@@ -175,9 +178,12 @@ bool DatasetManager::GenerateWinSamps()
 			if(useDepth)
 			{
 				Mat dobjimg = dmap(neg_win);
-				ImgVisualizer::DrawFloatImg("neg_dobj", dobjimg, Mat());
+				Mat dimg;
+				ImgVisualizer::DrawFloatImg("neg_dobj", dobjimg, dimg);
 				savefile = negsave + cimgs[i].filename + string(str) + "_d.txt";
 				SaveMatToText(dobjimg, savefile);
+				savefile = negsave + cimgs[i].filename + string(str) + "_d.png";
+				imwrite(savefile, dimg);
 			}
 		}
 		
