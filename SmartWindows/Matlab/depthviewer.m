@@ -173,14 +173,15 @@ imshow(handles.depthEdgeMap, [], 'Parent', handles.depth_edge_map);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % draw normal vector
-config.k = 10;
-mesh = computeNeighbors(config, mesh);
-mesh.n = -mesh.n;
-%DrawNormalVectors(mesh);
-nmap = ComputeNormalBoundaryMap(mesh, size(dmap, 2), size(dmap, 1));
-figure
-nmap = nmap ./ max(nmap(:));
-imshow(nmap)
+% config.k = 10;
+% mesh = computeNeighbors(config, mesh);
+% mesh.n = -mesh.n;
+% % DrawNormalVectors(mesh);
+% 
+% nmap = ComputeNormalBoundaryMap(mesh, size(dmap, 2), size(dmap, 1));
+% figure
+% nmap = nmap ./ max(nmap(:));
+% imshow(nmap)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % combined edge map
