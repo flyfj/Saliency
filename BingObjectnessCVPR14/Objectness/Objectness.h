@@ -91,7 +91,7 @@ private: // Help functions
 	inline string strVec4i(const Vec4i &v) const {return format("%d, %d, %d, %d", v[0], v[1], v[2], v[3]);}
 
 	void generateTrianData();
-	void trainStageI();
+	void trainStageI();	// train svm from samples
 	void trainStateII(int numPerSz = 100);
 	void predictBBoxSI(CMat &mag3u, ValStructVec<float, Vec4i> &valBoxes, vecI &sz, int NUM_WIN_PSZ = 100, bool fast = true);
 	void predictBBoxSII(ValStructVec<float, Vec4i> &valBoxes, const vecI &sz);

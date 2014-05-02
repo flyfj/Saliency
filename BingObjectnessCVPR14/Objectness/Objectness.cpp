@@ -318,7 +318,7 @@ void Objectness::generateTrianData()
 	vector<vecI> szTrainP(NUM_TRAIN); // Corresponding size index. 
 	const int NUM_NEG_BOX = 100; // Number of negative windows sampled from each image
 
-#pragma omp parallel for
+//#pragma omp parallel for
 	for (int i = 0; i < NUM_TRAIN; i++)	{
 		const int NUM_GT_BOX = (int)_voc.gtTrainBoxes[i].size();
 		vector<Mat> &xP = xTrainP[i], &xN = xTrainN[i];
@@ -336,6 +336,13 @@ void Objectness::generateTrianData()
 				bbs[j][2] = min(bbs[j][2], im3u.cols);
 				bbs[j][3] = min(bbs[j][3], im3u.rows);
 				Mat mag1f = getFeature(im3u, bbs[j]), magF1f;
+				cout<<mag1f<<endl;
+				resize(mag1f, mag1f, Size(64, 64));
+				mag1f.convertTo(mag1f, CV_8U);
+				imshow("img", im3u(Rect(bbs[j].val[0], bbs[j].val[1], bbs[j].val[2]-bbs[j].val[0], bbs[j].val[3]-bbs[j].val[1])));
+				imshow("mag1f", mag1f);
+				waitKey(0);
+				destroyAllWindows();
 				flip(mag1f, magF1f, CV_FLIP_HORIZONTAL);
 				xP.push_back(mag1f);
 				xP.push_back(magF1f);
@@ -707,6 +714,7 @@ void Objectness::getObjBndBoxesForTests(vector<vector<Vec4i>> &_boxesTests, int 
 
 
 // Get potential bounding boxes for all test images
+// numDetPerSize: number of detection per window size?
 void Objectness::getObjBndBoxesForTestsFast(vector<vector<Vec4i>> &_boxesTests, int numDetPerSize)
 {
 	//setColorSpace(HSV);
@@ -746,10 +754,12 @@ void Objectness::getObjBndBoxesForTestsFast(vector<vector<Vec4i>> &_boxesTests, 
 		ValStructVec<float, Vec4i> &boxes = boxesTests[i];
 		FILE *f = fopen(_S(fName + ".txt"), "w");
 		fprintf(f, "%d\n", boxes.size());
+		// output score and box
 		for (size_t k = 0; k < boxes.size(); k++)
 			fprintf(f, "%g, %s\n", boxes(k), _S(strVec4i(boxes[k])));
 		fclose(f);
 
+		// copy sorted results to output
 		_boxesTests[i].resize(boxesTests[i].size());
 		for (int j = 0; j < boxesTests[i].size(); j++)
 			_boxesTests[i][j] = boxesTests[i][j];

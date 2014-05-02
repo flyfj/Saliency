@@ -1,11 +1,11 @@
 
 % params
-posdir = 'E:\Datasets\objectness\voc_pos\';
-negdir = 'E:\Datasets\objectness\voc_neg\';
+posdir = 'E:\Datasets\objectness\pos\';
+negdir = 'E:\Datasets\objectness\neg\';
 
 
 %% load data and compute features
-datafile = 'vod_objdata.mat';
+datafile = 'objdata_b3dcolor.mat';
 usedepth = 0;
 
 if exist(datafile, 'file')
@@ -19,7 +19,7 @@ else
 % positive samples
 poscimgs = dir([posdir '*.jpg']);
 poscn = length(poscimgs);
-poscn = floor(poscn / 100);
+poscn = floor(poscn / 1);
 
 showimg = 0;
 
@@ -65,7 +65,7 @@ negcimgs = dir([negdir '*.jpg']);
 negdimgs = dir([negdir '*.txt']);
 negcn = length(negcimgs);
 negdn = length(negdimgs);
-negcn = floor(negcn / 100);
+negcn = floor(negcn / 1);
 
 negdata = zeros(negcn, 64);
 for i=1:negcn
@@ -117,7 +117,7 @@ trainlabels = [ones(posbound, 1); zeros(negbound, 1)-1];
 testlabels = [ones(posnum-posbound, 1); zeros(negnum-negbound, 1)-1];
 
 options.MaxIter = 150000;
-svmStruct = svmtrain(traindata, trainlabels);
+svmStruct = svmtrain(traindata, trainlabels, 'kernel_function', 'mlp');
 
 
 %% testing
