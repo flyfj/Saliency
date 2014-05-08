@@ -21,6 +21,7 @@ DataSetVOC::DataSetVOC(CStr &_wkDir)
 
 	trainNum = trainSet.size();
 	testNum = testSet.size();
+	cout<<trainNum<<" "<<testNum<<endl;
 }
 
 
