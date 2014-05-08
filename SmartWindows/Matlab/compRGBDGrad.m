@@ -4,7 +4,9 @@ function gradimg = compRGBDGrad( cimg, dimg )
 
 
 grayimg = rgb2gray(cimg);
-[cgrad, ~] = imgradient(grayimg, 'sobel');
+[Ix, Iy] = imgradientxy(grayimg, 'sobel');
+cgrad = abs(Ix) + abs(Iy);
+%[cgrad, ~] = imgradient(grayimg, 'sobel');
 %cgrad = getnormimg(cgrad);
 
 % dimg = double(dimg);

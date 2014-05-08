@@ -352,10 +352,10 @@ void Objectness::generateTrianData()
 				resize(roigray, roigray, Size(_W, _W));
 				Sobel(roigray, mag3fx, CV_32F, 1, 0);
 				Sobel(roigray, mag3fy, CV_32F, 0, 1);
-				
+				//magnitude(mag3fx, mag3fy, mag3fx);
 				mag3fx = abs(mag3fy) + abs(mag3fx);
-				min(mag3fx, 255, mag3fx);
-				cout<<mag3fx<<endl;
+				//min(mag3fx, 255, mag3fx);
+				//cout<<mag3fx<<endl;
 				resize(mag3fx, mag3fx, Size(64, 64));
 				mag3fx.convertTo(mag3fx, CV_8U);
 
