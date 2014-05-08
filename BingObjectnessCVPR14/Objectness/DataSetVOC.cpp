@@ -134,20 +134,17 @@ DataSetVOC::~DataSetVOC(void)
 
 void DataSetVOC::loadAnnotations()
 {
-	// load training gt
 	gtTrainBoxes.resize(trainNum);
 	gtTrainClsIdx.resize(trainNum);
 	for (int i = 0; i < trainNum; i++)
 		if (!loadBBoxes(trainSet[i], gtTrainBoxes[i], gtTrainClsIdx[i]))
 			return;
 
-	// load testing gt
 	gtTestBoxes.resize(testNum);
 	gtTestClsIdx.resize(testNum);
 	for (int i = 0; i < testNum; i++)
 		if(!loadBBoxes(testSet[i], gtTestBoxes[i], gtTestClsIdx[i]))
 			return;
-
 	printf("Load annotations finished\n");
 }
 

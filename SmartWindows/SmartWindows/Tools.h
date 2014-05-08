@@ -54,4 +54,18 @@ public:
 	static double GetIntegralValue(const cv::Mat& integralImg, cv::Rect box);
 
 	static Rect RefineBox(Rect inBox, Size rangeLimit);
+
+	static float ComputeWinMatchScore(const Rect& qwin, const Rect& gwin)
+	{
+		Rect box1(qwin.x, qwin.y, qwin.width, qwin.height);
+		Rect box2(gwin.x, gwin.y, gwin.width, gwin.height);
+
+		Rect interBox = box1 & box2;
+		Rect unionBox = box1 | box2;
+
+		if(unionBox.area() > 0)
+			return (float)interBox.area() / unionBox.area();
+		else
+			return 0;
+	}
 };

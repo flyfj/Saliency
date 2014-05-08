@@ -139,8 +139,10 @@ bool DatasetManager::GenerateWinSamps()
 		}
 
 		// get positive windows
+		vector<ImgWin> pos_wins(gtwins[cimgs[i].filename].size());
 		for(size_t j=0; j<gtwins[cimgs[i].filename].size(); j++)
 		{	
+			pos_wins[j] = gtwins[cimgs[i].filename][j];
 			Mat objimg = color_img(gtwins[cimgs[i].filename][j]);
 			imshow("pos_obj", objimg);
 			sprintf(str, "%d", j);
@@ -168,6 +170,11 @@ bool DatasetManager::GenerateWinSamps()
 			neg_win.height = rand() % (color_img.rows-neg_win.y) + 5;
 			neg_win.width = MIN(color_img.cols-neg_win.x-1, neg_win.width);
 			neg_win.height = MIN(color_img.rows-neg_win.y-1, neg_win.height);
+
+			// check overlap with pos window
+			for(size_t k=0; k<pos_wins.size(); k++)
+				if(ToolFactory::ComputeWinMatchScore(neg_win, pos_wins[k]) > 0.3f)
+				{  break; continue; }
 
 			Mat objimg = color_img(neg_win);
 			imshow("neg_obj", objimg);

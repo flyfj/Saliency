@@ -12,13 +12,14 @@ class WindowEvaluator
 {
 private:
 
-	float ComputeWinMatchScore(const ImgWin& qwin, const ImgWin& gwin);
 
 public:
 
 	string gtdir;
 
 	WindowEvaluator(void);
+
+	static float ComputeWinMatchScore(const ImgWin& qwin, const ImgWin& gwin);
 
 	// best matched detection windows with ground truth
 	bool FindBestWins(const vector<ImgWin>& det_wins, const vector<ImgWin>& gt_wins, vector<ImgWin>& bestWins);

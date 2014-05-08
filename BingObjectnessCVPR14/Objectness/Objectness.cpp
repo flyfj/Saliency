@@ -336,11 +336,15 @@ void Objectness::generateTrianData()
 				bbs[j][2] = min(bbs[j][2], im3u.cols);
 				bbs[j][3] = min(bbs[j][3], im3u.rows);
 				Mat mag1f = getFeature(im3u, bbs[j]), magF1f;
-				cout<<mag1f<<endl;
 				resize(mag1f, mag1f, Size(64, 64));
 				mag1f.convertTo(mag1f, CV_8U);
+				_Clr = G;
+				Mat mag2f = getFeature(im3u, bbs[j]);
+				resize(mag2f, mag2f, Size(64, 64));
+				mag2f.convertTo(mag2f, CV_8U);
 				imshow("img", im3u(Rect(bbs[j].val[0], bbs[j].val[1], bbs[j].val[2]-bbs[j].val[0], bbs[j].val[3]-bbs[j].val[1])));
 				imshow("mag1f", mag1f);
+				imshow("mag2f", mag2f);
 				waitKey(0);
 				destroyAllWindows();
 				flip(mag1f, magF1f, CV_FLIP_HORIZONTAL);
