@@ -336,15 +336,33 @@ void Objectness::generateTrianData()
 				bbs[j][2] = min(bbs[j][2], im3u.cols);
 				bbs[j][3] = min(bbs[j][3], im3u.rows);
 				Mat mag1f = getFeature(im3u, bbs[j]), magF1f;
+				cout<<mag1f<<endl;
 				resize(mag1f, mag1f, Size(64, 64));
 				mag1f.convertTo(mag1f, CV_8U);
 				_Clr = G;
 				Mat mag2f = getFeature(im3u, bbs[j]);
 				resize(mag2f, mag2f, Size(64, 64));
 				mag2f.convertTo(mag2f, CV_8U);
+
+				// test opencv edge
+				Mat mag3fx, mag3fy, roigray;
+				int x = bbs[j][0] - 1, y = bbs[j][1] - 1;
+				Rect reg(x, y, bbs[j][2] -  x, bbs[j][3] - y);
+				cvtColor(im3u(reg), roigray, CV_BGR2GRAY);
+				resize(roigray, roigray, Size(_W, _W));
+				Sobel(roigray, mag3fx, CV_32F, 1, 0);
+				Sobel(roigray, mag3fy, CV_32F, 0, 1);
+				
+				mag3fx = abs(mag3fy) + abs(mag3fx);
+				min(mag3fx, 255, mag3fx);
+				cout<<mag3fx<<endl;
+				resize(mag3fx, mag3fx, Size(64, 64));
+				mag3fx.convertTo(mag3fx, CV_8U);
+
 				imshow("img", im3u(Rect(bbs[j].val[0], bbs[j].val[1], bbs[j].val[2]-bbs[j].val[0], bbs[j].val[3]-bbs[j].val[1])));
 				imshow("mag1f", mag1f);
 				imshow("mag2f", mag2f);
+				imshow("mag3f", mag3fx);
 				waitKey(0);
 				destroyAllWindows();
 				flip(mag1f, magF1f, CV_FLIP_HORIZONTAL);
