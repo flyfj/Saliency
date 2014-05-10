@@ -1,11 +1,11 @@
 
 % params
-posdir = 'E:\Datasets\objectness\pos\';
-negdir = 'E:\Datasets\objectness\neg\';
+posdir = 'E:\Datasets\objectness\voc07_pos\';
+negdir = 'E:\Datasets\objectness\voc07_neg\';
 
 
 %% load data and compute features
-datafile = 'objdata_b3dcolor.mat';
+datafile = 'objdata_voc07color.mat';
 usedepth = 0;
 
 if exist(datafile, 'file')
@@ -37,10 +37,10 @@ for i=1:poscn
     
     %assert(size(cimg,1) == size(dimg, 1) && size(cimg, 2) == size(dimg, 2));
     
-    gradimg = compRGBDGrad(cimg, dimg);
-    gradimg = imresize(gradimg, [8, 8]);
+    cimg = imresize(cimg, [8 8]);
+    gradimg = compGrad(cimg);
+    %gradimg = imresize(gradimg, [8, 8]);
     posdata(i, :) = gradimg(:);
-    gradimg = gradimg ./ max(gradimg(:));
     gradimg = imresize(gradimg, [64, 64]);
     %dimg = dimg ./ max(dimg(:));
     
@@ -105,6 +105,8 @@ end
 
 %% train svm
 
+addpath(genpath('liblinear'));
+
 %addpath(genpath('libsvm'));
 % select 80% samples as training data
 posnum = size(posdata, 1);
@@ -117,12 +119,17 @@ trainlabels = [ones(posbound, 1); zeros(negbound, 1)-1];
 testlabels = [ones(posnum-posbound, 1); zeros(negnum-negbound, 1)-1];
 
 options.MaxIter = 150000;
-svmStruct = svmtrain(traindata, trainlabels, 'kernel_function', 'mlp');
+model = train(trainlabels, sparse(traindata));
+% svmStruct = svmtrain(traindata, trainlabels, 'kernel_function', 'mlp');
 
 
 %% testing
 
-C = svmclassify(svmStruct, testdata);
-err_rate = sum(testlabels ~= C) / length(testlabels);
+[predicted_label, accuracy, scores] = predict(testlabels, sparse(testdata), model);
+pos_accu = sum(predicted_label(1:(posnum-posbound), 1) == 1) / (posnum-posbound)
+neg_accu = sum(predicted_label((posnum-posbound):end, 1) == -1) / (negnum-negbound)
+
+% C = svmclassify(svmStruct, testdata);
+% err_rate = sum(testlabels ~= C) / length(testlabels);
 
 

@@ -106,8 +106,8 @@ bool DatasetManager::GenerateWinSamps()
 {
 	char str[100];
 	
-	string possave = DB_ROOT + "Datasets\\objectness\\b3d_pos\\";
-	string negsave = DB_ROOT + "Datasets\\objectness\\b3d_neg\\";
+	string possave = DB_ROOT + "Datasets\\objectness\\voc07_pos\\";
+	string negsave = DB_ROOT + "Datasets\\objectness\\voc07_neg\\";
 	_mkdir(possave.c_str());
 	_mkdir(negsave.c_str());
 
@@ -121,7 +121,7 @@ bool DatasetManager::GenerateWinSamps()
 
 	db_man->LoadGTWins(cimgs, gtwins);
 
-	for (size_t i=0; i<cimgs.size(); i++)
+	for (size_t i=0; i<1000; i++)
 	{
 		cout<<"Image: "<<i<<endl;
 		// show color image

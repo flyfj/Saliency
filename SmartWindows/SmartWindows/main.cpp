@@ -16,7 +16,7 @@ int main()
 	ShapeAnalyzer shaper;
 	GenericObjectDetector detector;
 	DatasetManager dbMan;
-	dbMan.Init(DB_BERKELEY3D);
+	dbMan.Init(DB_VOC07);
 	visualsearch::ImageSegmentor segmentor;
 
 	// process

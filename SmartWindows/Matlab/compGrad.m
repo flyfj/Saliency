@@ -1,9 +1,15 @@
-function grad = compGrad( cimg )
+function grad = compGrad( img )
 %COMPGRAD Summary of this function goes here
 %   Detailed explanation goes here
 
-[h, w, ~] = size(cimg);
-grayimg = rgb2gray(cimg);
+sz = size(img);
+if(length(sz) == 3)
+    grayimg = rgb2gray(img);
+else
+    grayimg = img;
+end
+h = sz(1);
+w = sz(2);
 Ix = zeros(h, w);
 Iy = zeros(h, w);
 
@@ -27,6 +33,7 @@ end
 
 grad = Ix + Iy;
 grad = uint8(grad);
+
 
 end
 

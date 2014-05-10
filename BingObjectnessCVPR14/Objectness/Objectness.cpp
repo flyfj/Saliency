@@ -222,6 +222,7 @@ void Objectness::gradientGray(CMat &bgr3u, Mat &mag1u)
 {
 	Mat g1u;
 	cvtColor(bgr3u, g1u, CV_BGR2GRAY); 
+
 	const int H = g1u.rows, W = g1u.cols;
 	Mat Ix(H, W, CV_32S), Iy(H, W, CV_32S);
 
@@ -744,7 +745,7 @@ void Objectness::getObjBndBoxesForTestsFast(vector<vector<Vec4i>> &_boxesTests, 
 	loadTrainedModel();
 	illustrate();
 
-
+	// do testing
 	const int TestNum = _voc.testSet.size();
 	vecM imgs3u(TestNum);
 	vector<ValStructVec<float, Vec4i>> boxesTests;

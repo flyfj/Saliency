@@ -164,7 +164,8 @@ imshow(handles.depthImg, 'Parent', handles.depth_axis);
 % colorbar
 
 % depth edge map
-[handles.depthEdgeMap, ~] = imgradient(dmap, 'sobel');
+%[handles.depthEdgeMap, ~] = imgradient(dmap, 'sobel');
+handles.depthEdgeMap = compGrad(dmap);
 handles.depthEdgeMap = getnormimg(handles.depthEdgeMap);
 % show
 imshow(handles.depthEdgeMap, [], 'Parent', handles.depth_edge_map);
@@ -173,12 +174,12 @@ imshow(handles.depthEdgeMap, [], 'Parent', handles.depth_edge_map);
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % draw normal vector
-% config.k = 10;
-% mesh = computeNeighbors(config, mesh);
-% mesh.n = -mesh.n;
-% % DrawNormalVectors(mesh);
+config.k = 10;
+mesh = computeNeighbors(config, mesh);
+mesh.n = -mesh.n;
+% DrawNormalVectors(mesh);
 % 
-% nmap = ComputeNormalBoundaryMap(mesh, size(dmap, 2), size(dmap, 1));
+[nmapx, nmapy, nmapz] = ComputeNormalBoundaryMap(mesh, size(dmap, 2), size(dmap, 1));
 % figure
 % nmap = nmap ./ max(nmap(:));
 % imshow(nmap)
@@ -219,6 +220,8 @@ end
 
 end
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % reconstruct 3d point cloud from depth and compute normal vector for each
 % point
 function norm3d = computeNormalForDepthmap(depthimg)
@@ -264,7 +267,7 @@ hold off
 
 end
 
-function nmap = ComputeNormalBoundaryMap(mesh, imgw, imgh)
+function [nmapx, nmapy, nampz] = ComputeNormalBoundaryMap(mesh, imgw, imgh)
 % compute a boundary map using normal vectors in each pixel
 % convert to 2d
 ns = zeros(imgh, imgw, 3);
@@ -275,6 +278,31 @@ for i=1:imgh
         cnt = cnt + 1;
     end
 end
+
+nmapx = getnormimg(ns(:,:,1)) * 255;
+nmapy = getnormimg(ns(:,:,2)) * 255;
+nmapz = getnormimg(ns(:,:,3)) * 255;
+
+nmapx = compGrad(nmapx);
+nmapy = compGrad(nmapy);
+nmapz = compGrad(nmapz);
+
+nmap = uint8(nmapx + nmapy + nmapz);
+
+figure
+subplot(1, 4, 1)
+imshow(nmapx)
+hold on
+subplot(1, 4, 2)
+imshow(nmapy)
+hold on
+subplot(1, 4, 3)
+imshow(nmapz)
+hold on
+subplot(1, 4, 4)
+imshow(nmap)
+pause
+
 
 % compute a 3d boundary map by checking each pixel normal with its
 % neighbors
@@ -305,9 +333,10 @@ fclose(fp);
 
 end
 
-
+% 0~1
 function normimg = getnormimg(img)
 
+img = double(img);
 normimg = (img-min(img(:))) ./ (max(img(:))-min(img(:)));
 
 end
