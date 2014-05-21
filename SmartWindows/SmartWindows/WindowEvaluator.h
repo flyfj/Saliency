@@ -21,6 +21,11 @@ public:
 
 	static float ComputeWinMatchScore(const ImgWin& qwin, const ImgWin& gwin);
 
+	// for each image
+	Point2f CompPRForSingleImg(const vector<ImgWin>& det_wins, const vector<ImgWin>& gt_wins);
+
+	Point2f ComputePR(const vector<vector<ImgWin>>& det_wins, const vector<vector<ImgWin>>& gt_wins);
+
 	// best matched detection windows with ground truth
 	bool FindBestWins(const vector<ImgWin>& det_wins, const vector<ImgWin>& gt_wins, vector<ImgWin>& bestWins);
 
