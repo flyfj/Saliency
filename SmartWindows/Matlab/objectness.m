@@ -1,12 +1,16 @@
 
 % params
-posdir = 'E:\Datasets\objectness\voc07_pos\';
-negdir = 'E:\Datasets\objectness\voc07_neg\';
+posdir = 'E:\Datasets\objectness\b3d_pos\';
+negdir = 'E:\Datasets\objectness\b3d_neg\';
 
 
 %% load data and compute features
-datafile = 'objdata_voc07color.mat';
-usedepth = 0;
+datafile = 'objdata_b3d_depth.mat';
+usedepth = 1;
+usecolor = 1;
+usenormal = 1;
+
+showimg = 0;
 
 if exist(datafile, 'file')
 
@@ -21,35 +25,55 @@ poscimgs = dir([posdir '*.jpg']);
 poscn = length(poscimgs);
 poscn = floor(poscn / 1);
 
-showimg = 0;
-
 posdata = zeros(poscn, 64);
 for i=1:poscn
     cfn = poscimgs(i).name;
     cimg = imread([posdir cfn]);
     [~, tfn, ~] = fileparts(cfn);
     dimg = [];
-    if(usedepth==1)
-        dfn = [tfn '_d.txt'];
-        dimg = load([posdir dfn]);
-        dimg = double(dimg);
-    end
     
     %assert(size(cimg,1) == size(dimg, 1) && size(cimg, 2) == size(dimg, 2));
     
-    cimg = imresize(cimg, [8 8]);
-    gradimg = compGrad(cimg);
-    %gradimg = imresize(gradimg, [8, 8]);
-    posdata(i, :) = gradimg(:);
+    if usecolor == 1
+        cimgs = imresize(cimg, [8 8]);
+        cgradimg = compGrad(cimgs);
+%         posdata(i, :) = cgradimg(:);
+    end
+    if usedepth == 1
+        dfn = [tfn '_d.txt'];
+        dimg = load([posdir dfn]);
+        dimg = double(dimg);
+        dimg = imresize(dimg, [8 8]);
+        dgradimg = compGrad(dimg);
+%         posdata(i, :) = dgradimg(:);
+    end
+    if usenormal == 1
+        
+        gradimg = getnormimg(cgradimg) + getnormimg(dgradimg);
+        posdata(i,:) = gradimg(:);
+        
+%         dfn = [tfn '_d.txt'];
+%         dimg = load([posdir dfn]);
+%         dimg = double(dimg);
+%         nmap = computeNormalMap(dimg);
+%         nmap = imresize(nmap, [8 8]);
+%         gradimg = compGrad(nmap);
+%         posdata(i, :) = gradimg(:);
+    end
+   
     gradimg = imresize(gradimg, [64, 64]);
     %dimg = dimg ./ max(dimg(:));
     
     if showimg == 1
         figure(1)
         imshow(cimg);
-        figure(2)
-        imshow(dimg);
+        if usedepth == 1
+            figure(2)
+            dimg = getnormimg(dimg);
+            imshow(dimg);
+        end
         figure(3)
+        gradimg = getnormimg(gradimg);
         imshow(gradimg);
         pause
         close all
@@ -73,16 +97,32 @@ for i=1:negcn
     cimg = imread([negdir cfn]);
     [~, tfn, ~] = fileparts(cfn);
     dimg = [];
-    if(usedepth == 1)
+    
+    if usecolor == 1
+        cimgs = imresize(cimg, [8 8]);
+        cgradimg = compGrad(cimgs);
+%         posdata(i, :) = cgradimg(:);
+    end
+    if usedepth == 1
         dfn = [tfn '_d.txt'];
         dimg = load([negdir dfn]);
         dimg = double(dimg);
+        dimg = imresize(dimg, [8 8]);
+        dgradimg = compGrad(dimg);
+%         negdata(i, :) = dgradimg(:);
     end
-    
-    gradimg = compRGBDGrad(cimg, dimg);
-    gradimg = imresize(gradimg, [8, 8]);
-    negdata(i, :) = gradimg(:);
-%     dimg = dimg ./ max(dimg(:));
+     if usenormal == 1
+        gradimg = getnormimg(cgradimg) + getnormimg(dgradimg);
+        negdata(i,:) = gradimg(:);
+        
+%         dfn = [tfn '_d.txt'];
+%         dimg = load([negdir dfn]);
+%         dimg = double(dimg);
+%         nmap = computeNormalMap(dimg);
+%         nmap = imresize(nmap, [8 8]);
+%         gradimg = compGrad(nmap);
+%         posdata(i, :) = gradimg(:);
+    end
     
     if showimg == 1
         figure(1)
@@ -125,11 +165,41 @@ model = train(trainlabels, sparse(traindata));
 
 %% testing
 
-[predicted_label, accuracy, scores] = predict(testlabels, sparse(testdata), model);
-pos_accu = sum(predicted_label(1:(posnum-posbound), 1) == 1) / (posnum-posbound)
-neg_accu = sum(predicted_label((posnum-posbound):end, 1) == -1) / (negnum-negbound)
+C = svmclassify(svmStruct, testdata);
+% SampleScaleShift = bsxfun(@plus, testdata, svmStruct.ScaleData.shift);
+% Sample = bsxfun(@times, SampleScaleShift, svmStruct.ScaleData.scaleFactor);
+% sv = svmStruct.SupportVectors;
+% alphaHat = svmStruct.Alpha;
+% bias = svmStruct.Bias;
+% kfun = svmStruct.KernelFunction;
+% kfunargs = svmStruct.KernelFunctionArgs;
+% scores = kfun(sv, Sample, kfunargs{:})'*alphaHat(:) + bias;
+% scores = scores*-1;
+% [predicted_label, accuracy, scores] = predict(testlabels, sparse(testdata), model);
+% save('color_scores.mat', 'scores');
+pos_accu = sum(C(1:(posnum-posbound), 1) == 1) / (posnum-posbound)
+neg_accu = sum(C((posnum-posbound+1):end, 1) == -1) / (negnum-negbound)
 
-% C = svmclassify(svmStruct, testdata);
+% matlab svm
+y = trainlabels(svmStruct.SupportVectorIndices);
+w = (svmStruct.Alpha' ) * svmStruct.SupportVectors;
+w = reshape(w, [8 8]);
+w(w<0) = 0;
+w = getnormimg(w);
+w = imresize(w, [64 64]);
+imshow(w)
+
+% show w
+% w = model.w;
+% w = reshape(w, [8 8]);
+% w(w<0) = 0;
+% w = imresize(w, [64 64]);
+% w = getnormimg(w);
+% figure
+% imshow(w)
+save('normal_w', 'w');
+
+
 % err_rate = sum(testlabels ~= C) / length(testlabels);
 
 

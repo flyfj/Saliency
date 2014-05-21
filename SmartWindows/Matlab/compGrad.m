@@ -32,7 +32,7 @@ for i=2:h-1
 end
 
 grad = Ix + Iy;
-grad = uint8(grad);
+% grad = uint8(grad);
 
 
 end

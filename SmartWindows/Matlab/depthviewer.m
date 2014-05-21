@@ -334,9 +334,4 @@ fclose(fp);
 end
 
 % 0~1
-function normimg = getnormimg(img)
 
-img = double(img);
-normimg = (img-min(img(:))) ./ (max(img(:))-min(img(:)));
-
-end
