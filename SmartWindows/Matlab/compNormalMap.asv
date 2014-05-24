@@ -1,0 +1,21 @@
+function nmap = compNormalMap( dimg )
+%COMPNORMALMAP Summary of this function goes here
+
+addpath('obj_toolbox');
+
+% project depth to 3d
+dimg = double(dimg);
+[pcl, ~] = depthToCloud(dimg);
+obj.vertices = pcl';
+obj.objects = cell(0,0);
+write_wobj(obj, 'temp.obj');
+
+% call meshlabserver to extract normal
+system('c:\meshlab\meshlabserver -i temp.o -o temp_n.obj -s normal_script.mlx -om vc vn')
+
+% read in obj
+newobj = read_wobj('temp_n.obj');
+
+
+end
+

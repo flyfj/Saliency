@@ -3,7 +3,7 @@ function gradmag = compGrad2( inputimg )
 %   Detailed explanation goes here
 %  use matlab normal gradient function
 
-verbose = 1;
+verbose = 0;
 
 sz = size(inputimg);
 if length(sz) == 3
