@@ -19,9 +19,13 @@ if verbose == 1
 figure
 subplot(1, 3, 1)
 imshow(inputimg,[]), title('input image')
+colormap jet
+colorbar
 hold on
 subplot(1, 3, 2)
 imshow(gradmag, []), title('Gradient magnitude')
+colormap jet
+colorbar
 hold on
 subplot(1, 3, 3)
 imshow(graddir, []), title('Gradient direction')
