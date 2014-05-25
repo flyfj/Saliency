@@ -1,4 +1,6 @@
 
+clear
+
 savepath = 'E:\Datasets\RGBD_Dataset\NYU\Depth2\';
 
 % parse nyu data
@@ -9,5 +11,9 @@ alldimgs = nyudepth.depths;
 alllabels = nyudepth.labels;
 
 [imgh, imgw, imgnum] = size(allcimgs);
+
+% convert to point cloud
+compNormalMap(alldimgs(:,:,1));
+
 
 
