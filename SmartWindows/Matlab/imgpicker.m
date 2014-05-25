@@ -80,7 +80,12 @@ function open_menu_Callback(hObject, eventdata, handles)
 % handles    structure with handles and user data (see GUIDATA)
 
 datapath = 'E:\Datasets\objectness\b3d_pos\';
-[filename, ~] = uigetfile([datapath '\*.txt'], 'Depth Data');
+[filename, ~] = uigetfile([datapath '\*.jpg'], 'Color Data');
 [~, fname, ~] = fileparts(filename);
-dimg = load([datapath fname '.txt']);
-compNormalMap(dimg);
+
+cimg = imread([datapath fname '.jpg']);
+dimg = load([datapath fname '_d.txt']);
+
+compFeatMaps(cimg, dimg);
+
+

@@ -29,25 +29,28 @@ nz = reshape(normals(:,3), [imgw imgh]);
 nz = nz';
 nz = compGrad2(nz);
 nmap = nx + ny + nz;%sqrt(nx.^2 + ny.^2 + nz.^2);
-figure
-subplot(1, 3, 1)
-imshow(nx,[])
-hold on
-subplot(1, 3, 2)
-imshow(ny, [])
-hold on
-subplot(1, 3, 3)
-imshow(nz, [])
-hold on
+% filter noise
+nmap = medfilt2(nmap);
 
-figure
-imshow(nmap, [])
-hold on
-colormap jet
-colorbar
+% figure
+% subplot(1, 3, 1)
+% imshow(nx,[])
+% hold on
+% subplot(1, 3, 2)
+% imshow(ny, [])
+% hold on
+% subplot(1, 3, 3)
+% imshow(nz, [])
+% hold on
+% 
+% figure
+% imshow(nmap, [])
+% hold on
+% colormap jet
+% colorbar
 
-pause 
-close all
+% pause 
+% close all
 
 end
 
