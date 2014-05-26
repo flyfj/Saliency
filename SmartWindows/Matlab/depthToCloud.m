@@ -3,7 +3,7 @@ function [pcloud, distance] = depthToCloud(depth, topleft)
 % Author: Liefeng Bo and Kevin Lai
 %
 % Input: 
-% depth - the depth image
+% depth - the depth image, milimeter
 % topleft - the position of the top-left corner of depth in the original depth image. Assumes depth is uncropped if this is not provided
 %
 % Output:
