@@ -1,7 +1,7 @@
 
 %% prepare
 
-addpath(genpath('C:\vlfeat\'));
+% addpath(genpath('C:\vlfeat\'));
 
 
 %% load training data
@@ -15,15 +15,20 @@ traindatafile = 'nyuboundary.mat';
 possamps = [];
 negsamps = [];
 
+newsz = [300, 300];
+
 for i=1:imgnum
     [~, fn, ~] = fileparts(allfn(i).name);
     cimgfn = [datapath fn '.jpg'];
     dmapfn = [datapath fn '_d.mat'];
     limgfn = [datapath fn '_l.png'];
     cimg = imread(cimgfn);
+    %cimg = imresize(cimg, newsz);
     dmap = load(dmapfn);
     dmap = dmap.depth;
+    %dmap = imresize(dmap, newsz);
     limg = imread(limgfn);
+    %limg = imresize(limg, newsz);
     
     % extract sample points
     ratio = 0.1;
@@ -53,17 +58,31 @@ for i=1:imgnum
     dgrad = compGrad2(dmap);
     ngrad = compNormalMap(dmap);
     
+    cgrad = uint8( getnormimg(cgrad) .* 255 );
+    dgrad = uint8( getnormimg(dgrad) .* 255 );
+    ngrad = uint8( getnormimg(ngrad) .* 255 );
+    
     % extract point descriptors for positive and negative points
-    % current sift
-    
-    
-    possamps = [possamps; ];
-    
-    % save data
-    
+    % FREAK
+    for j=1:size(boundaryPts, 1)
+        cpts = SURFPoints(boundaryPts{j,1});
+        [cfeats, ~] = extractFeatures(cgrad, cpts, 'Method', 'SURF');
+        [dfeats, ~] = extractFeatures(dgrad, cpts, 'Method', 'SURF');
+        [nfeats, ~] = extractFeatures(ngrad, cpts, 'Method', 'SURF');
+        possamps = [possamps; cfeats.Features dfeats.Features nfeats.Features];
+    end
+    for j=1:size(nonboundaryPts, 1)
+        cpts = cornerPoints(nonboundaryPts{j,1});
+        [cfeats, ~] = extractFeatures(cgrad, cpts, 'Method', 'FREAK');
+        [dfeats, ~] = extractFeatures(dgrad, cpts, 'Method', 'FREAK');
+        [nfeats, ~] = extractFeatures(ngrad, cpts, 'Method', 'FREAK');
+        negsamps = [negsamps; cfeats.Features dfeats.Features nfeats.Features];
+    end
     
 end
 
+% save data
+save(traindatafile, 'possamps', 'negsamps');
 
 %% train boundary classifier
 
