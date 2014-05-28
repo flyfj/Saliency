@@ -12,7 +12,12 @@ mesh.f = zeros(1, 3);
 write_ply(mesh.v, [], 'temp.ply');
 
 % call meshlabserver to extract normal
-system('c:\meshlab\meshlabserver -i temp.ply -o temp_n.ply -s normal_script.mlx -om vn')
+res = system('c:\meshlab\meshlabserver -i temp.ply -o temp_n.ply -s normal_script.mlx -om vn')
+if res ~= 0
+    disp('Error extracting normals with meshlab.');
+    nmap = [];
+    return;
+end
 
 % read in obj
 [newmesh, ~] = read_ply('temp_n.ply');

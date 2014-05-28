@@ -3,21 +3,22 @@
 
 % addpath(genpath('C:\vlfeat\'));
 
+datapath = 'E:\Datasets\RGBD_Dataset\NYU\Depth2\';
+traindatafile = 'nyuboundary.mat';
 
 %% load training data
 
-datapath = 'E:\Datasets\RGBD_Dataset\NYU\Depth2\';
+if ~exist(traindatafile, 'file')
+
 allfn = dir([datapath '*.jpg']);
 imgnum = length(allfn);
-
-traindatafile = 'nyuboundary.mat';
 
 possamps = [];
 negsamps = [];
 
 newsz = [300, 300];
 
-for i=1:imgnum
+for i=1:2
     [~, fn, ~] = fileparts(allfn(i).name);
     cimgfn = [datapath fn '.jpg'];
     dmapfn = [datapath fn '_d.mat'];
@@ -32,11 +33,17 @@ for i=1:imgnum
     
     % extract sample points
     ratio = 0.1;
-    maxlabel = max(max(limg));
-    boundaryPts = cell(maxlabel, 1);
-    nonboundaryPts = cell(maxlabel, 1);
-    for j=1:maxlabel
-        selobj = limg==j;
+    validlabels = unique(limg(:));
+    % remove background 0
+    if validlabels(1) == 0
+        validlabels(1) = [];
+    end
+    boundaryPts = cell(length(validlabels), 1);
+    nonboundaryPts = cell(length(validlabels), 1);
+    
+    for j=1:length(validlabels)
+        curid = validlabels(j);
+        selobj = limg==curid;
         selobj = edge(selobj, 'canny');
         % extract object boundary points as positive samples
         [posy, posx] = find(selobj == 1);
@@ -54,13 +61,7 @@ for i=1:imgnum
     end
 
     % compute feature maps
-    cgrad = compGrad2(cimg);
-    dgrad = compGrad2(dmap);
-    ngrad = compNormalMap(dmap);
-    
-    cgrad = uint8( getnormimg(cgrad) .* 255 );
-    dgrad = uint8( getnormimg(dgrad) .* 255 );
-    ngrad = uint8( getnormimg(ngrad) .* 255 );
+    [cgrad, dgrad, ngrad] = compFeatMaps(cimg, dmap, 1);
     
     % extract point descriptors for positive and negative points
     % FREAK
@@ -69,25 +70,54 @@ for i=1:imgnum
         [cfeats, ~] = extractFeatures(cgrad, cpts, 'Method', 'SURF');
         [dfeats, ~] = extractFeatures(dgrad, cpts, 'Method', 'SURF');
         [nfeats, ~] = extractFeatures(ngrad, cpts, 'Method', 'SURF');
-        possamps = [possamps; cfeats.Features dfeats.Features nfeats.Features];
+        possamps = [possamps; cfeats dfeats nfeats];
     end
     for j=1:size(nonboundaryPts, 1)
-        cpts = cornerPoints(nonboundaryPts{j,1});
-        [cfeats, ~] = extractFeatures(cgrad, cpts, 'Method', 'FREAK');
-        [dfeats, ~] = extractFeatures(dgrad, cpts, 'Method', 'FREAK');
-        [nfeats, ~] = extractFeatures(ngrad, cpts, 'Method', 'FREAK');
-        negsamps = [negsamps; cfeats.Features dfeats.Features nfeats.Features];
+        cpts = SURFPoints(nonboundaryPts{j,1});
+        [cfeats, ~] = extractFeatures(cgrad, cpts, 'Method', 'SURF');
+        [dfeats, ~] = extractFeatures(dgrad, cpts, 'Method', 'SURF');
+        [nfeats, ~] = extractFeatures(ngrad, cpts, 'Method', 'SURF');
+        negsamps = [negsamps; cfeats dfeats nfeats];
     end
+    
+    disp(['Sampled from image ' num2str(i)]);
     
 end
 
 % save data
 save(traindatafile, 'possamps', 'negsamps');
 
+end
+
 %% train boundary classifier
 
-if ~exists('traindata', 'var')
+if ~exist('possamps', 'var')
     load(traindatafile);
 end
 
+possamps = double(possamps);
+negsamps = double(negsamps);
 
+addpath(genpath('liblinear'));
+% select subset of samples as training data
+ratio = 0.8;
+posnum = size(possamps, 1);
+posbound = floor(posnum*ratio);
+negnum = size(negsamps, 1);
+negbound = floor(negnum*ratio);
+traindata = [possamps(1:posbound, :); negsamps(1:negbound, :)];
+testdata = [possamps(posbound+1:end, :); negsamps(negbound+1:end, :)];
+trainlabels = [ones(posbound, 1); zeros(negbound, 1)-1];
+testlabels = [ones(posnum-posbound, 1); zeros(negnum-negbound, 1)-1];
+
+% train
+options.MaxIter = 150000;
+model = train(trainlabels, sparse(traindata));
+% svmStruct = svmtrain(traindata, trainlabels, 'kernel_function', 'mlp');
+save('boundaryClf.mat', 'model');
+
+% test
+[predicted_label, accuracy, scores] = predict(testlabels, sparse(testdata), model);
+
+pos_accu = sum(predicted_label(1:(posnum-posbound), 1) == 1) / (posnum-posbound)
+neg_accu = sum(predicted_label((posnum-posbound+1):end, 1) == -1) / (negnum-negbound)
