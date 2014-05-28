@@ -1,19 +1,27 @@
 
+newsz = [300, 300];
 
 datapath = 'E:\Datasets\RGBD_Dataset\NYU\Depth2\';
-cimgfn = [datapath '4.jpg'];
-cimg = imread(cimgfn);
+fn = '841';
 
-dmapfn = [datapath '4_d.mat'];
+cimgfn = [datapath fn '.jpg'];
+cimg = imread(cimgfn);
+% cimg = imresize(cimg, newsz);
+
+dmapfn = [datapath fn '_d.mat'];
 dmap = load(dmapfn);
 dmap = dmap.depth;
+% dmap = imresize(dmap, newsz);
 
-limgfn = [datapath '4_l.png'];
+limgfn = [datapath fn '_l.png'];
 limg = imread(limgfn);
+% limg = imresize(limg, newsz);
 
 bmap = compBoundaryMap(cimg, dmap);
 
 
 % show
 imshow(bmap, [])
+colormap jet
+colorbar
 pause

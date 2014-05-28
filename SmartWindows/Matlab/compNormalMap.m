@@ -1,4 +1,4 @@
-function nmap = compNormalMap( dimg )
+function nmap = compNormalMap( dimg, name )
 %COMPNORMALMAP Summary of this function goes here
 
 addpath('obj_toolbox');
@@ -35,6 +35,8 @@ nz = nz';
 nz = compGrad2(nz);
 nmap = nx + ny + nz;%sqrt(nx.^2 + ny.^2 + nz.^2);
 % filter noise
+% nmap = filter2(fspecial('average',3), nmap);
+% nmap = filter2(fspecial('average',3), nmap);
 nmap = medfilt2(nmap);
 
 % figure

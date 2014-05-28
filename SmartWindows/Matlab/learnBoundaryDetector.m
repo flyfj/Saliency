@@ -6,9 +6,11 @@
 datapath = 'E:\Datasets\RGBD_Dataset\NYU\Depth2\';
 traindatafile = 'nyuboundary.mat';
 
+totrain = 1;
+
 %% load training data
 
-if ~exist(traindatafile, 'file')
+if ~exist(traindatafile, 'file') || totrain==1
 
 allfn = dir([datapath '*.jpg']);
 imgnum = length(allfn);
@@ -18,18 +20,18 @@ negsamps = [];
 
 newsz = [300, 300];
 
-for i=1:2
+for i=1:10
     [~, fn, ~] = fileparts(allfn(i).name);
     cimgfn = [datapath fn '.jpg'];
     dmapfn = [datapath fn '_d.mat'];
     limgfn = [datapath fn '_l.png'];
     cimg = imread(cimgfn);
-    %cimg = imresize(cimg, newsz);
+%     cimg = imresize(cimg, newsz);
     dmap = load(dmapfn);
     dmap = dmap.depth;
-    %dmap = imresize(dmap, newsz);
+%     dmap = imresize(dmap, newsz);
     limg = imread(limgfn);
-    %limg = imresize(limg, newsz);
+%     limg = imresize(limg, newsz);
     
     % extract sample points
     ratio = 0.1;
@@ -54,6 +56,7 @@ for i=1:2
         % select same number of negative points
         [negy, negx] = find(selobj == 0);
         negpts = [negx negy];
+        sel_num = max(1, int32(length(negy)*ratio*2));
         neg_ids = randperm(length(negy), sel_num);
         nonboundaryPts{j, 1} = negpts(neg_ids, :);
         
@@ -61,6 +64,9 @@ for i=1:2
     end
 
     % compute feature maps
+%     dmap = medfilt2(dmap, [3 3]);
+%     dmap = filter2(fspecial('average',3), dmap);
+%     dmap = filter2(fspecial('average',3), dmap);
     [cgrad, dgrad, ngrad] = compFeatMaps(cimg, dmap, 1);
     
     % extract point descriptors for positive and negative points
