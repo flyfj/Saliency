@@ -13,7 +13,7 @@ function [L, contour] = graph_segment(img, neighbor_radius, coefficient, min_siz
 addpath('CoherenceFilter');
 %normalize data:
 img = im2double(img);
-img = CoherenceFilter(img,struct('T',5,'rho',.5,'Scheme','R'));
+img = CoherenceFilter(img, struct('T',5,'rho',.5,'Scheme','R'));
 %regulartion:
 n_channel = size(img, 3);
 for i= 1:n_channel
