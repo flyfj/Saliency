@@ -20,7 +20,7 @@ negsamps = [];
 
 newsz = [300, 300];
 
-for i=1:10
+for i=1:8
     [~, fn, ~] = fileparts(allfn(i).name);
     cimgfn = [datapath fn '.jpg'];
     dmapfn = [datapath fn '_d.mat'];
@@ -56,7 +56,7 @@ for i=1:10
         % select same number of negative points
         [negy, negx] = find(selobj == 0);
         negpts = [negx negy];
-        sel_num = max(1, int32(length(negy)*ratio*2));
+        sel_num = max(1, int32(length(negy)*ratio));
         neg_ids = randperm(length(negy), sel_num);
         nonboundaryPts{j, 1} = negpts(neg_ids, :);
         
