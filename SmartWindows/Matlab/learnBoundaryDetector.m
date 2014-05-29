@@ -12,8 +12,12 @@ totrain = 1;
 
 if ~exist(traindatafile, 'file') || totrain==1
 
+useimg = 100;
+sampperimg = 100;
+    
 allfn = dir([datapath '*.jpg']);
 imgnum = length(allfn);
+sel_imgs = randperm(imgnum, useimg);
 
 possamps = [];
 negsamps = [];
