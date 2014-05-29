@@ -19,9 +19,24 @@ limg = imread(limgfn);
 
 bmap = compBoundaryMap(cimg, dmap);
 
-
 % show
 imshow(bmap, [])
 colormap jet
 colorbar
 pause
+
+% propose object segments / windows
+addpath('Graph_seg');
+ths = [0.1 0.5 1 1.5 2 3 5];
+segimgs = cell(length(ths), 1);
+
+for i=1:length(ths)
+    [L, ~] = graph_segment(cimg, 1, ths(i), 100);
+    segids = unique(L(:));
+    for j=1:length(segids)
+        
+    end
+end
+
+
+

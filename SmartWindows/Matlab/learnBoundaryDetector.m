@@ -12,7 +12,7 @@ totrain = 1;
 
 if ~exist(traindatafile, 'file') || totrain==1
 
-useimg = 100;
+useimg = 20;
 sampperimg = 100;
     
 allfn = dir([datapath '*.jpg']);
@@ -24,8 +24,9 @@ negsamps = [];
 
 newsz = [300, 300];
 
-for i=1:8
-    [~, fn, ~] = fileparts(allfn(i).name);
+for i=1:length(sel_imgs)
+    curimgid = sel_imgs(i);
+    [~, fn, ~] = fileparts(allfn(curimgid).name);
     cimgfn = [datapath fn '.jpg'];
     dmapfn = [datapath fn '_d.mat'];
     limgfn = [datapath fn '_l.png'];
@@ -75,20 +76,29 @@ for i=1:8
     
     % extract point descriptors for positive and negative points
     % FREAK
+    curpossamps = [];
     for j=1:size(boundaryPts, 1)
         cpts = SURFPoints(boundaryPts{j,1});
         [cfeats, ~] = extractFeatures(cgrad, cpts, 'Method', 'SURF');
         [dfeats, ~] = extractFeatures(dgrad, cpts, 'Method', 'SURF');
         [nfeats, ~] = extractFeatures(ngrad, cpts, 'Method', 'SURF');
-        possamps = [possamps; cfeats dfeats nfeats];
+        curpossamps = [curpossamps; cfeats dfeats nfeats];
     end
+    validnum = min(size(curpossamps, 1), sampperimg);
+    curpossamps = curpossamps(randperm(size(curpossamps, 1), validnum), :);
+    possamps = [possamps; curpossamps];
+    
+    curnegsamps = [];
     for j=1:size(nonboundaryPts, 1)
         cpts = SURFPoints(nonboundaryPts{j,1});
         [cfeats, ~] = extractFeatures(cgrad, cpts, 'Method', 'SURF');
         [dfeats, ~] = extractFeatures(dgrad, cpts, 'Method', 'SURF');
         [nfeats, ~] = extractFeatures(ngrad, cpts, 'Method', 'SURF');
-        negsamps = [negsamps; cfeats dfeats nfeats];
+        curnegsamps = [curnegsamps; cfeats dfeats nfeats];
     end
+    validnum = min(size(curnegsamps, 1), sampperimg);
+    curnegsamps = curnegsamps(randperm(size(curnegsamps, 1), validnum), :);
+    negsamps = [negsamps; curnegsamps];
     
     disp(['Sampled from image ' num2str(i)]);
     

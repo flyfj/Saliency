@@ -30,7 +30,7 @@ double pixelDistance(const double *p_img, const int p, int q,
 }
 
 double pixelDistance_3d(const double *p_img, const int p, int q, 
-						const int n_channels, const num_pixels)
+						const int n_channels, const int num_pixels)
 {
 	double intensity_distance = 0;
 	int i;
@@ -47,7 +47,7 @@ double pixelDistance_3d(const double *p_img, const int p, int q,
 }
 
 double pixelDistance_3d(const double *p_img, const int p, int q, 
-						const int n_channels, const num_pixels,
+						const int n_channels, const int num_pixels,
 						const int Img_height, const double sigma)
 {
 	int p_x = p/Img_height;

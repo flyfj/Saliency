@@ -16,9 +16,9 @@ double pixelDistance(const double *p_img, const int p, int q,
 					 const double distance, const double sigma);
 
 double pixelDistance_3d(const double *p_img, const int p, int q, 
-						const int n_channels, const num_pixels);
+						const int n_channels, const int num_pixels);
 double pixelDistance_3d(const double *p_img, const int p, int q, 
-						const int n_channels, const num_pixels,
+						const int n_channels, const int num_pixels,
 						const int Img_height, const double sigma);
 
 bool InRange(const int x, const int y, 
