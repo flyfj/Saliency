@@ -2,7 +2,7 @@
 newsz = [300, 300];
 
 datapath = 'E:\Datasets\RGBD_Dataset\NYU\Depth2\';
-fn = '841';
+fn = '843';
 
 cimgfn = [datapath fn '.jpg'];
 cimg = imread(cimgfn);
