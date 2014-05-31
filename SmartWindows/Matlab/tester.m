@@ -1,4 +1,6 @@
 
+% compute object proposal for a given image
+
 newsz = [300, 300];
 
 datapath = 'E:\Datasets\RGBD_Dataset\NYU\Depth2\';
@@ -16,55 +18,34 @@ dmap = dmap.depth;
 limgfn = [datapath fn '_l.png'];
 limg = imread(limgfn);
 % limg = imresize(limg, newsz);
+gtboxes = getGTBoxFromLabels(limg);
 
-bmap = compBoundaryMap(cimg, dmap);
+% get object proposals
+objs = proposeObjsForImg(cimg, dmap, 500);
 
-% show
-imshow(bmap, [])
-colormap jet
-colorbar
-pause
-
-%% propose object segments / windows
-addpath(genpath('Graph_seg'));
-ths = [0.1 0.5 1 2 3 5];
-segimgs = cell(length(ths), 1);
-
-candidates = [];
-
-for i=1:length(ths)
-    [L, ~] = graph_segment(cimg, 1, ths(i), 100);
-    segids = unique(L(:));
-    for j=1:length(segids)
-        cursegmask = L==segids(j);
-        % bounding box
-        [posy, posx] = find(cursegmask==1);
-        minx = min(posx);
-        maxx = max(posx);
-        miny = min(posy);
-        maxy = max(posy);
-        box = [minx miny maxx maxy];
-        % compute objectness value
-        val = compObjectnessUsingBoundary(cursegmask, bmap);
-        candidates = [candidates; box val];
+% compute precision and recall
+prval = zeros(1,2);
+gtcount = zeros(1, size(gtboxes,1));   % number of matched gt objects
+for j=1:size(objs,1)
+    curobj = [objs(j,1) objs(j,2) objs(j,3)-objs(j,1) objs(j,4)-objs(j,2)];
+    for k=1:size(gtboxes,1)
+        curgt = [gtboxes(j,1) gtboxes(j,2) gtboxes(j,3)-gtboxes(j,1) gtboxes(j,4)-gtboxes(j,2)];
+        area = recint(curgt, curobj);
+        area = double(area);
+        if area > 0
+            % compute union area
+            uarea = ( max(objs(j,3), gtboxes(k,3))-min(curobj(1), curgt(1)) ) * ( max(objs(j,4), gtboxes(k,4))-min(curobj(2), curgt(2)) );
+            uarea = double(uarea);
+            if area / uarea > 0.5
+                gtcount(k) = gtcount(k) + 1;
+            end
+        end
     end
-    
-    disp(['Th: ' num2str(ths(i)) ' - processed: ' num2str(length(segids)) ' objects.']);
 end
 
-% sort segments by values
-objs = sortrows(candidates, -5);
+prval(1) = sum(gtcount) / size(objs,1);
+prval(2) = sum(gtcount>0) / length(gtcount);
 
-%%  show top candidates
-dispimg = cimg;
-imshow(dispimg)
-hold on
-for i=1:500 
-    plot([objs(i,1) objs(i,3) objs(i,3) objs(i,1) objs(i,1)], [objs(i,2) objs(i,2) objs(i,4) objs(i,4) objs(i,2)], 'r-')
-    hold on
-end
 
-pause
-close all
 
 
