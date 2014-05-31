@@ -1,8 +1,8 @@
-function objs = proposeObjsForImg( cimg, dmap, num, verbose )
+function objs = proposeObjsForImg( cimg, dmap, verbose )
 %PROPOSEOBJSFORIMG Summary of this function goes here
 %   Detailed explanation goes here
 
-if nargin < 4
+if nargin < 3
     verbose = 0;
 end
 
