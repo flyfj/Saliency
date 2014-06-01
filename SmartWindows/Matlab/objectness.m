@@ -5,7 +5,7 @@ negdir = 'E:\Datasets\objectness\b3d_neg\';
 
 
 %% load data and compute features
-datafile = 'objdata_b3d_depth.mat';
+datafile = 'objdata_b3d_color.mat';
 usedepth = 1;
 usecolor = 1;
 usenormal = 1;
@@ -162,10 +162,11 @@ options.MaxIter = 150000;
 model = train(trainlabels, sparse(traindata));
 % svmStruct = svmtrain(traindata, trainlabels, 'kernel_function', 'mlp');
 
+save('cvpr14_b3d_model.mat', 'model');
 
 %% testing
 
-C = svmclassify(svmStruct, testdata);
+%C = svmclassify(svmStruct, testdata);
 % SampleScaleShift = bsxfun(@plus, testdata, svmStruct.ScaleData.shift);
 % Sample = bsxfun(@times, SampleScaleShift, svmStruct.ScaleData.scaleFactor);
 % sv = svmStruct.SupportVectors;
@@ -175,29 +176,29 @@ C = svmclassify(svmStruct, testdata);
 % kfunargs = svmStruct.KernelFunctionArgs;
 % scores = kfun(sv, Sample, kfunargs{:})'*alphaHat(:) + bias;
 % scores = scores*-1;
-% [predicted_label, accuracy, scores] = predict(testlabels, sparse(testdata), model);
+[predicted_label, accuracy, scores] = predict(testlabels, sparse(testdata), model);
 % save('color_scores.mat', 'scores');
-pos_accu = sum(C(1:(posnum-posbound), 1) == 1) / (posnum-posbound)
-neg_accu = sum(C((posnum-posbound+1):end, 1) == -1) / (negnum-negbound)
+pos_accu = sum(predicted_label(1:(posnum-posbound), 1) == 1) / (posnum-posbound)
+neg_accu = sum(predicted_label((posnum-posbound+1):end, 1) == -1) / (negnum-negbound)
 
 % matlab svm
-y = trainlabels(svmStruct.SupportVectorIndices);
-w = (svmStruct.Alpha' ) * svmStruct.SupportVectors;
-w = reshape(w, [8 8]);
-w(w<0) = 0;
-w = getnormimg(w);
-w = imresize(w, [64 64]);
-imshow(w)
-
-% show w
-% w = model.w;
+% y = trainlabels(svmStruct.SupportVectorIndices);
+% w = (svmStruct.Alpha' ) * svmStruct.SupportVectors;
 % w = reshape(w, [8 8]);
 % w(w<0) = 0;
-% w = imresize(w, [64 64]);
 % w = getnormimg(w);
-% figure
+% w = imresize(w, [64 64]);
 % imshow(w)
-save('normal_w', 'w');
+
+% show w
+w = model.w;
+w = reshape(w, [8 8]);
+w(w<0) = 0;
+w = imresize(w, [64 64]);
+w = getnormimg(w);
+figure
+imshow(w)
+%save('normal_w', 'w');
 
 
 % err_rate = sum(testlabels ~= C) / length(testlabels);

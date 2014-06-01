@@ -1,20 +1,22 @@
 
 
-
+%% init
 newsz = [300, 300];
 
 datapath = 'E:\Datasets\RGBD_Dataset\NYU\Depth2\';
 fnlist = dir([datapath '*.jpg']);
-rnd_fnids = randperm(size(fnlist, 1), 10);
+rnd_fnids = randperm(size(fnlist, 1), 30);
+rnd_fnids(1) = 63;
 
 topboxnum = [100 300 500 800 1000 1500 2000];
 
 tot_gtnum = 0;
 det_gtnum = zeros(1, length(topboxnum));
 
+
+%% compute object proposal for images
 for i=1:length(rnd_fnids)
 
-%% compute object proposal for a given image
 fn = num2str(rnd_fnids(i));
 
 cimgfn = [datapath fn '.jpg'];
@@ -32,8 +34,12 @@ limg = imread(limgfn);
 gtboxes = getGTBoxFromLabels(limg);
 tot_gtnum = tot_gtnum + size(gtboxes, 1);
 
+% get cvpr proposals
+% objs = cvpr_predict(cimg);
+
 % get object proposals
 objs = proposeObjsForImg(cimg, dmap);
+
 
 %% compute precision and recall
 
@@ -74,10 +80,29 @@ for i=1:length(topboxnum)
     recall_vals(i) = det_gtnum(i) / tot_gtnum;
 end
 
+% save('our_recall.mat', 'recall_vals');
+
 figure
-plot(1:i, recall_vals, 'r-')
-pause
-close all
+plot(topboxnum, recall_vals, 'r-')
+
+%% compare results
+our_recall = load('our_recall.mat');
+our_recall = our_recall.recall_vals;
+
+cvpr_recall = load('cvpr_recall.mat');
+cvpr_recall = cvpr_recall.recall_vals;
+
+figure
+hold on
+title('Recall for top proposals')
+xlabel('#Top Wins')
+ylabel('Recall')
+grid on
+plot(topboxnum, our_recall, 'r-')
+hold on
+plot(topboxnum, cvpr_recall, 'g-')
+hold on
+legend('cvpr14', 'our')
 
 
 
