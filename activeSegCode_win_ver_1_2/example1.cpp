@@ -1,5 +1,5 @@
 /* To segment a region in a single image */
-#pragma comment(lib, "segCoreLib32bit.lib") /*for 64 bit windows  & Visual Studio Express 2010 */
+#pragma comment(lib, "segCoreLib64bit.lib") /*for 64 bit windows  & Visual Studio Express 2010 */
 
 
 #include "segmentationLayer.h"
@@ -8,7 +8,8 @@
 #include <opencv2\opencv.hpp>
 
 
-int main(int argc, char* argv[]){
+int main(int argc, char* argv[])
+{
 	if (argc != 2 && argc != 4){
 		fprintf(stderr, "usage: %s <image> ",argv[0]);
 		exit(1);
