@@ -5,6 +5,7 @@
 #include "Objectness.h"
 #include "ValStructVec.h"
 #include "CmShow.h"
+#include <direct.h>
 
 void RunObjectness(CStr &resName, double base, int W, int NSS, int numPerSz);
 
@@ -41,8 +42,26 @@ void RunObjectness(CStr &resName, double base, int W, int NSS, int numPerSz)
 
 	vector<vector<Vec4i>> boxesTests;
 	//objNess.getObjBndBoxesForTests(boxesTests, 250);
-	objNess.getObjBndBoxesForTestsFast(boxesTests, numPerSz);
+	//objNess.getObjBndBoxesForTestsFast(boxesTests, numPerSz);
 	//objNess.getRandomBoxes(boxesTests);
+
+	objNess.loadTrainedModel();
+	Mat timg = imread("d:\\imgs\\mail.jpg");
+	imshow("test", timg);
+	waitKey(10);
+	ValStructVec<float, Vec4i> boxes;
+	objNess.getObjBndBoxes(timg, boxes);
+
+	// draw on image
+	string savedir = "d:\\objres\\";
+	_mkdir(savedir.c_str());
+	for(size_t i=0; i<200; i++)
+	{
+		Rect curbox(Point(boxes[i].val[0], boxes[i].val[1]), Point(boxes[i].val[2], boxes[i].val[3]));
+		char str[30];
+		sprintf_s(str, "win_%d.jpg", i);
+		imwrite(savedir+str, timg(curbox));
+	}
 
 	//objNess.evaluatePerClassRecall(boxesTests, resName, 1000);
 	//objNess.illuTestReults(boxesTests);

@@ -249,7 +249,6 @@ void Objectness::gradientGray(CMat &bgr3u, Mat &mag1u)
 	gradientXY(Ix, Iy, mag1u);
 }
 
-
 void Objectness::gradientHSV(CMat &bgr3u, Mat &mag1u)
 {
 	Mat hsv3u;
@@ -319,7 +318,7 @@ void Objectness::generateTrianData()
 	vector<vecI> szTrainP(NUM_TRAIN); // Corresponding size index. 
 	const int NUM_NEG_BOX = 100; // Number of negative windows sampled from each image
 
-//#pragma omp parallel for
+#pragma omp parallel for
 	for (int i = 0; i < NUM_TRAIN; i++)	{
 		const int NUM_GT_BOX = (int)_voc.gtTrainBoxes[i].size();
 		vector<Mat> &xP = xTrainP[i], &xN = xTrainN[i];
@@ -337,35 +336,6 @@ void Objectness::generateTrianData()
 				bbs[j][2] = min(bbs[j][2], im3u.cols);
 				bbs[j][3] = min(bbs[j][3], im3u.rows);
 				Mat mag1f = getFeature(im3u, bbs[j]), magF1f;
-				cout<<mag1f<<endl;
-				resize(mag1f, mag1f, Size(64, 64));
-				mag1f.convertTo(mag1f, CV_8U);
-				_Clr = G;
-				Mat mag2f = getFeature(im3u, bbs[j]);
-				resize(mag2f, mag2f, Size(64, 64));
-				mag2f.convertTo(mag2f, CV_8U);
-
-				// test opencv edge
-				Mat mag3fx, mag3fy, roigray;
-				int x = bbs[j][0] - 1, y = bbs[j][1] - 1;
-				Rect reg(x, y, bbs[j][2] -  x, bbs[j][3] - y);
-				cvtColor(im3u(reg), roigray, CV_BGR2GRAY);
-				resize(roigray, roigray, Size(_W, _W));
-				Sobel(roigray, mag3fx, CV_32F, 1, 0);
-				Sobel(roigray, mag3fy, CV_32F, 0, 1);
-				//magnitude(mag3fx, mag3fy, mag3fx);
-				mag3fx = abs(mag3fy) + abs(mag3fx);
-				//min(mag3fx, 255, mag3fx);
-				//cout<<mag3fx<<endl;
-				resize(mag3fx, mag3fx, Size(64, 64));
-				mag3fx.convertTo(mag3fx, CV_8U);
-
-				imshow("img", im3u(Rect(bbs[j].val[0], bbs[j].val[1], bbs[j].val[2]-bbs[j].val[0], bbs[j].val[3]-bbs[j].val[1])));
-				imshow("mag1f", mag1f);
-				imshow("mag2f", mag2f);
-				imshow("mag3f", mag3fx);
-				waitKey(0);
-				destroyAllWindows();
 				flip(mag1f, magF1f, CV_FLIP_HORIZONTAL);
 				xP.push_back(mag1f);
 				xP.push_back(magF1f);
@@ -487,15 +457,18 @@ void Objectness::trainStateII(int numPerSz)
 	const int NUM_SZ = _svmSzIdxs.size();
 	const int maxTrainNum = 100000;
 	vector<vecM> rXP(NUM_SZ), rXN(NUM_SZ);
-	for (int r = 0; r < NUM_SZ; r++){
+	for (int r = 0; r < NUM_SZ; r++)
+	{
 		rXP[r].reserve(maxTrainNum);
 		rXN[r].reserve(1000000);
 	}
-	for (int i = 0; i < NUM_TRAIN; i++){
+	for (int i = 0; i < NUM_TRAIN; i++)
+	{
 		const vecI &sz = SZ[i], &y = Y[i];
 		vecF &val = VAL[i];
 		int num = sz.size();
-		for (int j = 0; j < num; j++){
+		for (int j = 0; j < num; j++)
+		{
 			int r = sz[j];
 			CV_Assert(r >= 0 && r < NUM_SZ);
 			if (y[j] == 1)
@@ -506,7 +479,8 @@ void Objectness::trainStateII(int numPerSz)
 	}
 
 	Mat wMat(NUM_SZ, 2, CV_32F);
-	for (int i = 0; i < NUM_SZ; i++){
+	for (int i = 0; i < NUM_SZ; i++)
+	{
 		const vecM &xP = rXP[i], &xN = rXN[i];
 		if (xP.size() < 10 || xN.size() < 10)
 			printf("Warning %s:%d not enough training sample for r[%d] = %d. P = %d, N = %d\n", __FILE__, __LINE__, i, _svmSzIdxs[i], xP.size(), xN.size());	
@@ -689,7 +663,9 @@ void Objectness::getObjBndBoxesForTests(vector<vector<Vec4i>> &_boxesTests, int 
 	}
 
 	int scales[3] = {1, 3, 5};
-	for (int clr = MAXBGR; clr <= G; clr++){
+	// use all color spaces
+	for (int clr = MAXBGR; clr <= G; clr++)
+	{
 		setColorSpace(clr);
 		trainObjectness(numDetPerSize);
 		loadTrainedModel();
@@ -697,7 +673,8 @@ void Objectness::getObjBndBoxesForTests(vector<vector<Vec4i>> &_boxesTests, int 
 		tm.Start();
 
 #pragma omp parallel for
-		for (int i = 0; i < TestNum; i++){
+		for (int i = 0; i < TestNum; i++)
+		{
 			ValStructVec<float, Vec4i> boxes;
 			getObjBndBoxes(imgs3u[i], boxes, numDetPerSize);
 			boxesTests[i].append(boxes, scales[clr]);
@@ -707,10 +684,12 @@ void Objectness::getObjBndBoxesForTests(vector<vector<Vec4i>> &_boxesTests, int 
 		printf("Average time for predicting an image (%s) is %gs\n", _clrName[_Clr], tm.TimeInSeconds()/TestNum);
 	}
 
+	// save detection results
 	_boxesTests.resize(TestNum);
 	CmFile::MkDir(_bbResDir);
 #pragma omp parallel for
-	for (int i = 0; i < TestNum; i++){
+	for (int i = 0; i < TestNum; i++)
+	{
 		CStr fName = _bbResDir + _voc.testSet[i];
 		ValStructVec<float, Vec4i> &boxes = boxesTests[i];
 		FILE *f = fopen(_S(fName + ".txt"), "w");
@@ -727,7 +706,8 @@ void Objectness::getObjBndBoxesForTests(vector<vector<Vec4i>> &_boxesTests, int 
 	evaluatePerImgRecall(_boxesTests, "PerImgAllNS.m", 5000);
 
 #pragma omp parallel for
-	for (int i = 0; i < TestNum; i++){
+	for (int i = 0; i < TestNum; i++)
+	{
 		boxesTests[i].sort(false);
 		for (int j = 0; j < boxesTests[i].size(); j++)
 			_boxesTests[i][j] = boxesTests[i][j];
@@ -752,7 +732,8 @@ void Objectness::getObjBndBoxesForTestsFast(vector<vector<Vec4i>> &_boxesTests, 
 	boxesTests.resize(TestNum);
 
 #pragma omp parallel for
-	for (int i = 0; i < TestNum; i++){
+	for (int i = 0; i < TestNum; i++)
+	{
 		imgs3u[i] = imread(format(_S(_voc.imgPathW), _S(_voc.testSet[i])));
 		boxesTests[i].reserve(10000);
 	}
@@ -772,7 +753,8 @@ void Objectness::getObjBndBoxesForTestsFast(vector<vector<Vec4i>> &_boxesTests, 
 	CmFile::MkDir(_bbResDir);
 
 #pragma omp parallel for
-	for (int i = 0; i < TestNum; i++){
+	for (int i = 0; i < TestNum; i++)
+	{
 		CStr fName = _bbResDir + _voc.testSet[i];
 		ValStructVec<float, Vec4i> &boxes = boxesTests[i];
 		FILE *f = fopen(_S(fName + ".txt"), "w");
