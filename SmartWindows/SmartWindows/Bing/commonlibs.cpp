@@ -2,11 +2,10 @@
 // Objectness.pch will be the pre-compiled header
 // stdafx.obj will contain the pre-compiled type information
 
-#include "stdafx.h"
+#include "commonlibs.h"
 
 // TODO: reference any additional headers you need in STDAFX.H
 // and not in this file
-
 
 
 // BitCount64 returns the number of 1s in a uint64.

@@ -22,6 +22,12 @@
     <Filter Include="Bing">
       <UniqueIdentifier>{ba5cdf68-ab45-4d10-9219-55f40a2f32af}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LibLinear">
+      <UniqueIdentifier>{803743b8-fd29-4e2e-9e9b-bc450a2705a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LibLinear\Blas">
+      <UniqueIdentifier>{b5fa4652-8ce8-4491-97f5-7632dadd3027}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="a9wins\DisjointSet.h">
@@ -108,8 +114,20 @@
     <ClInclude Include="Bing\ImgContrastBB.h">
       <Filter>Bing</Filter>
     </ClInclude>
-    <ClInclude Include="Bing\stdafx.h">
+    <ClInclude Include="Bing\commonlibs.h">
       <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="LibLinear\linear.h">
+      <Filter>LibLinear</Filter>
+    </ClInclude>
+    <ClInclude Include="LibLinear\tron.h">
+      <Filter>LibLinear</Filter>
+    </ClInclude>
+    <ClInclude Include="LibLinear\blas\blas.h">
+      <Filter>LibLinear\Blas</Filter>
+    </ClInclude>
+    <ClInclude Include="LibLinear\blas\blasp.h">
+      <Filter>LibLinear\Blas</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -179,8 +197,31 @@
     <ClCompile Include="Bing\CmShow.cpp">
       <Filter>Bing</Filter>
     </ClCompile>
-    <ClCompile Include="Bing\stdafx.cpp">
+    <ClCompile Include="Bing\commonlibs.cpp">
       <Filter>Bing</Filter>
     </ClCompile>
+    <ClCompile Include="LibLinear\linear.cpp">
+      <Filter>LibLinear</Filter>
+    </ClCompile>
+    <ClCompile Include="LibLinear\tron.cpp">
+      <Filter>LibLinear</Filter>
+    </ClCompile>
+    <ClCompile Include="LibLinear\blas\daxpy.c">
+      <Filter>LibLinear\Blas</Filter>
+    </ClCompile>
+    <ClCompile Include="LibLinear\blas\ddot.c">
+      <Filter>LibLinear\Blas</Filter>
+    </ClCompile>
+    <ClCompile Include="LibLinear\blas\dnrm2.c">
+      <Filter>LibLinear\Blas</Filter>
+    </ClCompile>
+    <ClCompile Include="LibLinear\blas\dscal.c">
+      <Filter>LibLinear\Blas</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="LibLinear\README.1.93.txt">
+      <Filter>LibLinear</Filter>
+    </Text>
   </ItemGroup>
 </Project>

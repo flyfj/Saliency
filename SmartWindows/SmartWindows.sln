@@ -3,8 +3,6 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SmartWindows", "SmartWindows\SmartWindows.vcxproj", "{15A3B531-D69E-4A4B-B882-17803A9B8935}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LibLinear", "SmartWindows\LibLinear\LibLinear.vcxproj", "{86266F16-8B7E-4666-A12F-96E351579ADA}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Mixed Platforms = Debug|Mixed Platforms
@@ -19,22 +17,14 @@ Global
 		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Debug|Mixed Platforms.Build.0 = Debug|Win32
 		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Debug|Win32.ActiveCfg = Debug|Win32
 		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Debug|Win32.Build.0 = Debug|Win32
-		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Debug|x64.ActiveCfg = Debug|Win32
+		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Debug|x64.ActiveCfg = Debug|x64
+		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Debug|x64.Build.0 = Debug|x64
 		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Release|Mixed Platforms.ActiveCfg = Release|Win32
 		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Release|Mixed Platforms.Build.0 = Release|Win32
 		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Release|Win32.ActiveCfg = Release|Win32
 		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Release|Win32.Build.0 = Release|Win32
-		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Release|x64.ActiveCfg = Release|Win32
-		{86266F16-8B7E-4666-A12F-96E351579ADA}.Debug|Mixed Platforms.ActiveCfg = Debug|x64
-		{86266F16-8B7E-4666-A12F-96E351579ADA}.Debug|Mixed Platforms.Build.0 = Debug|x64
-		{86266F16-8B7E-4666-A12F-96E351579ADA}.Debug|Win32.ActiveCfg = Debug|x64
-		{86266F16-8B7E-4666-A12F-96E351579ADA}.Debug|x64.ActiveCfg = Debug|x64
-		{86266F16-8B7E-4666-A12F-96E351579ADA}.Debug|x64.Build.0 = Debug|x64
-		{86266F16-8B7E-4666-A12F-96E351579ADA}.Release|Mixed Platforms.ActiveCfg = Release|x64
-		{86266F16-8B7E-4666-A12F-96E351579ADA}.Release|Mixed Platforms.Build.0 = Release|x64
-		{86266F16-8B7E-4666-A12F-96E351579ADA}.Release|Win32.ActiveCfg = Release|x64
-		{86266F16-8B7E-4666-A12F-96E351579ADA}.Release|x64.ActiveCfg = Release|x64
-		{86266F16-8B7E-4666-A12F-96E351579ADA}.Release|x64.Build.0 = Release|x64
+		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Release|x64.ActiveCfg = Release|x64
+		{15A3B531-D69E-4A4B-B882-17803A9B8935}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

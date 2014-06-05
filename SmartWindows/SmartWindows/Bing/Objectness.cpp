@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "commonlibs.cpp"
 #include "Objectness.h"
 #include "CmShow.h"
 

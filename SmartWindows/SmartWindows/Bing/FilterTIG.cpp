@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "commonlibs.h"
 #include "FilterTIG.h"
 #include "CmShow.h"
 

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "commonlibs.h"
 #include "CmShow.h"
 
 

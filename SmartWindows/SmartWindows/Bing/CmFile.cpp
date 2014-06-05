@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+#include "commonlibs.h"
 
 #include <shlobj.h>
 #include <Commdlg.h>
