@@ -1,5 +1,7 @@
 #pragma once
 
+#include "commonlibs.h"
+
 struct DataSetVOC
 {
 	DataSetVOC(CStr &wkDir);

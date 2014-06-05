@@ -78,7 +78,7 @@ void DatasetManager::BrowseDBImages(bool showGT)
 		cout<<"Image: "<<i<<endl;
 		// show color image
 		cv::Mat color_img = cv::imread(cimgs[i].filepath);
-		ImgVisualizer::DrawImgWins("color", color_img, gtwins[cimgs[i].filename]);
+		visualsearch::ImgVisualizer::DrawImgWins("color", color_img, gtwins[cimgs[i].filename]);
 		moveWindow("color", 100, 300);	
 
 		if( !dmaps.empty() )
@@ -86,7 +86,7 @@ void DatasetManager::BrowseDBImages(bool showGT)
 			// show depth image
 			Mat dmap;
 			db_man->LoadDepthData(dmaps[i].filepath, dmap);
-			ImgVisualizer::DrawFloatImg(cimgs[i].filename, dmap, Mat());
+			visualsearch::ImgVisualizer::DrawFloatImg(cimgs[i].filename, dmap, Mat());
 			moveWindow(cimgs[i].filename, color_img.cols + 150, 300);
 		}
 			
@@ -126,7 +126,7 @@ bool DatasetManager::GenerateWinSamps()
 		cout<<"Image: "<<i<<endl;
 		// show color image
 		cv::Mat color_img = cv::imread(cimgs[i].filepath);
-		ImgVisualizer::DrawImgWins("color", color_img, gtwins[cimgs[i].filename]);
+		visualsearch::ImgVisualizer::DrawImgWins("color", color_img, gtwins[cimgs[i].filename]);
 		moveWindow("color", 100, 300);
 		
 		// show depth image
@@ -134,7 +134,7 @@ bool DatasetManager::GenerateWinSamps()
 		if( useDepth )
 		{
 			db_man->LoadDepthData(dmaps[i].filepath, dmap);
-			ImgVisualizer::DrawFloatImg(cimgs[i].filename, dmap, Mat());
+			visualsearch::ImgVisualizer::DrawFloatImg(cimgs[i].filename, dmap, Mat());
 			moveWindow(cimgs[i].filename, color_img.cols + 150, 300);
 		}
 
@@ -153,7 +153,7 @@ bool DatasetManager::GenerateWinSamps()
 			{
 				Mat dobjimg = dmap(gtwins[cimgs[i].filename][j]);
 				Mat dimg;
-				ImgVisualizer::DrawFloatImg("pos_dobj", dobjimg, dimg);
+				visualsearch::ImgVisualizer::DrawFloatImg("pos_dobj", dobjimg, dimg);
 				savefile = possave + cimgs[i].filename + string(str) + "_d.txt";
 				SaveMatToText(dobjimg, savefile);
 				savefile = possave + cimgs[i].filename + string(str) + "_d.png";
@@ -186,7 +186,7 @@ bool DatasetManager::GenerateWinSamps()
 			{
 				Mat dobjimg = dmap(neg_win);
 				Mat dimg;
-				ImgVisualizer::DrawFloatImg("neg_dobj", dobjimg, dimg);
+				visualsearch::ImgVisualizer::DrawFloatImg("neg_dobj", dobjimg, dimg);
 				savefile = negsave + cimgs[i].filename + string(str) + "_d.txt";
 				SaveMatToText(dobjimg, savefile);
 				savefile = negsave + cimgs[i].filename + string(str) + "_d.png";

@@ -13,6 +13,19 @@ GenericObjectDetector::GenericObjectDetector(void)
 	//winconfs.push_back(WinConfig(200, 200));
 	winconfs.push_back(WinConfig(200, 300));
 	winconfs.push_back(WinConfig(300, 200));
+
+	//
+	bingObjectness = NULL;
+	isBingInitialized = false;
+}
+
+GenericObjectDetector::~GenericObjectDetector()
+{
+	if( bingObjectness != NULL )
+	{
+		delete bingObjectness;
+		bingObjectness = NULL;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -204,12 +217,12 @@ bool GenericObjectDetector::test()
 
 	vector<ImgWin> wins;
 	a9win.GenerateBlocks(img, wins);
-	ImgVisualizer::DrawImgWins("detection", img, wins);
+	visualsearch::ImgVisualizer::DrawImgWins("detection", img, wins);
 
 	WindowEvaluator wineval;
 	vector<ImgWin> bestWins;
 	wineval.FindBestWins(wins, gt_wins[imglist[58].filename], bestWins);
-	ImgVisualizer::DrawImgWins("matches", img, bestWins);
+	visualsearch::ImgVisualizer::DrawImgWins("matches", img, bestWins);
 
 	return true;
 
@@ -235,9 +248,9 @@ bool GenericObjectDetector::test()
 		imgwins.push_back(curwin);
 		curwin = ImgWin(sps[sel_id].box.x, sps[sel_id].box.y, sps[sel_id].box.width, sps[sel_id].box.height);
 		imgwins.push_back(curwin);
-		ImgVisualizer::DrawImgWins("img", img, imgwins);
-		ImgVisualizer::DrawImgWins("seg", segmentor.m_segImg, imgwins);
-		ImgVisualizer::DrawImgWins("meancolor", segmentor.m_mean_img, imgwins);
+		visualsearch::ImgVisualizer::DrawImgWins("img", img, imgwins);
+		visualsearch::ImgVisualizer::DrawImgWins("seg", segmentor.m_segImg, imgwins);
+		visualsearch::ImgVisualizer::DrawImgWins("meancolor", segmentor.m_mean_img, imgwins);
 
 		// compute adjust range
 		Point minpt, maxpt;
@@ -281,7 +294,7 @@ bool GenericObjectDetector::test()
 				ImgWin spwin = ImgWin(sps[sel_id].box.x, sps[sel_id].box.y, sps[sel_id].box.width, sps[sel_id].box.height);
 				imgwins2.push_back(spwin);
 				imgwins2.push_back(bestWin);
-				ImgVisualizer::DrawImgWins("shift", img, imgwins2);
+				visualsearch::ImgVisualizer::DrawImgWins("shift", img, imgwins2);
 				cv::waitKey(0);
 				cv::destroyWindow("shift");
 
@@ -367,8 +380,8 @@ bool GenericObjectDetector::RunSlidingWin(const cv::Mat& color_img, Size winsz)
 
 	sort(wins.begin(), wins.end());
 
-	ImgVisualizer::DrawFloatImg("scoremap", scoremap, Mat());
-	ImgVisualizer::DrawImgWins("img", color_img, wins);
+	visualsearch::ImgVisualizer::DrawFloatImg("scoremap", scoremap, Mat());
+	visualsearch::ImgVisualizer::DrawImgWins("img", color_img, wins);
 	waitKey(10);
 
 	return true;
@@ -458,8 +471,68 @@ bool GenericObjectDetector::RunVOC()
 		// visualize final results
 		reverse(det_wins.begin(), det_wins.end());
 
-		ImgVisualizer::DrawImgWins("final", img, det_wins);
+		visualsearch::ImgVisualizer::DrawImgWins("final", img, det_wins);
 
+		waitKey(0);
+	}
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
+bool GenericObjectDetector::InitBingObjectness()
+{
+	// set dataset for training and testing
+	DataSetVOC voc2007("e:\\VOC2007\\");
+	//voc2007.loadAnnotations();
+
+	// params
+	double base = 2;
+	int W = 8;
+	int NSS = 2;
+	int numPerSz = 130;
+
+	bingObjectness = new Objectness(voc2007, base, W, NSS);
+	if( bingObjectness->loadTrainedModel() != 1 )
+	{
+		cerr<<"Fail to load all bing model."<<endl;
+		return false;
+	}
+
+	isBingInitialized = true;
+
+	return true;
+}
+
+bool GenericObjectDetector::GetObjectsFromBing(const cv::Mat& cimg, vector<Rect>& detWins, int winnum, bool showres)
+{
+	if( !isBingInitialized )
+		return false;
+
+	ValStructVec<float, Vec4i> boxes;
+	bingObjectness->getObjBndBoxes(cimg, boxes);
+
+	int validwinnum = MIN(winnum, boxes.size());
+	detWins.clear();
+	detWins.resize(validwinnum);
+	for (int i=0; i<validwinnum; i++)
+	{
+		detWins[i] = Rect( Point(boxes[i].val[0], boxes[i].val[1]), Point(boxes[i].val[2], boxes[i].val[3]) );
+	}
+
+	if(showres)
+	{
+		// make images
+		vector<Mat> imgs(detWins.size());
+		for (int i=0; i<detWins.size(); i++)
+		{
+			imgs[i] = cimg(detWins[i]);
+		}
+
+		Mat dispimg;
+		visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 15, dispimg);
+		imshow("objectness", dispimg);
 		waitKey(0);
 	}
 

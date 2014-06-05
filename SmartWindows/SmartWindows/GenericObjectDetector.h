@@ -13,6 +13,7 @@
 #include "ObjectSegmentor.h"
 #include "a9wins/A9Window.h"
 #include "WindowEvaluator.h"
+#include "Bing/Objectness.h"
 
 
 struct WinConfig
@@ -41,7 +42,12 @@ private:
 
 	A9Window a9win;
 
-	vector<WinConfig> winconfs;
+	vector<WinConfig> winconfs;	// sliding window configurations
+
+	//////////////////////////////////////////////////////////////////////////
+
+	Objectness* bingObjectness;
+	bool isBingInitialized;
 
 	// window shifting tools
 	// given a segment box, window size and image size, the range of window locations 
@@ -63,6 +69,20 @@ private:
 public:
 	
 	GenericObjectDetector(void);
+
+	~GenericObjectDetector();
+
+	//////////////////////////////////////////////////////////////////////////
+	// bing related methods
+	//////////////////////////////////////////////////////////////////////////
+
+	bool InitBingObjectness();
+
+	bool TrainBing();
+
+	bool GetObjectsFromBing(const cv::Mat& cimg, vector<Rect>& detWins, int winnum, bool showres=false);
+
+	//////////////////////////////////////////////////////////////////////////
 
 	bool Preprocess(const cv::Mat& color_img);
 
