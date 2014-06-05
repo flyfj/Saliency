@@ -9,7 +9,8 @@ using namespace std;
 // specialized hash_map with key_type = unsigned int and maximal bucket size (N) known in advance
 // as N buckets are allocated in advance, conflict never happens and query is strictly constant time
 // insert/remove is about 3-4 times faster than hash_map, refer to test_array_hash_map_performance()
-template <class _Ty>
+// template <class _Ty>
+template <typename _Ty>
 class array_hash_map : protected list< pair<unsigned int, typename _Ty> >
 {	
 	typedef list< pair<unsigned int, typename _Ty> > BaseClass;
@@ -74,7 +75,8 @@ public:
 	}
 
 private:
-	vector<BaseClass::iterator> iters;		// a vector of iterators pointing to list elements
+	// vector<BasicClass::iterator> iters;
+	vector<iterator> iters;		// a vector of iterators pointing to list elements
 };
 
 void test_array_hash_map();

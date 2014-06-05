@@ -20,7 +20,6 @@ int main()
 	visualsearch::ImageSegmentor segmentor;
 
 	// process
-	double start_t = cv::getTickCount();
 	
 	if( !detector.InitBingObjectness() )
 		return -1;
@@ -30,7 +29,10 @@ int main()
 		return 0;
 	//resize(timg, timg, Size(300,300));
 	//Mat normimg;
-	normalize(timg, timg, 0, 255, NORM_MINMAX);
+	//normalize(timg, timg, 0, 255, NORM_MINMAX);
+
+	double start_t = cv::getTickCount();
+
 	vector<Rect> boxes;
 	detector.GetObjectsFromBing(timg, boxes, 120, true);
 
@@ -43,6 +45,8 @@ int main()
 
 	cv::waitKey(0);
 	cv::destroyAllWindows();
+
+	getchar();
 
 	return 0;
 }
