@@ -19,6 +19,9 @@
     <Filter Include="DataManager">
       <UniqueIdentifier>{0a009577-af64-4503-9705-f0d36b751dc6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Bing">
+      <UniqueIdentifier>{ba5cdf68-ab45-4d10-9219-55f40a2f32af}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="a9wins\DisjointSet.h">
@@ -81,6 +84,33 @@
     <ClInclude Include="WindowEvaluator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Bing\Objectness.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="Bing\DataSetVOC.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="Bing\FilterTIG.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="Bing\ValStructVec.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="Bing\CmFile.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="Bing\CmShow.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="Bing\CmTimer.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="Bing\ImgContrastBB.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="Bing\stdafx.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -133,6 +163,24 @@
     </ClCompile>
     <ClCompile Include="WindowEvaluator.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Bing\Objectness.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="Bing\DataSetVOC.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="Bing\FilterTIG.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="Bing\CmFile.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="Bing\CmShow.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="Bing\stdafx.cpp">
+      <Filter>Bing</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
