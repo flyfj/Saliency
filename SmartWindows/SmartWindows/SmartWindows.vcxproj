@@ -153,6 +153,8 @@
     <ClInclude Include="LibLinear\tron.h" />
     <ClInclude Include="ObjectSegmentor.h" />
     <ClInclude Include="RGBDTools.h" />
+    <ClInclude Include="Saliency\Composition\SalientRegionDetector.h" />
+    <ClInclude Include="Saliency\Composition\SegmentBasedWindowComposer.h" />
     <ClInclude Include="ShapeAnalyzer.h" />
     <ClInclude Include="Tools.h" />
     <ClInclude Include="WindowEvaluator.h" />
@@ -184,6 +186,9 @@
     <ClCompile Include="GenericObjectDetector.cpp" />
     <ClCompile Include="ObjectSegmentor.cpp" />
     <ClCompile Include="RGBDTools.cpp" />
+    <ClCompile Include="Saliency\Composition\opencv_interface.cpp" />
+    <ClCompile Include="Saliency\Composition\SalientRegionDetector.cpp" />
+    <ClCompile Include="Saliency\Composition\SegmentBasedWindowComposer.cpp" />
     <ClCompile Include="ShapeAnalyzer.cpp" />
     <ClCompile Include="Tools.cpp" />
     <ClCompile Include="WindowEvaluator.cpp" />

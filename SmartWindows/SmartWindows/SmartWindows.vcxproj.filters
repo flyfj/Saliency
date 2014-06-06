@@ -28,6 +28,12 @@
     <Filter Include="LibLinear\Blas">
       <UniqueIdentifier>{b5fa4652-8ce8-4491-97f5-7632dadd3027}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Saliency">
+      <UniqueIdentifier>{8c37075f-1364-44c5-8f8b-a3e56dd469fe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Saliency\Composition">
+      <UniqueIdentifier>{5d10ae1f-3f53-45a8-baf7-c17cb85aa046}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="a9wins\DisjointSet.h">
@@ -129,6 +135,12 @@
     <ClInclude Include="LibLinear\blas\blasp.h">
       <Filter>LibLinear\Blas</Filter>
     </ClInclude>
+    <ClInclude Include="Saliency\Composition\SalientRegionDetector.h">
+      <Filter>Saliency\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="Saliency\Composition\SegmentBasedWindowComposer.h">
+      <Filter>Saliency\Composition</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -217,6 +229,15 @@
     </ClCompile>
     <ClCompile Include="LibLinear\blas\dscal.c">
       <Filter>LibLinear\Blas</Filter>
+    </ClCompile>
+    <ClCompile Include="Saliency\Composition\opencv_interface.cpp">
+      <Filter>Saliency\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="Saliency\Composition\SalientRegionDetector.cpp">
+      <Filter>Saliency\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="Saliency\Composition\SegmentBasedWindowComposer.cpp">
+      <Filter>Saliency\Composition</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
