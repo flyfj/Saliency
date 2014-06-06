@@ -39,6 +39,10 @@ int main()
 	vector<ImgWin> boxes;
 	detector.GetObjectsFromBing(timg, boxes, 200);
 
+	Mat objectnessmap;
+	detector.CreateScoremapFromWins(timg.cols, timg.rows, boxes, objectnessmap);
+	visualsearch::ImgVisualizer::DrawFloatImg("objmap", objectnessmap, objectnessmap);
+
 	std::cout<<"Bing time: "<<(cv::getTickCount()-start_t) / cv::getTickFrequency()<<"s."<<std::endl;
 	
 	// make images
@@ -54,12 +58,16 @@ int main()
 	waitKey(10);
 	
 	// rank windows with CC
-	
 	SalientRegionDetector salDetector;
 	salDetector.Init(timg);
 
 	start_t = getTickCount();
+
 	salDetector.RankWins(boxes);
+
+	Mat salmap;
+	detector.CreateScoremapFromWins(timg.cols, timg.rows, boxes, salmap);
+	visualsearch::ImgVisualizer::DrawFloatImg("salmap", salmap, salmap);
 
 	std::cout<<"Saliency time: "<<(cv::getTickCount()-start_t) / cv::getTickFrequency()<<"s."<<std::endl;
 

@@ -30,6 +30,23 @@ GenericObjectDetector::~GenericObjectDetector()
 
 //////////////////////////////////////////////////////////////////////////
 
+bool GenericObjectDetector::CreateScoremapFromWins(int imgw, int imgh, const vector<ImgWin>& imgwins, Mat& scoremap)
+{
+	scoremap.create(imgh, imgw, CV_32F);
+	scoremap.setTo(0);
+
+	for(size_t i=0; i<imgwins.size(); i++)
+	{
+		scoremap(imgwins[i]) += imgwins[i].score;
+	}
+
+	scoremap /= imgwins.size();
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 bool GenericObjectDetector::Preprocess(const cv::Mat& color_img)
 {
 	imgSize.width = color_img.cols;
@@ -517,7 +534,10 @@ bool GenericObjectDetector::GetObjectsFromBing(const cv::Mat& cimg, vector<ImgWi
 	detWins.clear();
 	detWins.resize(validwinnum);
 	for (int i=0; i<validwinnum; i++)
+	{
 		detWins[i] = ImgWin( boxes[i].val[0], boxes[i].val[1], boxes[i].val[2]-boxes[i].val[0], boxes[i].val[3]-boxes[i].val[1] );
+		detWins[i].score = 1;
+	}
 
 	return true;
 }

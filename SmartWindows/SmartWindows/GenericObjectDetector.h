@@ -83,6 +83,11 @@ public:
 	bool GetObjectsFromBing(const cv::Mat& cimg, vector<ImgWin>& detWins, int winnum, bool showres=false);
 
 	//////////////////////////////////////////////////////////////////////////
+	// tool functions
+	bool CreateScoremapFromWins(int imgw, int imgh, const vector<ImgWin>& imgwins, Mat& scoremap);
+
+	//////////////////////////////////////////////////////////////////////////
+	// main processing functions
 
 	bool Preprocess(const cv::Mat& color_img);
 

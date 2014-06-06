@@ -11,7 +11,7 @@ enum DatasetName
 	DB_VOC10,
 	DB_MSRA,
 	DB_BERKELEY3D,
-	DB_NYU_RGBD
+	DB_NYU2_RGBD
 };
 
 
