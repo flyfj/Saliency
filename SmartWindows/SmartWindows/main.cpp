@@ -20,7 +20,6 @@ int main()
 	visualsearch::ImageSegmentor segmentor;
 
 	// process
-	
 	if( !detector.InitBingObjectness() )
 		return -1;
 
