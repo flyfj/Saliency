@@ -141,6 +141,7 @@
     <ClInclude Include="DataManager\DataManagerInterface.h" />
     <ClInclude Include="common.h" />
     <ClInclude Include="DataManager\DatasetManager.h" />
+    <ClInclude Include="DataManager\NYUDepth2DataMan.h" />
     <ClInclude Include="DataManager\VOCDataManager.h" />
     <ClInclude Include="gcgraph.hpp" />
     <ClInclude Include="GrabCutter.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="ColorGMM.cpp" />
     <ClCompile Include="DataManager\Berkeley3DDataManager.cpp" />
     <ClCompile Include="DataManager\DatasetManager.cpp" />
+    <ClCompile Include="DataManager\NYUDepth2DataMan.cpp" />
     <ClCompile Include="DataManager\VOCDataManager.cpp" />
     <ClCompile Include="GrabCutter.cpp" />
     <ClCompile Include="ImageSegmentor.cpp" />

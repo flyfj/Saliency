@@ -156,6 +156,9 @@
     <ClInclude Include="Saliency\Composition\nms.h">
       <Filter>Saliency\Composition</Filter>
     </ClInclude>
+    <ClInclude Include="DataManager\NYUDepth2DataMan.h">
+      <Filter>DataManager</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -253,6 +256,9 @@
     </ClCompile>
     <ClCompile Include="Saliency\Composition\IntegralImage.cpp">
       <Filter>Saliency\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="DataManager\NYUDepth2DataMan.cpp">
+      <Filter>DataManager</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
