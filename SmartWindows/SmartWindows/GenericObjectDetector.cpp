@@ -505,7 +505,7 @@ bool GenericObjectDetector::InitBingObjectness()
 	return true;
 }
 
-bool GenericObjectDetector::GetObjectsFromBing(const cv::Mat& cimg, vector<Rect>& detWins, int winnum, bool showres)
+bool GenericObjectDetector::GetObjectsFromBing(const cv::Mat& cimg, vector<ImgWin>& detWins, int winnum, bool showres)
 {
 	if( !isBingInitialized )
 		return false;
@@ -517,24 +517,7 @@ bool GenericObjectDetector::GetObjectsFromBing(const cv::Mat& cimg, vector<Rect>
 	detWins.clear();
 	detWins.resize(validwinnum);
 	for (int i=0; i<validwinnum; i++)
-	{
-		detWins[i] = Rect( Point(boxes[i].val[0], boxes[i].val[1]), Point(boxes[i].val[2], boxes[i].val[3]) );
-	}
-
-	if(showres)
-	{
-		// make images
-		vector<Mat> imgs(detWins.size());
-		for (int i=0; i<detWins.size(); i++)
-		{
-			imgs[i] = cimg(detWins[i]);
-		}
-
-		Mat dispimg;
-		visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 15, dispimg);
-		imshow("objectness", dispimg);
-		waitKey(0);
-	}
+		detWins[i] = ImgWin( boxes[i].val[0], boxes[i].val[1], boxes[i].val[2]-boxes[i].val[0], boxes[i].val[3]-boxes[i].val[1] );
 
 	return true;
 }

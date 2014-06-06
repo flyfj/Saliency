@@ -52,7 +52,7 @@ float HausdorffDist(Rect a, Rect b)
 	points[1] = Point(box1.x, box1.br().y);
 	points[2] = Point(box1.br().x, box1.y);
 	points[3] = Point(box1.br().x, box1.br().y);
-
+	
 	for(size_t id = 0; id < 4; id++)
 	{
 		float dist = Point2RectDistance(points[id].x, points[id].y, box2);
@@ -78,64 +78,7 @@ float HausdorffDist(Rect a, Rect b)
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
-// a wrapper class to use SegmentBasedWindowComposer as an EHSW func
-class EHSWFunc
-{
-	SegmentBasedWindowComposer& composer;
-public:
-	typedef float fun_result_type;
-	int numOfUpdateBinCalls;
-
-	EHSWFunc(SegmentBasedWindowComposer& c)	: composer(c) {}
-
-	unsigned int HistLength() const { return composer.sp_comp_features.size(); }
-	bool IsBinUseful(const unsigned int& b) const	{	return true;	}
-
-	template<class HistType>
-	inline float Evaluate(HistType& hist)
-	{
-		assert(false);
-		return 0;
-	}
-
-	inline float Evaluate(HistArray& hist, unsigned int win_x, unsigned int win_y, unsigned int win_width, unsigned int win_height)
-	{
-		// TODO: following 2 lines cause frequent memory allocation for innerSegs
-		// could be avoided by own implementation
-		composer.innerSegs.clear();
-		composer.innerSegs.reserve(HistLength());
-
-		Point2f winCenter(win_x+win_width/2, win_y+win_height/2);
-		for(int n = 0; n < hist.size(); n++)
-		{
-			SegSuperPixelComposeFeature& spfeat = composer.sp_comp_features[n];
-			
-			int segment_area = hist[n];
-			if (segment_area > 0)
-			{
-				spfeat.InitFillArea(segment_area);
-
-				// prepare inside segments
-				if (spfeat.leftInnerArea > 0)
-				{
-					spfeat.dist_to_win = l2_dist(spfeat.centroid, winCenter);
-					composer.innerSegs.push_back(&spfeat);
-				}
-			}
-			else
-				spfeat.InitFillArea();
-		}
-
-		//return composer.innerSegs.size();  // useless, just for debug purpose
-
-		float score = composer.compose_greedy(Rect(win_x, win_y, win_width, win_height));
-		return score;
-	}
-};
-
-/////////////////////////////////////////////////////////////////////////////////////////////
 SegmentBasedWindowComposer::SegmentBasedWindowComposer() : m_nImgWidth(0), m_nImgHeight(0)
-	,seg_index_map(NULL)
 	,m_fMaxCost(0.7f)
 {
 }
@@ -151,14 +94,14 @@ void SegmentBasedWindowComposer::Clear()
 	innerSegs.clear();	// clear pointers
 }
 
-bool SegmentBasedWindowComposer::Init(const ImageUIntSimple& seg_map, const vector<SegSuperPixelFeature>& sp_features, const ImageFloatSimple* bg_weight_map)
+bool SegmentBasedWindowComposer::Init(const Mat& seg_map, const vector<SegSuperPixelFeature>& sp_features, const Mat& bg_weight_map)
 {
 	//Clear();	no need to clear again: call once in detector::init
 	
 	// init data
-	m_nImgWidth = seg_map.Width();
-	m_nImgHeight = seg_map.Height();
-	seg_index_map = &seg_map;
+	m_nImgWidth = seg_map.cols;
+	m_nImgHeight = seg_map.rows;
+	seg_index_map = seg_map;
 	compose_cost_map.Create(m_nImgWidth, m_nImgHeight);
 	m_fMaxCost = 0.7f;
 
@@ -188,7 +131,7 @@ bool SegmentBasedWindowComposer::Init(const ImageUIntSimple& seg_map, const vect
 	}
 
 	// compute background weight for each superpixel
-	if(bg_weight_map != NULL)
+	if( !bg_weight_map.empty() )
 	{
 		for(size_t i=0; i<sp_features.size(); i++)
 		{
@@ -198,9 +141,9 @@ bool SegmentBasedWindowComposer::Init(const ImageUIntSimple& seg_map, const vect
 			{
 				for(int x=box.x; x<box.br().x; x++)
 				{
-					if(seg_map.Pixel(x, y) == i)
+					if(seg_map.at<int>(x, y) == i)
 					{
-						sp_comp_features[i].importWeight += bg_weight_map->Pixel(x,y);
+						sp_comp_features[i].importWeight += bg_weight_map.at<float>(x,y);
 					}
 				}
 			}
@@ -391,32 +334,13 @@ void SegmentBasedWindowComposer::ComposeAll(const int win_width, const int win_h
 {		
 	compose_cost_map.FillPixels(0);
 
-	if (use_ehsw)
-	{		
-		ImageResultWriter<ImageFloatSimple, OptimumFinderWriter<float, less<float>>> writer(compose_cost_map, win_width/2, win_height/2);
-
-		EHSWFunc func(*this);
-		// 1. dense sparse
-		typedef incr_histogram_calculator<scanline_sliding_window_calculator<ImageUIntSimple, AccuHistBase<EHSWFunc, HistArray>, HistSparse, false, true> > DenseSparseFullCalculator;
-		DenseSparseFullCalculator calculator(win_width, win_height, m_nImgWidth, m_nImgHeight, *seg_index_map, win_height <= win_width, func);
-
-		// 2. sparse sparse, need to initialize segment's area
-		//typedef incr_histogram_calculator<scanline_sliding_window_calculator<CImage<PixelClusterIndexType>, AccuHistBase<EHSWFunc, HistSparse>, HistSparse, false, true> > SparseSparseFullCalculator;
-		//SparseSparseFullCalculator calculator(win.Width, win.Height, pRes->m_nWidth, pRes->m_nHeight, pSegRes->index_map.m_index, win.Height <= win.Width, func);
-		//for(int n = 0; n < pRes->sp_feature.size(); n++)	pRes->sp_feature[n].InitFillArea();		
-
-		incr_scanline_calculate(calculator, 0, 0, writer);
-	}
-	else // brute force computation
-	{	
-		ScoredRect win(Rect(0, 0, win_width, win_height));
-		for(win.y = 0; win.y < m_nImgHeight - win.height+1; win.y++)
-		{
-			for(win.x = 0; win.x < m_nImgWidth - win.width+1; win.x++)
-			{				
-				win.score = Compose(win);
-				compose_cost_map.Pixel(win.x+win.width/2, win.y+win.height/2) = win.score;
-			}
+	ScoredRect win(Rect(0, 0, win_width, win_height));
+	for(win.y = 0; win.y < m_nImgHeight - win.height+1; win.y++)
+	{
+		for(win.x = 0; win.x < m_nImgWidth - win.width+1; win.x++)
+		{				
+			win.score = Compose(win);
+			compose_cost_map.Pixel(win.x+win.width/2, win.y+win.height/2) = win.score;
 		}
 	}
 }

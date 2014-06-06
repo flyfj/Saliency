@@ -71,12 +71,8 @@ int main()
 
 	detector.Init(newImg);
 
-	Timer t;
 	// run detection
 	int num_scales = detector.RunMultiSlidingWindow();
-
-	detector.g_runinfo.det_t = t.Stamp();
-	printf("\ndetection time (%d scales) : %.2f s.\n", num_scales, t.Stamp());
 
 
 	// save result

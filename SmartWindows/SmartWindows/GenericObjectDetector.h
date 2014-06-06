@@ -80,7 +80,7 @@ public:
 
 	bool TrainBing();
 
-	bool GetObjectsFromBing(const cv::Mat& cimg, vector<Rect>& detWins, int winnum, bool showres=false);
+	bool GetObjectsFromBing(const cv::Mat& cimg, vector<ImgWin>& detWins, int winnum, bool showres=false);
 
 	//////////////////////////////////////////////////////////////////////////
 

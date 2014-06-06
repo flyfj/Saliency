@@ -3,7 +3,8 @@
 #include "SegmentBasedWindowComposer.h"
 #include <opencv2/opencv.hpp>
 #include <tchar.h>
-#include "time_ex.h"
+#include "ImageSegmentor.h"
+#include "colorconverthelper.h"
 using namespace cv;
 
 
@@ -124,12 +125,19 @@ public:
 
 	int RunMultiSlidingWindow();	// return how many window scales
 
+	//////////////////////////////////////////////////////////////////////////
+	// added@2014-6-6
+	//////////////////////////////////////////////////////////////////////////
+	// use composition cost to rank image windows
+	bool RankWins(vector<ImgWin>& wins);
+
+
 	// draw detected boxes on image
 	void DrawResult(Mat& img, double down_ratio, const vector<ScoredRect>& objs) const;
 
 	int m_nSlideStep;	//?
 	
-	bool SaveSegmentImage(const WCHAR* filename) const;
+	//bool SaveSegmentImage(const WCHAR* filename) const;
 
 	vector<ScoredRect> res_objs;	// final detection results
 	// a number of nms thresholds, and extracted salient objects for each threshold
@@ -159,6 +167,8 @@ private:
 	void ConvertSegmentImage2Mat(Mat &segmentMat, int width, int height);
 
 	//void ComputeBGMap(const BitmapData& img);
+
+	visualsearch::ImageSegmentor imgSegmentor;
 
 	ImageUIntSimple seg_index_map;
 

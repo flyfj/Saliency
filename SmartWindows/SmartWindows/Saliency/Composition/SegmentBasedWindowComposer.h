@@ -11,11 +11,10 @@ using namespace cv;
 #include <vector>
 using namespace std;
 
-#include <ImageSimple.h>
-#include "time_ex.h"
+#include "ImageSimple.h"
 #include "IntegralImage.h"
+#include "common.h"
 
-#include <IncrHistCalculator.h>
 
 // make every structure clear; pass only necessary information to algorithm
 // 1. redefine data structure, only include truly necessary data members, also differentiate those only for algorithm analysis (using RECORD_AUXILIARY_INFO)
@@ -142,7 +141,7 @@ struct SegSuperPixelComposeFeature
 
 		integral(mask_img, cv_area_integral_image);
 	}*/
-	void CreateAreaIntegral(const ImageUIntSimple& seg_index_map, unsigned int id)
+	void CreateAreaIntegral(const Mat& seg_index_map, unsigned int id)
 	{
 		cv_area_integral_image.create(box.height, box.width, CV_32F);
 		ImageUIntSimple mask_img(box.width, box.height);
@@ -152,7 +151,7 @@ struct SegSuperPixelComposeFeature
 		{
 			for(int x=box.x; x<box.br().x; x++)
 			{
-				if( seg_index_map.Pixel(x,y) == id )
+				if( seg_index_map.at<int>(y, x) == id )
 				{
 					mask_img.Pixel(x-box.x, y-box.y) = 1;
 					mask[(y-box.y)*box.width+(x-box.x)] = 1;
@@ -220,6 +219,7 @@ struct SegSuperPixelComposeFeature
 
 };
 
+
 // it holds the key data structure and algorithm for window based composition algorithm
 class SegmentBasedWindowComposer
 {
@@ -229,13 +229,13 @@ public:
 	SegmentBasedWindowComposer();
 	~SegmentBasedWindowComposer();
 
-	friend class EHSWFunc;
-
 	// input parameters: a rgb image, a segmentation index image
 	// 1. compute background weight for each segment
 	// 2. compute pair-wise composition cost
 	// return whether initialization is done correctly, usually the memory allocation status
-	bool Init(const ImageUIntSimple& seg_map, const vector<SegSuperPixelFeature>& sp_features, const ImageFloatSimple* bg_weight_map = NULL); 
+	//bool Init(const ImageUIntSimple& seg_map, const vector<SegSuperPixelFeature>& sp_features, const ImageFloatSimple* bg_weight_map = NULL); 
+
+	bool Init(const Mat& seg_map, const vector<SegSuperPixelFeature>& sp_features, const Mat& bg_weight_map = Mat());
 
 	// compute composition cost of a single window
 	float Compose(const Rect& win);
@@ -253,7 +253,8 @@ protected:
 	ImageFloatSimple compose_cost_map;
 
 private:
-	const ImageUIntSimple* seg_index_map;	// input segmentation map, set once in Init()
+	//const ImageUIntSimple* seg_index_map;	// input segmentation map, set once in Init()
+	Mat seg_index_map;
 
 	vector<SegSuperPixelComposeFeature*> innerSegs;	// segments inside current window
 	inline float compose_greedy(const Rect& win);

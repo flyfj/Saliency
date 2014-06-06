@@ -102,7 +102,7 @@ namespace visualsearch
 			curimg.copyTo(oimg(Rect(pos.x*itemSize.width, pos.y*itemSize.height, itemSize.width, itemSize.height)));
 
 			// output image file
-			cout<<i<<" drawn."<<endl;
+			//cout<<i<<" drawn."<<endl;
 			//cout<<pos.x<<" "<<pos.y<<": "<<cur_obj.imgfile<<endl;
 		}
 

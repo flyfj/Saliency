@@ -17,7 +17,7 @@ namespace visualsearch
 
 	int ImageSegmentor::DoSegmentation(const cv::Mat& img)
 	{
-		double start_t = cv::getTickCount();
+		
 
 		int height = img.rows;
 		int width = img.cols;
@@ -36,9 +36,13 @@ namespace visualsearch
 			}
 		}
 
+		double start_t = cv::getTickCount();
+		
 		image<int> index(width, height);	//index matrix, each pixel value is its object id (0~object_num)
 		int num_ccs;
 		image<rgb> *seg = segment_image(&input, m_dSmoothSigma, m_dThresholdK, m_dMinArea, &num_ccs, &index);	
+		
+		cout<<"Segmentation time: "<<(getTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
 
 		// set up segment color image for visualization
 		m_segImg.create(img.size(), CV_8UC3);
@@ -103,8 +107,6 @@ namespace visualsearch
 			superPixels[i].meancolor = cur_mean;
 			m_mean_img.setTo(cur_mean, cur_mask);
 		}
-
-		cout<<"Segmentation time: "<<(getTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
 
 		return num_ccs;
 	}

@@ -141,6 +141,21 @@
     <ClInclude Include="Saliency\Composition\SegmentBasedWindowComposer.h">
       <Filter>Saliency\Composition</Filter>
     </ClInclude>
+    <ClInclude Include="Saliency\Composition\IntegralImage.h">
+      <Filter>Saliency\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="Saliency\Composition\ImageSimple.h">
+      <Filter>Saliency\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="Saliency\Composition\functional_ex.h">
+      <Filter>Saliency\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="Saliency\Composition\colorconverthelper.h">
+      <Filter>Saliency\Composition</Filter>
+    </ClInclude>
+    <ClInclude Include="Saliency\Composition\nms.h">
+      <Filter>Saliency\Composition</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -230,13 +245,13 @@
     <ClCompile Include="LibLinear\blas\dscal.c">
       <Filter>LibLinear\Blas</Filter>
     </ClCompile>
-    <ClCompile Include="Saliency\Composition\opencv_interface.cpp">
-      <Filter>Saliency\Composition</Filter>
-    </ClCompile>
     <ClCompile Include="Saliency\Composition\SalientRegionDetector.cpp">
       <Filter>Saliency\Composition</Filter>
     </ClCompile>
     <ClCompile Include="Saliency\Composition\SegmentBasedWindowComposer.cpp">
+      <Filter>Saliency\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="Saliency\Composition\IntegralImage.cpp">
       <Filter>Saliency\Composition</Filter>
     </ClCompile>
   </ItemGroup>

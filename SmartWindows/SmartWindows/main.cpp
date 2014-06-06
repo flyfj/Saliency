@@ -9,6 +9,7 @@
 #include <string>
 #include "ObjectSegmentor.h"
 #include "a9wins/A9Window.h"
+#include "Saliency/Composition/SalientRegionDetector.h"
 using namespace std;
 
 int main()
@@ -23,29 +24,58 @@ int main()
 	if( !detector.InitBingObjectness() )
 		return -1;
 
-	Mat timg = imread("d:\\imgs\\img_0264.png");
+	Mat timg = imread("d:\\imgs\\a3.jpg");
 	if(timg.empty())
 		return 0;
-	//resize(timg, timg, Size(300,300));
+
+	resize(timg, timg, Size(200,200));
+	imshow("input img", timg);
+	waitKey(10);
 	//Mat normimg;
 	//normalize(timg, timg, 0, 255, NORM_MINMAX);
 
 	double start_t = cv::getTickCount();
 
-	vector<Rect> boxes;
-	detector.GetObjectsFromBing(timg, boxes, 120, true);
+	vector<ImgWin> boxes;
+	detector.GetObjectsFromBing(timg, boxes, 200);
 
-	//detector.test();
-	//dbMan.BrowseDBImages();
-	//dbMan.GenerateWinSamps();
-	//detector.Run(curimg);
+	std::cout<<"Bing time: "<<(cv::getTickCount()-start_t) / cv::getTickFrequency()<<"s."<<std::endl;
+	
+	// make images
+	vector<Mat> imgs(boxes.size());
+	for (int i=0; i<boxes.size(); i++)
+	{
+		imgs[i] = timg(boxes[i]);
+	}
 
-	std::cout<<"Process time: "<<(cv::getTickCount()-start_t) / cv::getTickFrequency()<<"s."<<std::endl;
+	Mat dispimg;
+	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 15, dispimg);
+	imshow("objectness", dispimg);
+	waitKey(10);
+	
+	// rank windows with CC
+	
+	SalientRegionDetector salDetector;
+	salDetector.Init(timg);
 
-	cv::waitKey(0);
+	start_t = getTickCount();
+	salDetector.RankWins(boxes);
+
+	std::cout<<"Saliency time: "<<(cv::getTickCount()-start_t) / cv::getTickFrequency()<<"s."<<std::endl;
+
+	// make images
+	for (int i=0; i<boxes.size(); i++)
+	{
+		imgs[i] = timg(boxes[i]);
+	}
+
+	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 15, dispimg);
+	imshow("rank by CC", dispimg);
+	waitKey(0);
+
 	cv::destroyAllWindows();
 
-	getchar();
+	//getchar();
 
 	return 0;
 }

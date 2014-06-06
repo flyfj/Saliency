@@ -1,11 +1,9 @@
 #include "SalientRegionDetector.h"
 
-#include <GraphBasedSegment\wrapper.h>
-
 //#include <BitmapHelper.h>
 #include <algorithm>
 #include <fstream>
-#include <colorconverthelper.h>
+#include "colorconverthelper.h"
 #include "nms.h"
 
 
@@ -91,142 +89,6 @@ void SalientRegionDetector::Clear()
 
 }
 
-//void SalientRegionDetector::ComputeBGMap(const BitmapData& img)
-//{
-//	Size m_patchSize(10, 10);
-//	Point m_patchDim;
-//	m_patchDim = Point(img.Width/m_patchSize.Width, img.Height/m_patchSize.Height);
-//	int patchNum = m_patchDim.X * m_patchDim.Y;
-//	vector<Patch> m_patches(patchNum);
-//
-//	vector<vector<float>> patchAdjacencyMatrix;
-//	vector<vector<float>> patchDistanceMap;	// shortest patch distance between any two patches
-//
-//	// compute patch-wise shortest path cost
-//	// construct patches
-//	vector<int> boundaryPatches;
-//	{
-//		patchAdjacencyMatrix.resize(patchNum);
-//		for( int i=0; i<patchAdjacencyMatrix.size(); i++ )
-//			patchAdjacencyMatrix[i].resize(patchNum, INFINITE);
-//
-//		for( int y = 0; y < m_patchDim.Y; y++ )
-//		{
-//			for( int x = 0; x < m_patchDim.X; x++)
-//			{
-//				int id = y*m_patchDim.X + x;
-//				Point curpos(x*m_patchSize.Width, y*m_patchSize.Height);
-//
-//				// add to boundary patch
-//				if(y==0 || x==0 || x==m_patchDim.X-1 || y==m_patchDim.Y-1)
-//					boundaryPatches.push_back(id);
-//
-//				// compute distance (Euclidean distance of RGB) with neighbors; only need right and bottom (forward)
-//				if( x + 1 < m_patchDim.X)
-//				{
-//					int nextid = y*m_patchDim.X + (x+1);
-//					Point nextpos((x+1)*m_patchSize.Width, y*m_patchSize.Height);
-//					float dist = 0;
-//					for(int yy=0; yy<m_patchSize.Height; yy++)
-//					{
-//						for(int xx=0; xx<m_patchSize.Width; xx++)
-//						{
-//							BYTE* curpt = (BYTE*)img.Scan0 + (yy+curpos.Y)*img.Stride + 3*(xx+curpos.X);
-//							BYTE* nextpt = (BYTE*)img.Scan0 + (yy+nextpos.Y)*img.Stride + 3*(xx+nextpos.X);
-//							dist += (curpt[0]-nextpt[0])*(curpt[0]-nextpt[0]) 
-//								+ (curpt[1]-nextpt[1])*(curpt[1]-nextpt[1]) 
-//								+ (curpt[2]-nextpt[2])*(curpt[2]-nextpt[2]);
-//						}
-//					}
-//					dist = sqrt(dist);
-//					patchAdjacencyMatrix[id][nextid] = patchAdjacencyMatrix[nextid][id] = dist;
-//				}
-//				if( y + 1 < m_patchDim.Y)
-//				{
-//					int nextid = (y+1)*m_patchDim.X + x;
-//					Point nextpos( x*m_patchSize.Width, (y+1)*m_patchSize.Height );
-//					float dist = 0;
-//					for(int yy=0; yy<m_patchSize.Height; yy++)
-//					{
-//						for(int xx=0; xx<m_patchSize.Width; xx++)
-//						{
-//							BYTE* curpt = (BYTE*)img.Scan0 + (yy+curpos.Y)*img.Stride + 3*(xx+curpos.X);
-//							BYTE* nextpt = (BYTE*)img.Scan0 + (yy+nextpos.Y)*img.Stride + 3*(xx+nextpos.X);
-//							dist += (curpt[0]-nextpt[0])*(curpt[0]-nextpt[0]) 
-//								+ (curpt[1]-nextpt[1])*(curpt[1]-nextpt[1])
-//								+ (curpt[2]-nextpt[2])*(curpt[2]-nextpt[2]);
-//						}
-//					}
-//					dist = sqrt(dist);
-//					patchAdjacencyMatrix[id][nextid] = patchAdjacencyMatrix[nextid][id] = dist;
-//				}
-//			}
-//		}
-//
-//		patchDistanceMap = patchAdjacencyMatrix;
-//	}
-//	
-//	// use floyd's all pair shortest paths algorithm
-//	for (size_t k = 0; k < patchNum; k++)
-//		for (size_t i = 0; i < patchNum; i++)
-//			for (size_t j = 0; j < patchNum; j++)
-//				if ( patchDistanceMap[i][k] + patchDistanceMap[k][j] < patchDistanceMap[i][j] )
-//					patchDistanceMap[i][j] = patchDistanceMap[i][k] + patchDistanceMap[k][j];
-//
-//	// compute background likelihood map
-//	{
-//		bgMap.Create(img.Width, img.Height);
-//		bgMap.FillPixels(0);
-//		float maxdist = 0;
-//		for(size_t i=0; i<patchDistanceMap.size(); i++)
-//		{
-//			m_patches[i].id = i;
-//			Point pos;
-//			pos.X = i % m_patchDim.X;
-//			pos.Y = i / m_patchDim.X;
-//			m_patches[i].pos = pos;
-//
-//			float minDist = INFINITE;
-//			int minId = -1;
-//			float sumdist = 0;
-//			// find shortest distance to boundary patches
-//			for(size_t j=0; j<boundaryPatches.size(); j++)
-//			{
-//				Point tpos;
-//				tpos.X = boundaryPatches[j] % m_patchDim.X;
-//				tpos.Y = boundaryPatches[j] / m_patchDim.X;
-//
-//				if(patchDistanceMap[i][boundaryPatches[j]] < minDist)
-//				{
-//					minDist = patchDistanceMap[i][boundaryPatches[j]];
-//					minId = boundaryPatches[j];
-//				}
-//			}
-//
-//			m_patches[i].bgScore =  minDist;
-//
-//			if(m_patches[i].bgScore > maxdist)
-//				maxdist = m_patches[i].bgScore;
-//		}
-//
-//		// normalize bg score
-//		for(size_t i=0; i<m_patches.size(); i++)
-//		{
-//			m_patches[i].bgScore /= maxdist;
-//			
-//			// draw on map
-//			for(int y=0; y<m_patchSize.Height; y++)
-//			{
-//				for(int x=0; x<m_patchSize.Width; x++)
-//				{
-//					bgMap.Pixel(m_patches[i].pos.X*m_patchSize.Width+x, m_patches[i].pos.Y*m_patchSize.Height+y) = m_patches[i].bgScore;
-//				}
-//			}
-//		}
-//	}
-//
-//}
-
 bool SalientRegionDetector::Init(const Mat& img)
 {
 	// clear data for new image
@@ -253,14 +115,13 @@ bool SalientRegionDetector::Init(const Mat& img)
 	int min_size = g_para.segMinArea;
 
 	Mat segmentMat;
-	Timer t;
-	int superpixel_num = graph_based_segment(img, sigma, c, min_size, seg_index_map, &segmentedImg[0]);
+	imgSegmentor.m_dMinArea = min_size;
+	imgSegmentor.m_dSmoothSigma = sigma;
+	int superpixel_num = imgSegmentor.DoSegmentation(img);
+		//graph_based_segment(img, sigma, c, min_size, imgSegmentor.m_idxImg, &segmentedImg[0]);
 	g_runinfo.seg_num = superpixel_num;
-	g_runinfo.seg_t = t.Stamp();
-	printf("generate %d segments : %.1f ms\n", superpixel_num, t.Stamp()*1000);
 	// visualize segment image
-	ConvertSegmentImage2Mat(segmentMat, img.cols, img.rows);
-	imshow("segmentimage", segmentMat);
+	imshow("segmentimage", imgSegmentor.m_segImg);
 	waitKey(10);
 
 	//////////////////////////////////////////////////////////////////////////
@@ -274,7 +135,7 @@ bool SalientRegionDetector::Init(const Mat& img)
 	{
 		for(int x=0; x<img.cols; x++)
 		{
-			int seg_id = seg_index_map.Pixel(x,y);
+			int seg_id = imgSegmentor.m_idxImg.at<int>(y, x);
 			// add area
 			sp_features[seg_id].area++;
 			// add centroid
@@ -296,24 +157,24 @@ bool SalientRegionDetector::Init(const Mat& img)
 			}
 
 			// perimeter
-			if(seg_id != seg_index_map.Pixel(x-1, y))
+			if(seg_id != imgSegmentor.m_idxImg.at<int>(y, x-1))
 			{ sp_features[seg_id].perimeter++; continue; }
-			if(seg_id != seg_index_map.Pixel(x+1, y))
+			if(seg_id != imgSegmentor.m_idxImg.at<int>(y, x+1))
 			{ sp_features[seg_id].perimeter++; continue; }
-			if(seg_id != seg_index_map.Pixel(x, y-1))
+			if(seg_id != imgSegmentor.m_idxImg.at<int>(y-1, x))
 			{ sp_features[seg_id].perimeter++; continue; }
-			if(seg_id != seg_index_map.Pixel(x, y+1))
+			if(seg_id != imgSegmentor.m_idxImg.at<int>(y+1, x))
 			{ sp_features[seg_id].perimeter++; continue; }
 
 			if(SegSuperPixelFeature::use4Neighbor) continue;
 			// 8 neighbor case
-			if(seg_id != seg_index_map.Pixel(x-1, y-1))
+			if(seg_id != imgSegmentor.m_idxImg.at<int>(y-1, x-1))
 			{ sp_features[seg_id].perimeter++; continue; }
-			if(seg_id != seg_index_map.Pixel(x+1, y-1))
+			if(seg_id != imgSegmentor.m_idxImg.at<int>(y-1, x+1))
 			{ sp_features[seg_id].perimeter++; continue; }
-			if(seg_id != seg_index_map.Pixel(x-1, y+1))
+			if(seg_id != imgSegmentor.m_idxImg.at<int>(y+1, x-1))
 			{ sp_features[seg_id].perimeter++; continue; }
-			if(seg_id != seg_index_map.Pixel(x+1, y+1))
+			if(seg_id != imgSegmentor.m_idxImg.at<int>(y+1, x+1))
 			{ sp_features[seg_id].perimeter++; continue; }
 
 		}
@@ -353,9 +214,9 @@ bool SalientRegionDetector::Init(const Mat& img)
 			int bbin = (int)(b/(240.f/quantBins[2]));
 			bbin = ( bbin > quantBins[2]-1? quantBins[2]-1: bbin );
 
-			sp_features[seg_index_map.Pixel(x,y)].feat[lbin]++;
-			sp_features[seg_index_map.Pixel(x,y)].feat[quantBins[0]+abin]++;
-			sp_features[seg_index_map.Pixel(x,y)].feat[quantBins[0]+quantBins[1]+bbin]++;
+			sp_features[imgSegmentor.m_idxImg.at<int>(y, x)].feat[lbin]++;
+			sp_features[imgSegmentor.m_idxImg.at<int>(y, x)].feat[quantBins[0]+abin]++;
+			sp_features[imgSegmentor.m_idxImg.at<int>(y, x)].feat[quantBins[0]+quantBins[1]+bbin]++;
 		}
 	}
 	//do feature normalization
@@ -371,7 +232,7 @@ bool SalientRegionDetector::Init(const Mat& img)
 	ComputeBGMap(img);*/
 
 	// init composer
-	if (!Base::Init(seg_index_map, sp_features, (g_para.useBGMap? &bgMap: 0))) return false;
+	if (!Base::Init(imgSegmentor.m_idxImg, sp_features)) return false;
 
 	return true;
 }
@@ -438,7 +299,6 @@ int SalientRegionDetector::RunMultiSlidingWindow()
 
 			{
 				// run each window scale
-				Timer t;
 				RunSlidingWindow(win_width, win_height);
 				printf("*");
 			}
@@ -462,6 +322,23 @@ int SalientRegionDetector::RunMultiSlidingWindow()
 
 }
 
+//////////////////////////////////////////////////////////////////////////
+// added
+//////////////////////////////////////////////////////////////////////////
+bool SalientRegionDetector::RankWins(vector<ImgWin>& wins)
+{
+	// compute composition cost for each window
+	for (size_t i=0; i<wins.size(); i++)
+	{
+		wins[i].score = Compose(wins[i]);
+	}
+
+	sort(wins.begin(), wins.end(), [](const ImgWin& a, const ImgWin& b) { return a.score > b.score; } );
+
+	return true;
+}
+
+
 void SalientRegionDetector::DrawResult(Mat& img, double down_ratio, const vector<ScoredRect>& objs) const
 {
 	char str[30];
@@ -481,14 +358,14 @@ void SalientRegionDetector::DrawResult(Mat& img, double down_ratio, const vector
 	}
 }
 
-bool SalientRegionDetector::SaveSegmentImage(const WCHAR* filename) const
-{
-	/*Bitmap bmp(m_nImgWidth, m_nImgHeight, 3*m_nImgWidth, PixelFormat24bppRGB, const_cast<BYTE*>(&segmentedImg[0]));
-
-	return SaveBitmap(bmp, L"image/jpeg", filename);*/
-
-	return true;
-}
+//bool SalientRegionDetector::SaveSegmentImage(const WCHAR* filename) const
+//{
+//	/*Bitmap bmp(m_nImgWidth, m_nImgHeight, 3*m_nImgWidth, PixelFormat24bppRGB, const_cast<BYTE*>(&segmentedImg[0]));
+//
+//	return SaveBitmap(bmp, L"image/jpeg", filename);*/
+//
+//	return true;
+//}
 
 void SalientRegionDetector::SaveDetectionResults(string save_img_prefix)
 {
