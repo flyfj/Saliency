@@ -23,7 +23,7 @@ namespace visualsearch
 			cvtColor(dispimg, dispimg, CV_GRAY2BGR);
 		}
 
-		int num = MIN(wins.size(), 100);
+		int num = MIN(wins.size(), 50);
 		for(size_t i=0; i<num; i++)
 		{
 			cv::rectangle(dispimg, wins[i], CV_RGB(rng.next()%255, rng.next()%255, rng.next()%255), 2);

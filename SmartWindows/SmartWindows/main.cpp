@@ -34,7 +34,6 @@ int main()
 		return 0;
 
 	
-
 	resize(timg, timg, Size(200,200));
 	imshow("input img", timg);
 	waitKey(10);

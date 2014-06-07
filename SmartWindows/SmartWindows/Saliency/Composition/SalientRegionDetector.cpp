@@ -121,8 +121,8 @@ bool SalientRegionDetector::Init(const Mat& img)
 		//graph_based_segment(img, sigma, c, min_size, imgSegmentor.m_idxImg, &segmentedImg[0]);
 	g_runinfo.seg_num = superpixel_num;
 	// visualize segment image
-	imshow("segmentimage", imgSegmentor.m_segImg);
-	waitKey(10);
+	//imshow("segmentimage", imgSegmentor.m_segImg);
+	//waitKey(10);
 
 	//////////////////////////////////////////////////////////////////////////
 	// compute features for each superpixel

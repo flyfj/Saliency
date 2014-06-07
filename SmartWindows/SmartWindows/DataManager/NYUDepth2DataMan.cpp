@@ -55,15 +55,21 @@ bool NYUDepth2DataMan::LoadGTWins(const FileInfos& imgfiles, map<string, vector<
 		{
 			int curlabel = curlabelimg.at<int>(r,c);
 			if(curlabel == 0) continue;
+			if(toplefts.find(curlabel) == toplefts.end())
+			{	
+				toplefts[curlabel].x = c;
+				toplefts[curlabel].y = r;
+				continue;
+			}
 			toplefts[curlabel].x = MIN(toplefts[curlabel].x, c);
-			toplefts[curlabel].x = MIN(toplefts[curlabel].x, c);
-			bottomrights[curlabel].y = MAX(bottomrights[curlabel].y, c);
-			bottomrights[curlabel].y = MAX(bottomrights[curlabel].y, c);
+			toplefts[curlabel].y = MIN(toplefts[curlabel].y, r);
+			bottomrights[curlabel].x = MAX(bottomrights[curlabel].x, c);
+			bottomrights[curlabel].y = MAX(bottomrights[curlabel].y, r);
 		}
 
 		for(map<int, Point>::iterator p1=toplefts.begin(), p2=bottomrights.begin(); p1!=toplefts.end(); p1++, p2++)
 		{
-			ImgWin box(p1->second.x, p1->second.y, p2->second.x, p2->second.y);
+			ImgWin box(p1->second.x, p1->second.y, p2->second.x-p1->second.x, p2->second.y-p1->second.y);
 			gtwins[imgfiles[i].filename].push_back(box);
 		}
 

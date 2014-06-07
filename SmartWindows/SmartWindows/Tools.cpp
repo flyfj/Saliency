@@ -118,3 +118,43 @@ Rect ToolFactory::RefineBox(Rect inBox, Size rangeLimit)
 
 	return newBox;
 }
+
+
+float ToolFactory::compute_downsample_ratio(Size oldSz, float downSampleFactor, Size& newSz)
+{
+	int imgWidth = oldSz.width;
+	int imgHeight = oldSz.height;
+	int newWidth = imgWidth, newHeight = imgHeight;
+	float down_ratio;
+	if (downSampleFactor < 1)		// downSampleFactor is in percentage
+	{
+		down_ratio = downSampleFactor;
+		newWidth = imgWidth * down_ratio + 0.5;
+		newHeight = imgHeight * down_ratio + 0.5;
+	}
+	else if (max(imgWidth, imgHeight) > downSampleFactor)
+		// downsize image such that the longer dimension equals downSampleFactor (in pixel), aspect ratio is preserved
+	{		
+		if (imgWidth > imgHeight)
+		{
+			newWidth = (int)downSampleFactor;
+			newHeight = (int)((float)(newWidth*imgHeight)/imgWidth);
+			down_ratio = (float)newWidth / imgWidth;
+		}
+		else
+		{			
+			newHeight = downSampleFactor;
+			newWidth = (int)((float)(newHeight*imgWidth)/imgHeight);
+			down_ratio = (float)newHeight / imgHeight;
+		}
+	}
+	else	// if smaller than specified dimension, ignore resize
+	{
+		down_ratio = 1;
+	}
+
+	newSz.width = newWidth;
+	newSz.height = newHeight;
+
+	return down_ratio;
+}

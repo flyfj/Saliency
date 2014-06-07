@@ -68,4 +68,6 @@ public:
 		else
 			return 0;
 	}
+
+	static float compute_downsample_ratio(cv::Size oldSz, float downSampleFactor, cv::Size& newSz);
 };

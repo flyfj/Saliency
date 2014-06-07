@@ -22,11 +22,12 @@ float WindowEvaluator::ComputeWinMatchScore(const ImgWin& qwin, const ImgWin& gw
 }
 
 
-Point2f WindowEvaluator::CompPRForSingleImg(const vector<ImgWin>& det_wins, const vector<ImgWin>& gt_wins)
+Point2f WindowEvaluator::CompPRForSingleImg(const vector<ImgWin>& det_wins, const vector<ImgWin>& gt_wins, int topK)
 {
 	Point2f pr_val(0, 0);
 	set<int> corr_gtwins;
-	for(size_t i=0; i<det_wins.size(); i++)
+	int validnum = MIN(topK, det_wins.size());
+	for(size_t i=0; i<validnum; i++)
 	{
 		for(size_t j=0; j<gt_wins.size(); j++)
 		{
@@ -44,7 +45,7 @@ Point2f WindowEvaluator::CompPRForSingleImg(const vector<ImgWin>& det_wins, cons
 	return pr_val;
 }
 
-Point2f WindowEvaluator::ComputePR(const vector<vector<ImgWin>>& det_wins, const vector<vector<ImgWin>>& gt_wins)
+Point2f WindowEvaluator::ComputePR(const vector<vector<ImgWin>>& det_wins, const vector<vector<ImgWin>>& gt_wins, int topK)
 {
 	Point2f pr_val(0, 0);
 	int sum_det = 0;
@@ -52,9 +53,10 @@ Point2f WindowEvaluator::ComputePR(const vector<vector<ImgWin>>& det_wins, const
 	// loop each image
 	for(size_t i=0; i<det_wins.size(); i++)
 	{
-		sum_det += det_wins[i].size();
+		int validnum = MIN(topK, det_wins[i].size());
+		sum_det += validnum;
 		sum_gt += gt_wins[i].size();
-		Point2f cur_pr = CompPRForSingleImg(det_wins[i], gt_wins[i]);
+		Point2f cur_pr = CompPRForSingleImg(det_wins[i], gt_wins[i], validnum);
 		pr_val.x += cur_pr.x;
 		pr_val.y += cur_pr.y;
 	}

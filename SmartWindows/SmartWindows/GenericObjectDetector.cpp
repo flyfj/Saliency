@@ -525,7 +525,10 @@ bool GenericObjectDetector::InitBingObjectness()
 bool GenericObjectDetector::GetObjectsFromBing(const cv::Mat& cimg, vector<ImgWin>& detWins, int winnum, bool showres)
 {
 	if( !isBingInitialized )
+	{
+		cerr<<"Bing is not initialized."<<endl;
 		return false;
+	}
 
 	ValStructVec<float, Vec4i> boxes;
 	bingObjectness->getObjBndBoxes(cimg, boxes);

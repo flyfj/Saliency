@@ -13,6 +13,7 @@
 #include "ImgVisualizer.h"
 #include "DataManager/DatasetManager.h"
 #include "DataManager/NYUDepth2DataMan.h"
+#include "DataManager/Berkeley3DDataManager.h"
 #include <string>
 #include "ObjectSegmentor.h"
 #include "Saliency/Composition/SalientRegionDetector.h"
