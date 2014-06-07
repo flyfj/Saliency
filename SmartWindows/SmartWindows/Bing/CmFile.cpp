@@ -1,4 +1,4 @@
-#include "commonlibs.h"
+#include "common_bing.h"
 
 #include <shlobj.h>
 #include <Commdlg.h>

@@ -16,9 +16,9 @@ private:
 public:
 	NYUDepth2DataMan(void)
 	{
-		imgdir = DB_ROOT + "Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\KinectColor\\";
-		depthdir = DB_ROOT + "Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\RegisteredDepthData\\";
-		gtdir = DB_ROOT + "Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\Annotations\\";
+		imgdir = DB_ROOT + "Datasets\\RGBD_Dataset\\NYU\\Depth2\\";
+		depthdir = DB_ROOT + "Datasets\\RGBD_Dataset\\NYU\\Depth2\\";
+		gtdir = DB_ROOT + "Datasets\\RGBD_Dataset\\NYU\\Depth2\\";
 	}
 
 	bool GetImageList(FileInfos& imgfiles);

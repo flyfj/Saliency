@@ -134,7 +134,7 @@
     <ClInclude Include="Bing\FilterTIG.h" />
     <ClInclude Include="Bing\ImgContrastBB.h" />
     <ClInclude Include="Bing\Objectness.h" />
-    <ClInclude Include="Bing\commonlibs.h" />
+    <ClInclude Include="Bing\common_bing.h" />
     <ClInclude Include="Bing\ValStructVec.h" />
     <ClInclude Include="ColorGMM.h" />
     <ClInclude Include="DataManager\Berkeley3DDataManager.h" />
@@ -153,6 +153,7 @@
     <ClInclude Include="LibLinear\linear.h" />
     <ClInclude Include="LibLinear\tron.h" />
     <ClInclude Include="ObjectSegmentor.h" />
+    <ClInclude Include="ObjectTester.h" />
     <ClInclude Include="RGBDTools.h" />
     <ClInclude Include="Saliency\Composition\colorconverthelper.h" />
     <ClInclude Include="Saliency\Composition\functional_ex.h" />
@@ -174,7 +175,7 @@
     <ClCompile Include="Bing\DataSetVOC.cpp" />
     <ClCompile Include="Bing\FilterTIG.cpp" />
     <ClCompile Include="Bing\Objectness.cpp" />
-    <ClCompile Include="Bing\commonlibs.cpp" />
+    <ClCompile Include="Bing\common_bing.cpp" />
     <ClCompile Include="ColorGMM.cpp" />
     <ClCompile Include="DataManager\Berkeley3DDataManager.cpp" />
     <ClCompile Include="DataManager\DatasetManager.cpp" />
@@ -192,6 +193,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="GenericObjectDetector.cpp" />
     <ClCompile Include="ObjectSegmentor.cpp" />
+    <ClCompile Include="ObjectTester.cpp" />
     <ClCompile Include="RGBDTools.cpp" />
     <ClCompile Include="Saliency\Composition\IntegralImage.cpp" />
     <ClCompile Include="Saliency\Composition\SalientRegionDetector.cpp" />

@@ -23,7 +23,7 @@ public:
 
 	// for each image
 	Point2f CompPRForSingleImg(const vector<ImgWin>& det_wins, const vector<ImgWin>& gt_wins);
-
+	// for all images
 	Point2f ComputePR(const vector<vector<ImgWin>>& det_wins, const vector<vector<ImgWin>>& gt_wins);
 
 	// best matched detection windows with ground truth

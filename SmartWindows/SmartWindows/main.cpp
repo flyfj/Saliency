@@ -10,10 +10,15 @@
 #include "ObjectSegmentor.h"
 #include "a9wins/A9Window.h"
 #include "Saliency/Composition/SalientRegionDetector.h"
+#include "ObjectTester.h"
 using namespace std;
 
 int main()
 {
+	ObjectTester tester;
+	tester.TestObjectRanking(DB_NYU2_RGBD);
+	return 0;
+
 	ShapeAnalyzer shaper;
 	GenericObjectDetector detector;
 	DatasetManager dbMan;
@@ -27,6 +32,8 @@ int main()
 	Mat timg = imread("d:\\imgs\\a3.jpg");
 	if(timg.empty())
 		return 0;
+
+	
 
 	resize(timg, timg, Size(200,200));
 	imshow("input img", timg);

@@ -1,4 +1,4 @@
-#include "commonlibs.cpp"
+#include "common_bing.cpp"
 #include "Objectness.h"
 #include "CmShow.h"
 

@@ -120,9 +120,6 @@
     <ClInclude Include="Bing\ImgContrastBB.h">
       <Filter>Bing</Filter>
     </ClInclude>
-    <ClInclude Include="Bing\commonlibs.h">
-      <Filter>Bing</Filter>
-    </ClInclude>
     <ClInclude Include="LibLinear\linear.h">
       <Filter>LibLinear</Filter>
     </ClInclude>
@@ -158,6 +155,12 @@
     </ClInclude>
     <ClInclude Include="DataManager\NYUDepth2DataMan.h">
       <Filter>DataManager</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectTester.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Bing\common_bing.h">
+      <Filter>Bing</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -227,9 +230,6 @@
     <ClCompile Include="Bing\CmShow.cpp">
       <Filter>Bing</Filter>
     </ClCompile>
-    <ClCompile Include="Bing\commonlibs.cpp">
-      <Filter>Bing</Filter>
-    </ClCompile>
     <ClCompile Include="LibLinear\linear.cpp">
       <Filter>LibLinear</Filter>
     </ClCompile>
@@ -259,6 +259,12 @@
     </ClCompile>
     <ClCompile Include="DataManager\NYUDepth2DataMan.cpp">
       <Filter>DataManager</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectTester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Bing\common_bing.cpp">
+      <Filter>Bing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
