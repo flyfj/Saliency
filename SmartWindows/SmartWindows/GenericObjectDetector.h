@@ -14,6 +14,7 @@
 #include "a9wins/A9Window.h"
 #include "WindowEvaluator.h"
 #include "Bing/Objectness.h"
+#include "Saliency/Composition/SalientRegionDetector.h"
 
 
 struct WinConfig
@@ -98,6 +99,10 @@ public:
 	bool Run(const cv::Mat& color_img, vector<ImgWin>& det_wins);
 	
 	bool RunSlidingWin(const cv::Mat& color_img, Size winsz);
+
+	//////////////////////////////////////////////////////////////////////////
+	// output ranked object candidates
+	bool ProposeObjects(const Mat& cimg, const Mat& dmap, vector<ImgWin>& wins);
 
 };
 

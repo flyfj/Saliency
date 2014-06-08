@@ -16,7 +16,7 @@ using namespace std;
 int main()
 {
 	ObjectTester tester;
-	tester.TestObjectRanking(DB_NYU2_RGBD);
+	tester.RunVideoDemo();
 	return 0;
 
 	ShapeAnalyzer shaper;

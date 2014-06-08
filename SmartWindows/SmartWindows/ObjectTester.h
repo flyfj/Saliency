@@ -17,6 +17,8 @@
 #include <string>
 #include "ObjectSegmentor.h"
 #include "Saliency/Composition/SalientRegionDetector.h"
+#include "Saliency/Depth/DepthSaliency.h"
+#include "Kinect/KinectDataMan.h"
 using namespace std;
 
 
@@ -28,5 +30,7 @@ public:
 	ObjectTester(void);
 
 	void TestObjectRanking(const DatasetName& dbname);
+
+	void RunVideoDemo();
 };
 

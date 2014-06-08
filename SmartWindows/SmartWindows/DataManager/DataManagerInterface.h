@@ -30,7 +30,7 @@ public:
 	// methods
 	// get all image files
 	virtual bool GetImageList(FileInfos& imgfiles) { return true; };
-	// get all depth maps
+	// get all depth maps: dmaps should by default have same or very similar name as image file
 	virtual bool GetDepthmapList(FileInfos& depthfiles) { return true; };
 	// load depth map data
 	virtual bool LoadDepthData(const string& depthfile, cv::Mat& depthmap) { return true; };

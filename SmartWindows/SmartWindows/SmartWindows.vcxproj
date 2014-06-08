@@ -28,7 +28,7 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <PlatformToolset>v110</PlatformToolset>
-    <CharacterSet>Unicode</CharacterSet>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
@@ -55,13 +55,13 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\opencv245\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv245\opencv\build\x86\vc11\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv245\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;C:\Program Files\Microsoft SDKs\Kinect\Developer Toolkit v1.8.0\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv245\opencv\build\x86\vc11\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;C:\Program Files\Microsoft SDKs\Kinect\Developer Toolkit v1.8.0\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\opencv245\opencv\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv245\opencv\build\x86\vc11\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv245\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;C:\Program Files\Microsoft SDKs\Kinect\Developer Toolkit v1.8.0\inc;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv245\opencv\build\x86\vc11\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;C:\Program Files\Microsoft SDKs\Kinect\Developer Toolkit v1.8.0\Lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\opencv245\opencv\build\include;$(IncludePath)</IncludePath>
@@ -84,7 +84,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_core245d.lib;opencv_highgui245d.lib;opencv_imgproc245d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core245d.lib;opencv_highgui245d.lib;opencv_imgproc245d.lib;kinect10.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -103,7 +103,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opencv_core245.lib;opencv_highgui245.lib;opencv_imgproc245.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core245.lib;opencv_highgui245.lib;opencv_imgproc245.lib;Kinect10.lib;comctl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -148,6 +148,9 @@
     <ClInclude Include="ImageSegmentor.h" />
     <ClInclude Include="ImgVisualizer.h" />
     <ClInclude Include="GenericObjectDetector.h" />
+    <ClInclude Include="Kinect\KinectDataMan.h" />
+    <ClInclude Include="Kinect\KinectHelper.h" />
+    <ClInclude Include="Kinect\OpenCVFrameHelper.h" />
     <ClInclude Include="LibLinear\blas\blas.h" />
     <ClInclude Include="LibLinear\blas\blasp.h" />
     <ClInclude Include="LibLinear\linear.h" />
@@ -162,6 +165,7 @@
     <ClInclude Include="Saliency\Composition\nms.h" />
     <ClInclude Include="Saliency\Composition\SalientRegionDetector.h" />
     <ClInclude Include="Saliency\Composition\SegmentBasedWindowComposer.h" />
+    <ClInclude Include="Saliency\Depth\DepthSaliency.h" />
     <ClInclude Include="ShapeAnalyzer.h" />
     <ClInclude Include="Tools.h" />
     <ClInclude Include="WindowEvaluator.h" />
@@ -184,6 +188,8 @@
     <ClCompile Include="GrabCutter.cpp" />
     <ClCompile Include="ImageSegmentor.cpp" />
     <ClCompile Include="ImgVisualizer.cpp" />
+    <ClCompile Include="Kinect\KinectDataMan.cpp" />
+    <ClCompile Include="Kinect\OpenCVFrameHelper.cpp" />
     <ClCompile Include="LibLinear\blas\daxpy.c" />
     <ClCompile Include="LibLinear\blas\ddot.c" />
     <ClCompile Include="LibLinear\blas\dnrm2.c" />
@@ -198,6 +204,7 @@
     <ClCompile Include="Saliency\Composition\IntegralImage.cpp" />
     <ClCompile Include="Saliency\Composition\SalientRegionDetector.cpp" />
     <ClCompile Include="Saliency\Composition\SegmentBasedWindowComposer.cpp" />
+    <ClCompile Include="Saliency\Depth\DepthSaliency.cpp" />
     <ClCompile Include="ShapeAnalyzer.cpp" />
     <ClCompile Include="Tools.cpp" />
     <ClCompile Include="WindowEvaluator.cpp" />

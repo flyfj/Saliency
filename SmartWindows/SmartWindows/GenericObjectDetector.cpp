@@ -544,3 +544,37 @@ bool GenericObjectDetector::GetObjectsFromBing(const cv::Mat& cimg, vector<ImgWi
 
 	return true;
 }
+
+//////////////////////////////////////////////////////////////////////////
+
+bool GenericObjectDetector::ProposeObjects(const Mat& cimg, const Mat& dmap, vector<ImgWin>& wins)
+{
+	if( !isBingInitialized )
+		if( !InitBingObjectness() )
+			return false;
+
+	// get objectness windows
+	vector<ImgWin> objboxes;
+	if( !GetObjectsFromBing(cimg, objboxes, 1000) )
+		return false;
+	//visualsearch::ImgVisualizer::DrawImgWins("objectness", curimg, objboxes);
+
+	// rank
+	SalientRegionDetector saldet;
+	vector<ImgWin> salboxes = objboxes;
+	//depth_sal.RankWins(curdmap, salboxes);
+	//saldet.g_para.segThresholdK = 200;
+	saldet.Init(cimg);
+	saldet.RankWins(salboxes);
+
+	// only select windows containing center point and not having a dimension bigger than half
+	wins.clear();
+	Point centerp(cimg.cols/2, cimg.rows/2);
+	for(size_t i=0; i<salboxes.size(); i++)
+	{
+		if(salboxes[i].contains(centerp) && salboxes[i].width < cimg.cols*2/3 && salboxes[i].height < cimg.rows*2/3)
+			wins.push_back(salboxes[i]);
+	}
+
+	return true;
+}

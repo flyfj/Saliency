@@ -34,6 +34,12 @@
     <Filter Include="Saliency\Composition">
       <UniqueIdentifier>{5d10ae1f-3f53-45a8-baf7-c17cb85aa046}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Saliency\Depth">
+      <UniqueIdentifier>{ab3291f1-83d1-4640-95ab-08610063a0d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Kinect">
+      <UniqueIdentifier>{9e313ae4-90c2-40bd-a0d5-413e92b0d73f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="a9wins\DisjointSet.h">
@@ -162,6 +168,18 @@
     <ClInclude Include="Bing\common_bing.h">
       <Filter>Bing</Filter>
     </ClInclude>
+    <ClInclude Include="Saliency\Depth\DepthSaliency.h">
+      <Filter>Saliency\Depth</Filter>
+    </ClInclude>
+    <ClInclude Include="Kinect\KinectDataMan.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="Kinect\KinectHelper.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="Kinect\OpenCVFrameHelper.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -265,6 +283,15 @@
     </ClCompile>
     <ClCompile Include="Bing\common_bing.cpp">
       <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="Saliency\Depth\DepthSaliency.cpp">
+      <Filter>Saliency\Depth</Filter>
+    </ClCompile>
+    <ClCompile Include="Kinect\KinectDataMan.cpp">
+      <Filter>Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="Kinect\OpenCVFrameHelper.cpp">
+      <Filter>Kinect</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

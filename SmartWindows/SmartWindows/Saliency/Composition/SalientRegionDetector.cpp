@@ -122,7 +122,7 @@ bool SalientRegionDetector::Init(const Mat& img)
 	g_runinfo.seg_num = superpixel_num;
 	// visualize segment image
 	//imshow("segmentimage", imgSegmentor.m_segImg);
-	//waitKey(10);
+	//waitKey(0);
 
 	//////////////////////////////////////////////////////////////////////////
 	// compute features for each superpixel
