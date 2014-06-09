@@ -35,13 +35,13 @@ int main()
 		return -1;
 
 	string datadir = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\";
-	string imgfn = "151.jpg";
+	string imgfn = "153.jpg";
 	Mat timg = imread(datadir + imgfn);
 	if(timg.empty())
 		return 0;
 
 	Mat dimg;
-	string dmapfn = datadir + "151_d.txt";
+	string dmapfn = datadir + "153_d.txt";
 	nyuman.LoadDepthData(dmapfn, dimg);
 	
 	//resize(timg, timg, Size(200,200));
