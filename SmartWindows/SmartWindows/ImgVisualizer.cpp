@@ -37,7 +37,7 @@ namespace visualsearch
 	bool ImgVisualizer::DrawFloatImg(string winname, const Mat& img, Mat& oimg, bool toDraw)
 	{
 		// normalize
-		cv::normalize(img, oimg, 1, 0, NORM_MINMAX);
+		cv::normalize(img, oimg, 0, 1, NORM_MINMAX);
 		// convert to 8u
 		oimg.convertTo(oimg, CV_8U, 255);
 
@@ -76,22 +76,22 @@ namespace visualsearch
 		return true;
 	}
 
-	bool ImgVisualizer::DrawImgCollection(string winname, const vector<Mat>& imgs, int numperrow, Mat& oimg)
+	bool ImgVisualizer::DrawImgCollection(string winname, const vector<Mat>& imgs, int totalnum, int numperrow, Mat& oimg)
 	{
-		int totalnum = imgs.size();
-		if(totalnum == 0)
+		int validnum = MIN(imgs.size(), totalnum);
+		if(validnum == 0)
 		{
 			cerr<<"Empty image collection to draw."<<endl;
 			return false;
 		}
 
 		int itemperrow = numperrow;
-		int itempercol = (int)ceil((float)totalnum / itemperrow);
+		int itempercol = (int)ceil((float)validnum / itemperrow);
 		Size itemSize(100, 100);
 		oimg.create(itemSize.height*itempercol+10, itemSize.width*itemperrow+10, CV_8UC3);
 
 		char str[20];
-		for(int i=0; i<totalnum; i++)
+		for(int i=0; i<validnum; i++)
 		{
 			Point pos(i%itemperrow, i/itemperrow);
 			Mat curimg;

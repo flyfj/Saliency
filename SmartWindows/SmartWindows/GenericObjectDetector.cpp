@@ -120,11 +120,7 @@ double GenericObjectDetector::ComputeDepthVariance(Rect win)
 double GenericObjectDetector::ComputeCenterSurroundMeanColorDiff(ImgWin win)
 {
 	// context window
-	int minx = MAX(win.x - win.width/2, 0);
-	int miny = MAX(win.y - win.height/2, 0);
-	int maxx = MIN(win.br().x + win.width/2, imgSize.width-1);
-	int maxy = MIN(win.br().y + win.height/2, imgSize.height-1);
-	Rect contextWin(minx, miny, maxx-minx-1, maxy-miny-1);
+	ImgWin contextWin = ToolFactory::GetContextWin(imgSize.width, imgSize.height, win, 2);
 
 	// center mean
 	Scalar centerMean, contextMean;

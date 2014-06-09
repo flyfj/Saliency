@@ -70,4 +70,6 @@ public:
 	}
 
 	static float compute_downsample_ratio(cv::Size oldSz, float downSampleFactor, cv::Size& newSz);
+
+	static ImgWin GetContextWin(int imgw, int imgh, ImgWin win, float ratio);
 };

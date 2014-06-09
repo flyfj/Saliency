@@ -28,6 +28,8 @@ public:
 	ImgWin(int x, int y, int w, int h): Win(x, y, w, h){}
 	double score;
 
+	vector<float> tempvals;
+
 	string class_name;
 
 	inline bool operator < (const ImgWin& rwin) const

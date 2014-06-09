@@ -57,9 +57,9 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 			berkeleydata.LoadDepthData(dmap_fns[i].filepath, curdmap);
 
 		// normalize to image
-		normalize(curdmap, curdmap, 0, 255, NORM_MINMAX);
-		curdmap.convertTo(curdmap, CV_8U);
-		cvtColor(curdmap, curdmap, CV_GRAY2BGR);
+		//normalize(curdmap, curdmap, 0, 255, NORM_MINMAX);
+		//curdmap.convertTo(curdmap, CV_8U);
+		//cvtColor(curdmap, curdmap, CV_GRAY2BGR);
 		//imshow("depthimg", curdmap);
 		//waitKey(10);
 
@@ -78,10 +78,10 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 		
 		// rank
 		vector<ImgWin> salboxes = objboxes;
-		//depth_sal.RankWins(curdmap, salboxes);
-		saldet.g_para.segThresholdK = 200;
+		depth_sal.RankWins(curdmap, salboxes);
+		/*saldet.g_para.segThresholdK = 200;
 		saldet.Init(curdmap);
-		saldet.RankWins(salboxes);
+		saldet.RankWins(salboxes);*/
 		//visualsearch::ImgVisualizer::DrawImgWins("sal", curimg, salboxes);
 		//waitKey(0);
 
@@ -106,9 +106,9 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 	}
 	
 	// save to file
-	/*ofstream out1("objpr.txt");
-	for (size_t i=0; i<objprvals.size(); i++) out1<<objprvals[i].x<<" "<<objprvals[i].y<<endl;*/
-	ofstream out2("nyu2_dccpr.txt");
+	ofstream out1("b3d_objpr.txt");
+	for (size_t i=0; i<objprvals.size(); i++) out1<<objprvals[i].x<<" "<<objprvals[i].y<<endl;
+	ofstream out2("b3d_dvarpr.txt");
 	for (size_t i=0; i<salprvals.size(); i++) out2<<salprvals[i].x<<" "<<salprvals[i].y<<endl;
 
 	cout<<"Finish evaluation"<<endl;

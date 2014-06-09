@@ -27,7 +27,7 @@ namespace visualsearch
 
 		static bool DrawShapes(const Mat& img, const vector<BasicShape>& shapes);
 
-		static bool DrawImgCollection(string winname, const vector<Mat>& imgs, int numperrow, Mat& oimg);
+		static bool DrawImgCollection(string winname, const vector<Mat>& imgs, int totalnum, int numperrow, Mat& oimg);
 
 	};
 }
