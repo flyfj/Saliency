@@ -35,6 +35,38 @@ bool DepthSaliency::CompWinDepthSaliency(const Mat& dmap, ImgWin& win)
 	win.tempvals.push_back(context_sal);
 
 	return true;
+
+	//////////////////////////////////////////////////////////////////////////
+	// do local normalization first
+	double minval, maxval;
+	minMaxLoc(dmap(contextWin), &minval, &maxval);
+	// center-surround histogram
+	int binnum = 30;
+	int bin_step = 255 / binnum;
+	Mat in_hist(1, binnum, CV_32F);
+	in_hist.setTo(0);
+	Mat out_hist(1, binnum, CV_32F);
+	out_hist.setTo(0);
+	for (int r=contextWin.tl().y; r<contextWin.br().y; r++)
+	{
+		for(int c=contextWin.tl().x; c<contextWin.br().x; c++)
+		{
+			float dval = dmap.at<float>(r, c);
+			// normalize
+			dval = dval*255 / maxval;
+			int bin_id = MIN(binnum-1, (int)(dval/bin_step));
+			if(win.contains(Point(c, r)))
+				in_hist.at<float>(bin_id)++;
+			else
+				out_hist.at<float>(bin_id)++;
+		}
+	}
+
+	normalize(in_hist, in_hist, 1, 0, NORM_L1);
+	normalize(out_hist, out_hist, 1, 0, NORM_L1);
+	win.score = compareHist(in_hist, out_hist, CV_COMP_BHATTACHARYYA);
+
+	return true;
 }
 
 void DepthSaliency::RankWins(const Mat& dmap, vector<ImgWin>& wins)

@@ -7,11 +7,13 @@
 
 #include "common.h"
 #include "Tools.h"
+#include "ImageSegmentor.h"
 
 class DepthSaliency
 {
 private:
 
+	visualsearch::ImageSegmentor imgSegmentor;
 
 public:
 	DepthSaliency(void);

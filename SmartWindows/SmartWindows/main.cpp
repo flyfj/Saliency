@@ -35,13 +35,13 @@ int main()
 		return -1;
 
 	string datadir = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\";
-	string imgfn = "153.jpg";
+	string imgfn = "151.jpg";
 	Mat timg = imread(datadir + imgfn);
 	if(timg.empty())
 		return 0;
 
 	Mat dimg;
-	string dmapfn = datadir + "153_d.txt";
+	string dmapfn = datadir + "151_d.txt";
 	nyuman.LoadDepthData(dmapfn, dimg);
 	
 	//resize(timg, timg, Size(200,200));
@@ -72,6 +72,7 @@ int main()
 	Mat dispimg;
 	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 100, 15, dispimg);
 	imshow("objectness", dispimg);
+	visualsearch::ImgVisualizer::DrawImgWins("objdet", dimg, boxes);
 	waitKey(10);
 	
 	// rank windows with CC
@@ -105,6 +106,7 @@ int main()
 	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 100, 15, dispimg);
 	imshow("rank by CC", dispimg);
 	visualsearch::ImgVisualizer::DrawImgWins("ddet", dimg, topBoxes);
+	visualsearch::ImgVisualizer::DrawImgWins("cdet", timg, topBoxes);
 	waitKey(0);
 
 	cv::destroyAllWindows();
