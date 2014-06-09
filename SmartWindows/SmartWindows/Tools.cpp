@@ -174,3 +174,31 @@ ImgWin ToolFactory::GetContextWin(int imgw, int imgh, ImgWin win, float ratio)
 
 	return contextWin;
 }
+
+bool ToolFactory::DrawHist(cv::Mat& canvas, cv::Size canvas_size, int max_val, const cv::Mat& hist)
+{
+	if( hist.empty() || hist.rows != 1 || hist.depth() != CV_32F )
+	{
+		std::cerr<<"Wrong format of histogram to draw."<<std::endl;
+		return false;
+	}
+
+	/* show histogram */
+	// Get scale so the histogram fit the canvas height
+	double maxv = max_val;	// upper bound of bin value
+
+	canvas.create(canvas_size.height, canvas_size.width, CV_8UC3);
+	canvas.setTo(255);
+	double binWidth = (double)canvas.cols / hist.cols;
+	double scale = maxv > canvas.rows ? (double)canvas.rows / maxv : 1.;  
+
+	// Draw histogram
+	for ( int i = 0; i < hist.cols; i++) 
+	{    
+		cv::Point pt1(i*binWidth, canvas.rows - (hist.at<float>(0, i) * canvas.rows));
+		cv::Point pt2((i+1)*binWidth, canvas.rows);
+		cv::rectangle(canvas, pt1, pt2, CV_RGB(0, 255, 0), CV_FILLED);
+	}
+
+	return true;
+}

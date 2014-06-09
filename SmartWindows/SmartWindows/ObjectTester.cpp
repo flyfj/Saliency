@@ -40,8 +40,10 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 
 	SalientRegionDetector saldet;
 	DepthSaliency depth_sal;
-	vector<vector<ImgWin>> objdetwins, saldetwins, depthdetwins;
-	vector<vector<ImgWin>> gtwins;
+	vector<vector<ImgWin>> objdetwins(img_fns.size()), saldetwins(img_fns.size()), depthdetwins;
+	vector<vector<ImgWin>> gtwins(img_fns.size());
+
+#pragma omp parallel for
 	for (int i=0; i<img_fns.size(); i++)
 	{
 		// read image
@@ -68,7 +70,7 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 
 		// resize
 		Size newsz;
-		ToolFactory::compute_downsample_ratio(Size(curimg.cols, curimg.rows), 300, newsz);
+		//ToolFactory::compute_downsample_ratio(Size(curimg.cols, curimg.rows), 300, newsz);
 		//resize(curimg, curimg, newsz);
 
 		// get objectness windows
@@ -86,9 +88,9 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 		//waitKey(0);
 
 		// add to collection
-		objdetwins.push_back(objboxes);
-		saldetwins.push_back(salboxes);
-		gtwins.push_back(rawgtwins[img_fns[i].filename]);
+		objdetwins[i] = objboxes;
+		saldetwins[i] = salboxes;
+		gtwins[i] = rawgtwins[img_fns[i].filename];
 		
 		cout<<"Finish detection on "<<i<<"/"<<img_fns.size()<<endl;
 	}

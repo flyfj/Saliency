@@ -72,4 +72,6 @@ public:
 	static float compute_downsample_ratio(cv::Size oldSz, float downSampleFactor, cv::Size& newSz);
 
 	static ImgWin GetContextWin(int imgw, int imgh, ImgWin win, float ratio);
+
+	static bool DrawHist(cv::Mat& canvas, cv::Size canvas_size, int max_val, const cv::Mat& hist);
 };

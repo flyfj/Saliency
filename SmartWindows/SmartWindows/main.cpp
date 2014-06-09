@@ -17,10 +17,10 @@ using namespace std;
 
 int main()
 {
-	//ObjectTester tester;
-	//tester.TestObjectRanking(DB_BERKELEY3D);
-	////tester.RunVideoDemo();
-	//return 0;
+	ObjectTester tester;
+	tester.TestObjectRanking(DB_BERKELEY3D);
+	//tester.RunVideoDemo();
+	return 0;
 
 	ShapeAnalyzer shaper;
 	GenericObjectDetector detector;
@@ -35,18 +35,28 @@ int main()
 		return -1;
 
 	string datadir = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\";
-	string imgfn = "160.jpg";
+	string imgfn = "152.jpg";
 	Mat timg = imread(datadir + imgfn);
 	if(timg.empty())
 		return 0;
 
 	Mat dimg;
-	string dmapfn = datadir + "160_d.txt";
+	string dmapfn = datadir + "152_d.txt";
 	nyuman.LoadDepthData(dmapfn, dimg);
 	
+	FileInfos imgfns;
+	FileInfo tmpfns;
+	tmpfns.filename = imgfn;
+	tmpfns.filepath = datadir + imgfn;
+	imgfns.push_back(tmpfns);
+	map<string, vector<ImgWin>> rawgtwins;
+	nyuman.LoadGTWins(imgfns, rawgtwins);
+	vector<ImgWin> gtwins = rawgtwins[imgfn];
+
 	//resize(timg, timg, Size(200,200));
-	imshow("input img", timg);
+	//imshow("input img", timg);
 	visualsearch::ImgVisualizer::DrawFloatImg("dmap", dimg, Mat());
+	visualsearch::ImgVisualizer::DrawImgWins("gt", timg, gtwins);
 	waitKey(10);
 	//Mat normimg;
 	//normalize(timg, timg, 0, 255, NORM_MINMAX);
@@ -54,7 +64,7 @@ int main()
 	double start_t = cv::getTickCount();
 
 	vector<ImgWin> boxes;
-	detector.GetObjectsFromBing(timg, boxes, 500);
+	detector.GetObjectsFromBing(timg, boxes, 800);
 
 	Mat objectnessmap;
 	//detector.CreateScoremapFromWins(timg.cols, timg.rows, boxes, objectnessmap);
