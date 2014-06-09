@@ -26,6 +26,14 @@ bool DepthSaliency::CompWinDepthSaliency(const Mat& dmap, ImgWin& win)
 	double context_sal = 0;
 	Scalar out_mean, out_stddev;
 	ImgWin contextWin = ToolFactory::GetContextWin(dmap.cols, dmap.rows, win, 1.5);
+
+	// draw context win
+	/*vector<ImgWin> drawwins;
+	drawwins.push_back(win);
+	drawwins.push_back(contextWin);
+	visualsearch::ImgVisualizer::DrawImgWins("context", dmap, drawwins);
+	waitKey(0);*/
+
 	meanStdDev(dmap(contextWin), out_mean, out_stddev);
 	context_sal = (255-out_mean.val[0]) / (out_stddev.val[0]+0.000001f);
 
@@ -34,14 +42,14 @@ bool DepthSaliency::CompWinDepthSaliency(const Mat& dmap, ImgWin& win)
 	win.tempvals.push_back(sal);
 	win.tempvals.push_back(context_sal);
 
-	return true;
+	//return true;
 
 	//////////////////////////////////////////////////////////////////////////
 	// do local normalization first
 	double minval, maxval;
-	minMaxLoc(dmap(contextWin), &minval, &maxval);
+	minMaxLoc(dmap, &minval, &maxval);
 	// center-surround histogram
-	int binnum = 30;
+	int binnum = 10;
 	int bin_step = 255 / binnum;
 	Mat in_hist(1, binnum, CV_32F);
 	in_hist.setTo(0);
@@ -53,7 +61,7 @@ bool DepthSaliency::CompWinDepthSaliency(const Mat& dmap, ImgWin& win)
 		{
 			float dval = dmap.at<float>(r, c);
 			// normalize
-			dval = dval*255 / maxval;
+			//dval = dval*255 / maxval;
 			int bin_id = MIN(binnum-1, (int)(dval/bin_step));
 			if(win.contains(Point(c, r)))
 				in_hist.at<float>(bin_id)++;
@@ -64,7 +72,7 @@ bool DepthSaliency::CompWinDepthSaliency(const Mat& dmap, ImgWin& win)
 
 	normalize(in_hist, in_hist, 1, 0, NORM_L1);
 	normalize(out_hist, out_hist, 1, 0, NORM_L1);
-	win.score = compareHist(in_hist, out_hist, CV_COMP_BHATTACHARYYA);
+	win.score = 1 - compareHist(in_hist, out_hist, CV_COMP_INTERSECT);
 
 	return true;
 }

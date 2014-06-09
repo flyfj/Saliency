@@ -8,6 +8,7 @@
 #include "common.h"
 #include "Tools.h"
 #include "ImageSegmentor.h"
+#include "ImgVisualizer.h"
 
 class DepthSaliency
 {

@@ -161,12 +161,15 @@ float ToolFactory::compute_downsample_ratio(Size oldSz, float downSampleFactor, 
 
 ImgWin ToolFactory::GetContextWin(int imgw, int imgh, ImgWin win, float ratio)
 {
+	Point centerpt(win.x + win.width/2, win.y + win.height/2);
+
 	int bigw = (int)(win.width * ratio);
 	int bigh = (int)(win.height * ratio);
-	int minx = MAX(win.x - win.width/2 + bigw/2, 0);
-	int miny = MAX(win.y - win.height/2 + bigh/2, 0);
-	int maxx = MIN(win.br().x + bigw/2 - win.width/2, imgw-1);
-	int maxy = MIN(win.br().y + bigh/2 - win.height/2, imgh-1);
+	
+	int minx = MAX(centerpt.x - bigw / 2, 0);
+	int miny = MAX(centerpt.y - bigh / 2, 0);
+	int maxx = MIN(centerpt.x + bigw / 2, imgw-1);
+	int maxy = MIN(centerpt.y + bigh / 2, imgh-1);
 	ImgWin contextWin(minx, miny, maxx-minx-1, maxy-miny-1);
 
 	return contextWin;
