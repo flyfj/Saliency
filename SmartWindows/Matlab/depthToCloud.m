@@ -15,7 +15,7 @@ if nargin < 2
     topleft = [1 1];
 end
 
-depth= double(depth);
+depth = double(depth);
 depth(depth == 0) = nan;
 
 % RGB-D camera constants

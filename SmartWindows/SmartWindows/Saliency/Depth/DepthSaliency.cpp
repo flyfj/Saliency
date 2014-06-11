@@ -109,3 +109,48 @@ void DepthSaliency::RankWins(const Mat& dmap, vector<ImgWin>& wins)
 	sort(wins.begin(), wins.end(), [](const ImgWin& a, const ImgWin& b) { return a.score > b.score; } );
 
 }
+
+bool DepthSaliency::DepthToCloud(const Mat& dmap, Mat& cloud)
+{
+	// dmap is millimeter
+
+	float coeff = 585.6f;
+	float MM_PER_M = 1000;
+	Size dmap_sz(dmap.cols, dmap.rows);
+	Point centerPt(dmap.cols/2, dmap.rows/2);
+
+	cloud.create(dmap_sz.height, dmap_sz.width, CV_32FC3);
+	vector<Mat> cloudchs;
+	split(cloud, cloudchs);
+	Mat widthrow(1, dmap.cols, CV_32F);
+	for(int i=0; i<dmap.cols; i++) widthrow.at<float>(i) = i+1;
+	Mat heightcol(dmap.rows, 1, CV_32F);
+	for(int i=0; i<dmap.rows; i++) heightcol.at<float>(i) = i+1;
+	Mat onecol(dmap.rows, 1, CV_32F);
+	onecol.setTo(1);
+	Mat onerow(1, dmap.cols, CV_32F);
+	onerow.setTo(1);
+	Mat xgrid = onecol * widthrow - centerPt.y;
+	Mat ygrid = heightcol * onerow - centerPt.x;
+	cloudchs[0] = xgrid.mul(dmap) / coeff / MM_PER_M;
+	cloudchs[1] = ygrid.mul(dmap) / coeff / MM_PER_M;
+	cloudchs[2] = dmap / MM_PER_M;
+	merge(cloudchs, cloud);
+
+	return true;
+}
+
+bool DepthSaliency::OutputToOBJ(const Mat& cloud, string objfile)
+{
+	ofstream out(objfile);
+	for (int r=0; r<cloud.rows; r++)
+	{
+		for(int c=0; c<cloud.cols; c++)
+		{
+			Vec3f curpt = cloud.at<Vec3f>(r, c);
+			out<<"v "<<curpt.val[0]<<" "<<curpt.val[1]<<" "<<curpt.val[2]<<endl;
+		}
+	}
+
+	return true;
+}

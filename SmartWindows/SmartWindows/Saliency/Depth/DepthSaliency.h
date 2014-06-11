@@ -23,6 +23,10 @@ public:
 
 	bool CompWinDepthSaliency(const Mat& dmap, ImgWin& win);
 
+	bool DepthToCloud(const Mat& dmap, Mat& cloud);
+
+	bool OutputToOBJ(const Mat& cloud, string objfile);
+
 	void RankWins(const Mat& dmap, vector<ImgWin>& wins);
 };
 

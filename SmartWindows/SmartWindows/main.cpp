@@ -17,10 +17,12 @@ using namespace std;
 
 int main()
 {
-	ObjectTester tester;
-	tester.TestObjectRanking(DB_BERKELEY3D);
-	//tester.RunVideoDemo();
-	return 0;
+
+
+	//ObjectTester tester;
+	//tester.TestObjectRanking(DB_BERKELEY3D);
+	////tester.RunVideoDemo();
+	//return 0;
 
 	ShapeAnalyzer shaper;
 	GenericObjectDetector detector;
@@ -29,21 +31,28 @@ int main()
 	visualsearch::ImageSegmentor segmentor;
 	Berkeley3DDataManager b3dman;
 	NYUDepth2DataMan nyuman;
+	DepthSaliency dsal;
 
 	// process
 	if( !detector.InitBingObjectness() )
 		return -1;
 
 	string datadir = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\";
-	string imgfn = "152.jpg";
+	string imgfn = "156.jpg";
 	Mat timg = imread(datadir + imgfn);
 	if(timg.empty())
 		return 0;
 
 	Mat dimg;
-	string dmapfn = datadir + "152_d.txt";
+	string dmapfn = datadir + "156_d.txt";
 	nyuman.LoadDepthData(dmapfn, dimg);
 	
+	dimg = dimg * 1000;
+	Mat cloud;
+	dsal.DepthToCloud(dimg, cloud);
+	dsal.OutputToOBJ(cloud, "temp.obj");
+	return 0;
+
 	FileInfos imgfns;
 	FileInfo tmpfns;
 	tmpfns.filename = imgfn;
@@ -91,10 +100,10 @@ int main()
 
 	start_t = getTickCount();
 
-	salDetector.RankWins(boxes);
-	*/
+	salDetector.RankWins(boxes);*/
+	
 	// depth ranking
-	DepthSaliency dsal;
+	
 	dsal.RankWins(dimg, boxes);
 
 	Mat salmap;
