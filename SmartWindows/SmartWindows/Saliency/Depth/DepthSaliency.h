@@ -23,6 +23,8 @@ public:
 
 	bool CompWinDepthSaliency(const Mat& dmap, ImgWin& win);
 
+	bool CompWin3DSaliency(const Mat& cloud, ImgWin& win);
+
 	bool DepthToCloud(const Mat& dmap, Mat& cloud);
 
 	bool OutputToOBJ(const Mat& cloud, string objfile);

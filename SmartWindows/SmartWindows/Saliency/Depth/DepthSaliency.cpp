@@ -154,3 +154,10 @@ bool DepthSaliency::OutputToOBJ(const Mat& cloud, string objfile)
 
 	return true;
 }
+
+bool DepthSaliency::CompWin3DSaliency(const Mat& cloud, ImgWin& win)
+{
+
+
+	return true;
+}

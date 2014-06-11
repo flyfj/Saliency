@@ -50,7 +50,7 @@ int main()
 	dimg = dimg * 1000;
 	Mat cloud;
 	dsal.DepthToCloud(dimg, cloud);
-	dsal.OutputToOBJ(cloud, "temp.obj");
+	//dsal.OutputToOBJ(cloud, "temp.obj");
 	return 0;
 
 	FileInfos imgfns;
