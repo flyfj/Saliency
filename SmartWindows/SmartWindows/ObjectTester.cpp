@@ -73,14 +73,18 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 		//ToolFactory::compute_downsample_ratio(Size(curimg.cols, curimg.rows), 300, newsz);
 		//resize(curimg, curimg, newsz);
 
+		double start_t = getTickCount();
 		// get objectness windows
 		vector<ImgWin> objboxes;
-		detector.GetObjectsFromBing(curimg, objboxes, 1000);
+		detector.GetObjectsFromBing(curimg, objboxes, 500);
 		//visualsearch::ImgVisualizer::DrawImgWins("objectness", curimg, objboxes);
+		cout<<"objectness: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<endl;
 		
+		start_t = getTickCount();
 		// rank
 		vector<ImgWin> salboxes = objboxes;
 		depth_sal.RankWins(curdmap, salboxes);
+		cout<<"Depth ranking: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<endl;
 		/*saldet.g_para.segThresholdK = 200;
 		saldet.Init(curdmap);
 		saldet.RankWins(salboxes);*/
@@ -110,7 +114,7 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 	// save to file
 	ofstream out1("b3d_objpr.txt");
 	for (size_t i=0; i<objprvals.size(); i++) out1<<objprvals[i].x<<" "<<objprvals[i].y<<endl;
-	ofstream out2("b3d_dvarpr.txt");
+	ofstream out2("b3d_depthpr.txt");
 	for (size_t i=0; i<salprvals.size(); i++) out2<<salprvals[i].x<<" "<<salprvals[i].y<<endl;
 
 	cout<<"Finish evaluation"<<endl;

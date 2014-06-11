@@ -172,7 +172,7 @@ void DepthSaliency::RankWins(const Mat& dmap, vector<ImgWin>& wins)
 	Mat dcode;
 	InitQuantization(ndmap, dcode);
 
-	visualsearch::ImgVisualizer::DrawFloatImg("dcode", dcode, Mat());
+	//visualsearch::ImgVisualizer::DrawFloatImg("dcode", dcode, Mat());
 
 	for (size_t i=0; i<wins.size(); i++)
 	{

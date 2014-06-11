@@ -19,10 +19,10 @@ int main()
 {
 
 
-	//ObjectTester tester;
-	//tester.TestObjectRanking(DB_BERKELEY3D);
-	////tester.RunVideoDemo();
-	//return 0;
+	ObjectTester tester;
+	tester.TestObjectRanking(DB_BERKELEY3D);
+	//tester.RunVideoDemo();
+	return 0;
 
 	ShapeAnalyzer shaper;
 	GenericObjectDetector detector;
