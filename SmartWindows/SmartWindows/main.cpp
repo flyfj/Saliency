@@ -38,20 +38,20 @@ int main()
 		return -1;
 
 	string datadir = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\";
-	string imgfn = "156.jpg";
+	string imgfn = "159.jpg";
 	Mat timg = imread(datadir + imgfn);
 	if(timg.empty())
 		return 0;
 
 	Mat dimg;
-	string dmapfn = datadir + "156_d.txt";
+	string dmapfn = datadir + "159_d.txt";
 	nyuman.LoadDepthData(dmapfn, dimg);
 	
-	dimg = dimg * 1000;
-	Mat cloud;
-	dsal.DepthToCloud(dimg, cloud);
-	//dsal.OutputToOBJ(cloud, "temp.obj");
-	return 0;
+	//dimg = dimg * 1000;
+	//Mat cloud;
+	//dsal.DepthToCloud(dimg, cloud);
+	////dsal.OutputToOBJ(cloud, "temp.obj");
+	//return 0;
 
 	FileInfos imgfns;
 	FileInfo tmpfns;
@@ -70,10 +70,14 @@ int main()
 	//Mat normimg;
 	//normalize(timg, timg, 0, 255, NORM_MINMAX);
 
+	//////////////////////////////////////////////////////////////////////////
+	// get objectness proposal
+
 	double start_t = cv::getTickCount();
 
 	vector<ImgWin> boxes;
-	detector.GetObjectsFromBing(timg, boxes, 800);
+
+	detector.GetObjectsFromBing(timg, boxes, 500);
 
 	Mat objectnessmap;
 	//detector.CreateScoremapFromWins(timg.cols, timg.rows, boxes, objectnessmap);
@@ -89,7 +93,7 @@ int main()
 	}
 
 	Mat dispimg;
-	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 100, 15, dispimg);
+	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 15, 15, dispimg);
 	imshow("objectness", dispimg);
 	visualsearch::ImgVisualizer::DrawImgWins("objdet", dimg, boxes);
 	waitKey(10);
@@ -102,8 +106,8 @@ int main()
 
 	salDetector.RankWins(boxes);*/
 	
+	//////////////////////////////////////////////////////////////////////////
 	// depth ranking
-	
 	dsal.RankWins(dimg, boxes);
 
 	Mat salmap;
@@ -122,7 +126,7 @@ int main()
 			topBoxes.push_back(boxes[i]);
 	}
 
-	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 100, 15, dispimg);
+	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 15, 15, dispimg);
 	imshow("rank by CC", dispimg);
 	visualsearch::ImgVisualizer::DrawImgWins("ddet", dimg, topBoxes);
 	visualsearch::ImgVisualizer::DrawImgWins("cdet", timg, topBoxes);

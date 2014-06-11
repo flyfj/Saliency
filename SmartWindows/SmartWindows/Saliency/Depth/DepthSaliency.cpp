@@ -3,9 +3,77 @@
 
 DepthSaliency::DepthSaliency(void)
 {
+	depth_bin_num = 20;
 }
 
 //////////////////////////////////////////////////////////////////////////
+
+bool DepthSaliency::InitQuantization(const Mat& dmap, Mat& dcode)
+{
+	// compute depth cluster center and distance matrix
+	depth_bin_step = 1.f / depth_bin_num;
+	vector<float> depth_centers(depth_bin_num);
+	for (int i=0; i<depth_bin_num; i++) depth_centers[i] = i*depth_bin_step;// + depth_bin_step / 2;
+	depth_dist_mat.create(depth_bin_num, depth_bin_num, CV_32F);
+	depth_dist_mat.setTo(0);
+	for(int i=0; i<depth_centers.size(); i++)
+	{
+		for(int j=i; j<depth_centers.size(); j++)
+		{
+			float curdist = fabs(depth_centers[i] - depth_centers[j]);
+			depth_dist_mat.at<float>(i, j) = depth_dist_mat.at<float>(j, i) = curdist;
+		}
+	}
+
+	// quantize all depth pixels
+	dcode.create(dmap.rows, dmap.cols, CV_32F);
+	dcode.setTo(0);
+	for (int r=0; r<dmap.rows; r++)
+	{
+		for(int c=0; c<dmap.cols; c++)
+		{
+			int curcode = dmap.at<float>(r, c) / depth_bin_step;
+			curcode = MIN(depth_bin_num-1, curcode);
+			dcode.at<float>(r,c) = curcode;
+		}
+	}
+
+	return true;
+}
+
+bool DepthSaliency::CompCenterSurroundDepthDist(const Mat& dcode, ImgWin& win)
+{
+	ImgWin contextWin = ToolFactory::GetContextWin(dcode.cols, dcode.rows, win, 1.5);
+	
+	//////////////////////////////////////////////////////////////////////////
+	// use emd distance
+	//////////////////////////////////////////////////////////////////////////
+
+	// compute weights
+	// signature, only for weights
+	Mat sig1(depth_bin_num, 1, CV_32F);
+	sig1.setTo(0);
+	Mat sig2(depth_bin_num, 1, CV_32F);
+	sig2.setTo(0);
+	for (int r=contextWin.tl().y; r<contextWin.br().y; r++) for(int c=contextWin.tl().x; c<contextWin.br().x; c++)
+	{
+		int curbin = (int)dcode.at<float>(r, c);
+		if(win.contains(Point(c, r)))
+			sig1.at<float>(curbin)++;
+		else
+			sig2.at<float>(curbin)++;
+	}
+	normalize(sig1, sig1, 1, 0, NORM_L1);
+	normalize(sig2, sig2, 1, 0, NORM_L1);
+
+	// compute distance
+	double start_t = getTickCount();
+	win.score = EMD(sig1, sig2, CV_DIST_USER, depth_dist_mat);
+	double timecost = (double)(getTickCount()-start_t) / getTickFrequency();
+	//cout<<"EMD COST: "<<timecost<<endl;
+
+	return true;
+}
 
 double DepthSaliency::CompDepthVariance(const Mat& dmap, ImgWin win)
 {
@@ -99,11 +167,16 @@ void DepthSaliency::RankWins(const Mat& dmap, vector<ImgWin>& wins)
 {
 	// normalize
 	Mat ndmap;
-	normalize(dmap, ndmap, 0, 255, NORM_MINMAX);
+	normalize(dmap, ndmap, 0, 1, NORM_MINMAX);
+
+	Mat dcode;
+	InitQuantization(ndmap, dcode);
+
+	visualsearch::ImgVisualizer::DrawFloatImg("dcode", dcode, Mat());
 
 	for (size_t i=0; i<wins.size(); i++)
 	{
-		CompWinDepthSaliency(ndmap, wins[i]);
+		CompCenterSurroundDepthDist(dcode, wins[i]);
 	}
 
 	sort(wins.begin(), wins.end(), [](const ImgWin& a, const ImgWin& b) { return a.score > b.score; } );
