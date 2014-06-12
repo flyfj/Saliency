@@ -11,6 +11,7 @@
 #include "ObjectSegmentor.h"
 #include "a9wins/A9Window.h"
 #include "Saliency/Composition/SalientRegionDetector.h"
+#include "Saliency/Composition/SalientDepthRegionDetector.h"
 #include "ObjectTester.h"
 #include "Saliency/Depth/DepthSaliency.h"
 using namespace std;
@@ -18,9 +19,8 @@ using namespace std;
 int main()
 {
 
-
 	ObjectTester tester;
-	tester.TestObjectRanking(DB_BERKELEY3D);
+	tester.TestObjectRanking(DB_NYU2_RGBD);
 	//tester.RunVideoDemo();
 	return 0;
 
@@ -32,19 +32,20 @@ int main()
 	Berkeley3DDataManager b3dman;
 	NYUDepth2DataMan nyuman;
 	DepthSaliency dsal;
+	SalientDepthRegionDetector saldepth;
 
 	// process
 	if( !detector.InitBingObjectness() )
 		return -1;
 
 	string datadir = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\";
-	string imgfn = "159.jpg";
+	string imgfn = "1.jpg";
 	Mat timg = imread(datadir + imgfn);
 	if(timg.empty())
 		return 0;
 
 	Mat dimg;
-	string dmapfn = datadir + "159_d.txt";
+	string dmapfn = datadir + "1_d.txt";
 	nyuman.LoadDepthData(dmapfn, dimg);
 	
 	//dimg = dimg * 1000;
@@ -93,7 +94,7 @@ int main()
 	}
 
 	Mat dispimg;
-	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 15, 15, dispimg);
+	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 50, 15, dispimg);
 	imshow("objectness", dispimg);
 	visualsearch::ImgVisualizer::DrawImgWins("objdet", dimg, boxes);
 	waitKey(10);
@@ -108,7 +109,10 @@ int main()
 	
 	//////////////////////////////////////////////////////////////////////////
 	// depth ranking
-	dsal.RankWins(dimg, boxes);
+	normalize(dimg, dimg, 0, 255, NORM_MINMAX);
+	if( !saldepth.Init(timg, dimg) )
+		cout<<"Error initialize depth saliency."<<endl;
+	saldepth.RankWins(boxes);
 
 	Mat salmap;
 	//detector.CreateScoremapFromWins(timg.cols, timg.rows, boxes, salmap);
@@ -122,14 +126,14 @@ int main()
 	{
 		cout<<boxes[i].score<<endl;
 		imgs[i] = timg(boxes[i]);
-		if(i<50)
+		if(i<15)
 			topBoxes.push_back(boxes[i]);
 	}
 
-	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 15, 15, dispimg);
+	visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 50, 15, dispimg);
 	imshow("rank by CC", dispimg);
 	visualsearch::ImgVisualizer::DrawImgWins("ddet", dimg, topBoxes);
-	visualsearch::ImgVisualizer::DrawImgWins("cdet", timg, topBoxes);
+	//visualsearch::ImgVisualizer::DrawImgWins("cdet", timg, topBoxes);
 	waitKey(0);
 
 	cv::destroyAllWindows();

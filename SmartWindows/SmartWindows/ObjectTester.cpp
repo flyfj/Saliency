@@ -39,6 +39,7 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 		return;
 
 	SalientRegionDetector saldet;
+	SalientDepthRegionDetector saldepth;
 	DepthSaliency depth_sal;
 	vector<vector<ImgWin>> objdetwins(img_fns.size()), saldetwins(img_fns.size()), depthdetwins;
 	vector<vector<ImgWin>> gtwins(img_fns.size());
@@ -54,9 +55,18 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 		// read depth
 		Mat curdmap;
 		if(dbname == DB_NYU2_RGBD)
-			nyudata.LoadDepthData(dmap_fns[i].filepath, curdmap);
+			if( !nyudata.LoadDepthData(dmap_fns[i].filepath, curdmap) )
+				continue;
 		if(dbname == DB_BERKELEY3D)
-			berkeleydata.LoadDepthData(dmap_fns[i].filepath, curdmap);
+			if( !berkeleydata.LoadDepthData(dmap_fns[i].filepath, curdmap) )
+				continue;
+
+//#define VERBOSE
+#ifdef VERBOSE
+		// show gt
+		visualsearch::ImgVisualizer::DrawImgWins("gt", curimg, rawgtwins[img_fns[i].filename]);
+		visualsearch::ImgVisualizer::DrawFloatImg("dmap", curdmap, Mat());
+#endif
 
 		// normalize to image
 		//normalize(curdmap, curdmap, 0, 255, NORM_MINMAX);
@@ -82,9 +92,25 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 		
 		start_t = getTickCount();
 		// rank
+		normalize(curdmap, curdmap, 0, 255, NORM_MINMAX);
 		vector<ImgWin> salboxes = objboxes;
-		depth_sal.RankWins(curdmap, salboxes);
+		saldepth.Init(curimg, curdmap);
+		saldepth.RankWins(salboxes);
+		//depth_sal.RankWins(curdmap, salboxes);
 		cout<<"Depth ranking: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<endl;
+
+#ifdef VERBOSE
+		vector<Mat> imgs(50);
+		for (int i=0; i<50; i++)
+		{
+			imgs[i] = curimg(salboxes[i]);
+		}
+		Mat dispimg;
+		visualsearch::ImgVisualizer::DrawImgCollection("objectness", imgs, 50, 15, dispimg);
+		imshow("objectness", dispimg);
+		visualsearch::ImgVisualizer::DrawImgWins("saldet", curimg, salboxes);
+		waitKey(0);
+#endif
 		/*saldet.g_para.segThresholdK = 200;
 		saldet.Init(curdmap);
 		saldet.RankWins(salboxes);*/
@@ -112,9 +138,9 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 	}
 	
 	// save to file
-	ofstream out1("b3d_objpr.txt");
+	ofstream out1("nyu_objpr.txt");
 	for (size_t i=0; i<objprvals.size(); i++) out1<<objprvals[i].x<<" "<<objprvals[i].y<<endl;
-	ofstream out2("b3d_depthpr.txt");
+	ofstream out2("nyu_depthpr.txt");
 	for (size_t i=0; i<salprvals.size(); i++) out2<<salprvals[i].x<<" "<<salprvals[i].y<<endl;
 
 	cout<<"Finish evaluation"<<endl;

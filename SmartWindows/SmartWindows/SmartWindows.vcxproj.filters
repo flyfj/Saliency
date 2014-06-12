@@ -180,6 +180,9 @@
     <ClInclude Include="Kinect\OpenCVFrameHelper.h">
       <Filter>Kinect</Filter>
     </ClInclude>
+    <ClInclude Include="Saliency\Composition\SalientDepthRegionDetector.h">
+      <Filter>Saliency\Composition</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -292,6 +295,9 @@
     </ClCompile>
     <ClCompile Include="Kinect\OpenCVFrameHelper.cpp">
       <Filter>Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="Saliency\Composition\SalientDepthRegionDetector.cpp">
+      <Filter>Saliency\Composition</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

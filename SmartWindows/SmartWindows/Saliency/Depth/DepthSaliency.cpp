@@ -43,7 +43,7 @@ bool DepthSaliency::InitQuantization(const Mat& dmap, Mat& dcode)
 
 bool DepthSaliency::CompCenterSurroundDepthDist(const Mat& dcode, ImgWin& win)
 {
-	ImgWin contextWin = ToolFactory::GetContextWin(dcode.cols, dcode.rows, win, 1.5);
+	ImgWin contextWin = ToolFactory::GetContextWin(dcode.cols, dcode.rows, win, 1.1);
 	
 	//////////////////////////////////////////////////////////////////////////
 	// use emd distance
@@ -172,8 +172,8 @@ void DepthSaliency::RankWins(const Mat& dmap, vector<ImgWin>& wins)
 	Mat dcode;
 	InitQuantization(ndmap, dcode);
 
-	//visualsearch::ImgVisualizer::DrawFloatImg("dcode", dcode, Mat());
-
+	visualsearch::ImgVisualizer::DrawFloatImg("dcode", dcode, Mat());
+#pragma omp parallel for
 	for (size_t i=0; i<wins.size(); i++)
 	{
 		CompCenterSurroundDepthDist(dcode, wins[i]);

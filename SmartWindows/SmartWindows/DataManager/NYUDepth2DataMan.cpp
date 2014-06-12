@@ -17,9 +17,14 @@ bool NYUDepth2DataMan::GetImageList(FileInfos& imgfiles)
 
 bool NYUDepth2DataMan::GetDepthmapList(FileInfos& depthfiles)
 {
-	ToolFactory::GetFilesFromDir(depthdir, "*_d.txt", depthfiles);
-	if(depthfiles.empty())
-		return false;
+	FileInfos imgfns;
+	GetImageList(imgfns);
+	depthfiles.resize(imgfns.size());
+	for(size_t i=0; i<imgfns.size(); i++)
+	{
+		depthfiles[i].filename = imgfns[i].filename.substr(0, imgfns[i].filename.length()-4) + "_d.txt";
+		depthfiles[i].filepath = imgfns[i].filepath.substr(0, imgfns[i].filepath.length()-4) + "_d.txt";
+	}
 
 	cout<<"Loaded NYU depth map list"<<endl;
 	return true;
@@ -44,7 +49,7 @@ bool NYUDepth2DataMan::LoadDepthData(const string& depthfile, cv::Mat& depthmap)
 
 bool NYUDepth2DataMan::LoadGTWins(const FileInfos& imgfiles, map<string, vector<ImgWin>>& gtwins)
 {
-	gtwins.clear();
+	gtwins.clear();//
 	for (int i=0; i<imgfiles.size(); i++)
 	{
 		string labelfn = imgfiles[i].filepath.substr(0, imgfiles[i].filepath.length()-4) + "_l.png";
