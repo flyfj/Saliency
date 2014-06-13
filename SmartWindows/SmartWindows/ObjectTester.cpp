@@ -39,7 +39,7 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 		return;
 
 	SalientRegionDetector saldet;
-	SalientDepthRegionDetector saldepth;
+	SalientRGBDRegionDetector salrgbd;
 	DepthSaliency depth_sal;
 	vector<vector<ImgWin>> objdetwins(img_fns.size()), saldetwins(img_fns.size()), depthdetwins;
 	vector<vector<ImgWin>> gtwins(img_fns.size());
@@ -94,8 +94,8 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 		// rank
 		normalize(curdmap, curdmap, 0, 255, NORM_MINMAX);
 		vector<ImgWin> salboxes = objboxes;
-		saldepth.Init(curimg, curdmap);
-		saldepth.RankWins(salboxes);
+		salrgbd.Init(SAL_DEPTH, curimg, curdmap);
+		salrgbd.RankWins(salboxes);
 		//depth_sal.RankWins(curdmap, salboxes);
 		cout<<"Depth ranking: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<endl;
 
@@ -169,6 +169,7 @@ void ObjectTester::RunVideoDemo()
 		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 		resize(cimg, cimg, newsz);
 		resize(dmap, dmap, newsz);
+		//normalize(dmap, dmap, 0, 255, NORM_MINMAX);
 
 		// get objects
 		vector<ImgWin> wins;

@@ -14,7 +14,7 @@
 #include "a9wins/A9Window.h"
 #include "WindowEvaluator.h"
 #include "Bing/Objectness.h"
-#include "Saliency/Composition/SalientRegionDetector.h"
+#include "Saliency/Composition/SalientRGBDRegionDetector.h"
 
 
 struct WinConfig

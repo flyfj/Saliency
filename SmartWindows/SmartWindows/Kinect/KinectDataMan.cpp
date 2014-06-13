@@ -83,6 +83,8 @@ bool KinectDataMan::GetColorDepth(Mat& cimg, Mat& dmap)
 
 		cvtColor(cimg, cimg, CV_BGRA2BGR);
 	}
+	else
+		return false;
 
 	if( SUCCEEDED(m_cvhelper.UpdateDepthFrame()) )
 	{
@@ -95,6 +97,8 @@ bool KinectDataMan::GetColorDepth(Mat& cimg, Mat& dmap)
 
 		cvtColor(dmap, dmap, CV_BGRA2BGR);
 	}
+	else
+		return false;
 
 	return true;
 }

@@ -556,11 +556,11 @@ bool GenericObjectDetector::ProposeObjects(const Mat& cimg, const Mat& dmap, vec
 	//visualsearch::ImgVisualizer::DrawImgWins("objectness", curimg, objboxes);
 
 	// rank
-	SalientRegionDetector saldet;
+	SalientRGBDRegionDetector saldet;
 	vector<ImgWin> salboxes = objboxes;
 	//depth_sal.RankWins(curdmap, salboxes);
 	//saldet.g_para.segThresholdK = 200;
-	saldet.Init(cimg);
+	saldet.Init(SAL_COLOR, cimg, dmap);
 	saldet.RankWins(salboxes);
 
 	// only select windows containing center point and not having a dimension bigger than half

@@ -27,6 +27,12 @@ using namespace std;
 //#define RECORD_AUXILIARY_INFO
 
 
+enum SalientType
+{
+	SAL_COLOR = 1,
+	SAL_DEPTH = 2,
+};
+
 inline float l2_dist(float x1, float y1, float x2, float y2)
 {
 	return sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
@@ -73,7 +79,8 @@ struct SegSuperPixelFeature
 		area(0), id(-1)
 	{ box_pos[0].x = 100000; box_pos[0].y = 100000; box_pos[1].x = 0; box_pos[1].y = 0; }
 
-	vector<float> feat;	// feature vector
+	vector<float> feat;	// color feature vector
+	vector<float> dfeat;	// depth feature vector
 
 	Point box_pos[2];	// bounding box: top-left, bottom-right
 	Rect box;	// bounding box
@@ -84,11 +91,20 @@ struct SegSuperPixelFeature
 	static bool use4Neighbor;
 	unsigned int id;
 
-	static float FeatureIntersectionDistance(const SegSuperPixelFeature& a, const SegSuperPixelFeature& b)
+	static float FeatureIntersectionDistance(const SegSuperPixelFeature& a, const SegSuperPixelFeature& b, SalientType stype = SAL_COLOR)
 	{
 		float dist = 0;
-		for(size_t i = 0; i < a.feat.size(); i++)
-			dist += ((a.feat[i] < b.feat[i]) ? a.feat[i] : b.feat[i]);
+		if(stype == SAL_COLOR)
+		{
+			for(size_t i = 0; i < a.feat.size(); i++)
+				dist += ((a.feat[i] < b.feat[i]) ? a.feat[i] : b.feat[i]);
+		}
+		else
+		{
+			for(size_t i = 0; i < a.dfeat.size(); i++)
+				dist += ((a.dfeat[i] < b.dfeat[i]) ? a.dfeat[i] : b.dfeat[i]);
+		}
+		
 		return 1 - dist;
 	}
 };
@@ -224,6 +240,9 @@ struct SegSuperPixelComposeFeature
 class SegmentBasedWindowComposer
 {
 public:
+
+	SalientType use_feat;
+
 	vector<SegSuperPixelComposeFeature> sp_comp_features;	// superpixel features
 
 	SegmentBasedWindowComposer();

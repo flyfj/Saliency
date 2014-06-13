@@ -163,7 +163,7 @@
     <ClInclude Include="Saliency\Composition\ImageSimple.h" />
     <ClInclude Include="Saliency\Composition\IntegralImage.h" />
     <ClInclude Include="Saliency\Composition\nms.h" />
-    <ClInclude Include="Saliency\Composition\SalientDepthRegionDetector.h" />
+    <ClInclude Include="Saliency\Composition\SalientRGBDRegionDetector.h" />
     <ClInclude Include="Saliency\Composition\SalientRegionDetector.h" />
     <ClInclude Include="Saliency\Composition\SegmentBasedWindowComposer.h" />
     <ClInclude Include="Saliency\Depth\DepthSaliency.h" />
@@ -203,7 +203,7 @@
     <ClCompile Include="ObjectTester.cpp" />
     <ClCompile Include="RGBDTools.cpp" />
     <ClCompile Include="Saliency\Composition\IntegralImage.cpp" />
-    <ClCompile Include="Saliency\Composition\SalientDepthRegionDetector.cpp" />
+    <ClCompile Include="Saliency\Composition\SalientRGBDRegionDetector.cpp" />
     <ClCompile Include="Saliency\Composition\SalientRegionDetector.cpp" />
     <ClCompile Include="Saliency\Composition\SegmentBasedWindowComposer.cpp" />
     <ClCompile Include="Saliency\Depth\DepthSaliency.cpp" />

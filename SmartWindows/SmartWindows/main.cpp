@@ -11,7 +11,7 @@
 #include "ObjectSegmentor.h"
 #include "a9wins/A9Window.h"
 #include "Saliency/Composition/SalientRegionDetector.h"
-#include "Saliency/Composition/SalientDepthRegionDetector.h"
+#include "Saliency/Composition/SalientRGBDRegionDetector.h"
 #include "ObjectTester.h"
 #include "Saliency/Depth/DepthSaliency.h"
 using namespace std;
@@ -20,8 +20,8 @@ int main()
 {
 
 	ObjectTester tester;
-	tester.TestObjectRanking(DB_NYU2_RGBD);
-	//tester.RunVideoDemo();
+	//tester.TestObjectRanking(DB_NYU2_RGBD);
+	tester.RunVideoDemo();
 	return 0;
 
 	ShapeAnalyzer shaper;
@@ -32,7 +32,7 @@ int main()
 	Berkeley3DDataManager b3dman;
 	NYUDepth2DataMan nyuman;
 	DepthSaliency dsal;
-	SalientDepthRegionDetector saldepth;
+	SalientRGBDRegionDetector saldepth;
 
 	// process
 	if( !detector.InitBingObjectness() )
@@ -110,7 +110,7 @@ int main()
 	//////////////////////////////////////////////////////////////////////////
 	// depth ranking
 	normalize(dimg, dimg, 0, 255, NORM_MINMAX);
-	if( !saldepth.Init(timg, dimg) )
+	if( !saldepth.Init(SAL_COLOR, timg, dimg) )
 		cout<<"Error initialize depth saliency."<<endl;
 	saldepth.RankWins(boxes);
 

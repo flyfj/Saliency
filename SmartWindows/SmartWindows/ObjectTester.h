@@ -17,7 +17,7 @@
 #include <string>
 #include "ObjectSegmentor.h"
 #include "Saliency/Composition/SalientRegionDetector.h"
-#include "Saliency/Composition/SalientDepthRegionDetector.h"
+#include "Saliency/Composition/SalientRGBDRegionDetector.h"
 #include "Saliency/Depth/DepthSaliency.h"
 #include "Kinect/KinectDataMan.h"
 using namespace std;
