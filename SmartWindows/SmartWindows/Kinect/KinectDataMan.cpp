@@ -84,7 +84,10 @@ bool KinectDataMan::GetColorDepth(Mat& cimg, Mat& dmap)
 		cvtColor(cimg, cimg, CV_BGRA2BGR);
 	}
 	else
+	{
+		cerr<<"Can't get color frame"<<endl;
 		return false;
+	}
 
 	if( SUCCEEDED(m_cvhelper.UpdateDepthFrame()) )
 	{
@@ -98,7 +101,10 @@ bool KinectDataMan::GetColorDepth(Mat& cimg, Mat& dmap)
 		cvtColor(dmap, dmap, CV_BGRA2BGR);
 	}
 	else
+	{
+		cerr<<"Can't get depth frame"<<endl;
 		return false;
+	}
 
 	return true;
 }

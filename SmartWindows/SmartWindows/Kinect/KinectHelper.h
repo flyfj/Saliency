@@ -301,7 +301,7 @@ namespace Microsoft {
             m_depthResolution(DEPTH_DEFAULT_RESOLUTION)
         {
             // Default to all streams enabled
-            SetNuiInitFlags(true, true, true);
+            SetNuiInitFlags(true, true, false);
         }
 
         /// <summary>
