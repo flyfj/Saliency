@@ -157,46 +157,51 @@ void ObjectTester::RunVideoDemo()
 	if( !kinectDM.InitKinect() )
 		return;
 
+	bool doRank = true;
 	// start fetching stream data
 	while(1)
 	{
 		Mat cimg, dmap;
-		if( !kinectDM.GetColorDepth(cimg, dmap) )
-			return;
+		kinectDM.GetColorDepth(cimg, dmap);
 
 		// resize image
 		Size newsz;
 		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 		resize(cimg, cimg, newsz);
-		resize(dmap, dmap, newsz);
+		//resize(dmap, dmap, newsz);
 		//normalize(dmap, dmap, 0, 255, NORM_MINMAX);
 
 		// get objects
-		vector<ImgWin> wins;
-		if( !detector.ProposeObjects(cimg, dmap, wins) )
+		vector<ImgWin> objwins, salwins;
+		if( !detector.ProposeObjects(cimg, dmap, objwins, salwins, doRank) )
 			continue;
 
 		//////////////////////////////////////////////////////////////////////////
 		// draw best k windows
-		int topK = MIN(6, wins.size());
+		int topK = MIN(6, objwins.size());
 		int objimgsz = newsz.height / topK;
 		int canvas_h = newsz.height;
-		int canvas_w = newsz.width + 10 + objimgsz;
+		int canvas_w = newsz.width + 10 + objimgsz*2;
 		Mat canvas(canvas_h, canvas_w, CV_8UC3);
 		canvas.setTo(Vec3b(0,0,0));
 		// get top windows
 		vector<Mat> detimgs(topK);
+		vector<Mat> salimgs(topK);
 		for (int i=0; i<topK; i++)
 		{
-			cimg(wins[i]).copyTo(detimgs[i]);
+			cimg(objwins[i]).copyTo(detimgs[i]);
 			resize(detimgs[i], detimgs[i], Size(objimgsz, objimgsz));
+			cimg(salwins[i]).copyTo(salimgs[i]);
+			resize(salimgs[i], salimgs[i], Size(objimgsz, objimgsz));
 		}
 
 		// draw boxes on input
+		Scalar objcolor(0, 255, 0);
+		Scalar salcolor(0, 0, 255);
 		for(int i=0; i<topK; i++)
 		{
-			Scalar color(rand()%255, rand()%255, rand()%255);
-			rectangle(cimg, wins[i], color);
+			rectangle(cimg, objwins[i], objcolor);
+			rectangle(cimg, salwins[i], salcolor);
 		}
 		circle(cimg, Point(cimg.cols/2, cimg.rows/2), 2, CV_RGB(255,0,0));
 		// copy input image
@@ -205,11 +210,15 @@ void ObjectTester::RunVideoDemo()
 		// copy subimg
 		for (int i=0; i<detimgs.size(); i++)
 		{
-			Rect curbox(cimg.cols+10, i*objimgsz, objimgsz, objimgsz);
-			detimgs[i].copyTo(canvas(curbox));
+			Rect objbox(cimg.cols+10, i*objimgsz, objimgsz, objimgsz);
+			detimgs[i].copyTo(canvas(objbox));
+			Rect salbox(cimg.cols+10+objimgsz, i*objimgsz, objimgsz, objimgsz);
+			salimgs[i].copyTo(canvas(salbox));
 		}
 
-		resize(canvas, canvas, Size(canvas.cols*3, canvas.rows*3));
+		resize(canvas, canvas, Size(canvas.cols*2, canvas.rows*2));
+		//if(doRank)
+			//putText(canvas, "Use Ranking", Point(50, 50), CV_FONT_HERSHEY_COMPLEX, 1, CV_RGB(255, 0, 0));
 		imshow("object proposals", canvas);
 		if( waitKey(10) == 'q' )
 			break;

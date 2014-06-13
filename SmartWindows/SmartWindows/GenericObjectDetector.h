@@ -102,7 +102,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	// output ranked object candidates
-	bool ProposeObjects(const Mat& cimg, const Mat& dmap, vector<ImgWin>& wins);
+	bool ProposeObjects(const Mat& cimg, const Mat& dmap, vector<ImgWin>& objwins, vector<ImgWin>& salwins, bool ifRank = true);
 
 };
 

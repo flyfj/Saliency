@@ -113,9 +113,9 @@ bool SalientRGBDRegionDetector::Init(const SalientType stype, const Mat& cimg, c
 	}
 
 	// compute segment feature: color and depth
-	for(int y=0; y<dmap.rows; y++)
+	for(int y=0; y<cimg.rows; y++)
 	{
-		for(int x=0; x<dmap.cols; x++)
+		for(int x=0; x<cimg.cols; x++)
 		{
 			if((saltype & SAL_DEPTH) != 0)
 			{

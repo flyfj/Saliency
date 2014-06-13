@@ -543,7 +543,7 @@ bool GenericObjectDetector::GetObjectsFromBing(const cv::Mat& cimg, vector<ImgWi
 
 //////////////////////////////////////////////////////////////////////////
 
-bool GenericObjectDetector::ProposeObjects(const Mat& cimg, const Mat& dmap, vector<ImgWin>& wins)
+bool GenericObjectDetector::ProposeObjects(const Mat& cimg, const Mat& dmap, vector<ImgWin>& objwins, vector<ImgWin>& salwins, bool ifRank)
 {
 	if( !isBingInitialized )
 		if( !InitBingObjectness() )
@@ -551,7 +551,7 @@ bool GenericObjectDetector::ProposeObjects(const Mat& cimg, const Mat& dmap, vec
 
 	// get objectness windows
 	vector<ImgWin> objboxes;
-	if( !GetObjectsFromBing(cimg, objboxes, 1000) )
+	if( !GetObjectsFromBing(cimg, objboxes, 500) )
 		return false;
 	//visualsearch::ImgVisualizer::DrawImgWins("objectness", curimg, objboxes);
 
@@ -560,16 +560,25 @@ bool GenericObjectDetector::ProposeObjects(const Mat& cimg, const Mat& dmap, vec
 	vector<ImgWin> salboxes = objboxes;
 	//depth_sal.RankWins(curdmap, salboxes);
 	//saldet.g_para.segThresholdK = 200;
-	saldet.Init(SAL_COLOR, cimg, dmap);
-	saldet.RankWins(salboxes);
+	if( ifRank )
+	{
+		saldet.Init(SAL_COLOR, cimg, dmap);
+		saldet.RankWins(salboxes);
+	}
 
 	// only select windows containing center point and not having a dimension bigger than half
-	wins.clear();
+	objwins.clear();
+	salwins.clear();
 	Point centerp(cimg.cols/2, cimg.rows/2);
 	for(size_t i=0; i<salboxes.size(); i++)
 	{
-		if(salboxes[i].contains(centerp) && salboxes[i].width < cimg.cols*2/3 && salboxes[i].height < cimg.rows*2/3)
-			wins.push_back(salboxes[i]);
+		if(salboxes[i].contains(centerp) && (salboxes[i].width < cimg.cols*2/3 || salboxes[i].height < cimg.rows*2/3))
+			salwins.push_back(salboxes[i]);
+	}
+	for(size_t i=0; i<objboxes.size(); i++)
+	{
+		if(objboxes[i].contains(centerp) && (objboxes[i].width < cimg.cols*2/3 || objboxes[i].height < cimg.rows*2/3))
+			objwins.push_back(objboxes[i]);
 	}
 
 	return true;
