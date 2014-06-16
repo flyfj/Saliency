@@ -158,7 +158,6 @@ bool SegmentBasedWindowComposer::Init(const Mat& seg_map, const vector<SegSuperP
 
 	// compute pair-wise composition cost
 	float maxAppdist = 0, maxSpadist = 0;
-	float colordist = 0, depthdist = 0;
 	for (int curIdx = 0; curIdx < sp_features.size(); curIdx++)
 	{	
 		// allocate space
@@ -170,10 +169,11 @@ bool SegmentBasedWindowComposer::Init(const Mat& seg_map, const vector<SegSuperP
 		{			
 			pair.id = nextIdx;
 
+			float colordist = 0, depthdist = 0;
 			// appearance distance
-			if((use_feat & SAL_COLOR) != 0)
+			if( (use_feat & SAL_COLOR) != 0 )
 				colordist = SegSuperPixelFeature::FeatureIntersectionDistance(sp_features[curIdx], sp_features[nextIdx], SAL_COLOR);
-			if((use_feat & SAL_DEPTH) != 0)
+			if( (use_feat & SAL_DEPTH) != 0 )
 				depthdist = SegSuperPixelFeature::FeatureIntersectionDistance(sp_features[curIdx], sp_features[nextIdx], SAL_DEPTH);
 			
 			pair.appdist = (colordist + depthdist) / 2;

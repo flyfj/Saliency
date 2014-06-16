@@ -38,15 +38,17 @@ int main()
 	if( !detector.InitBingObjectness() )
 		return -1;
 
+	string b3ddir = "E:\\Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\KinectColor\\";
+	string b3dddir = "E:\\Datasets\\RGBD_Dataset\\Berkeley\\VOCB3DO\\RegisteredDepthData\\";
 	string datadir = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\";
-	string imgfn = "1.jpg";
+	string imgfn = "img_0632.jpg";
 	Mat timg = imread(datadir + imgfn);
 	if(timg.empty())
 		return 0;
 
 	Mat dimg;
-	string dmapfn = datadir + "1_d.txt";
-	nyuman.LoadDepthData(dmapfn, dimg);
+	string dmapfn = b3dddir + "img_0632_abs_smooth.png";
+	b3dman.LoadDepthData(dmapfn, dimg);
 	
 	//dimg = dimg * 1000;
 	//Mat cloud;
@@ -60,7 +62,7 @@ int main()
 	tmpfns.filepath = datadir + imgfn;
 	imgfns.push_back(tmpfns);
 	map<string, vector<ImgWin>> rawgtwins;
-	nyuman.LoadGTWins(imgfns, rawgtwins);
+	b3dman.LoadGTWins(imgfns, rawgtwins);
 	vector<ImgWin> gtwins = rawgtwins[imgfn];
 
 	//resize(timg, timg, Size(200,200));

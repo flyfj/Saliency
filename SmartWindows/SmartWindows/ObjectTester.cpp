@@ -86,7 +86,7 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 		double start_t = getTickCount();
 		// get objectness windows
 		vector<ImgWin> objboxes;
-		detector.GetObjectsFromBing(curimg, objboxes, 500);
+		detector.GetObjectsFromBing(curimg, objboxes, 1000);
 		//visualsearch::ImgVisualizer::DrawImgWins("objectness", curimg, objboxes);
 		cout<<"objectness: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<endl;
 		
@@ -94,7 +94,8 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 		// rank
 		normalize(curdmap, curdmap, 0, 255, NORM_MINMAX);
 		vector<ImgWin> salboxes = objboxes;
-		salrgbd.Init(SAL_DEPTH, curimg, curdmap);
+		int saltype = SAL_COLOR | SAL_DEPTH;
+		salrgbd.Init(saltype, curimg, curdmap);
 		salrgbd.RankWins(salboxes);
 		//depth_sal.RankWins(curdmap, salboxes);
 		cout<<"Depth ranking: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<endl;
@@ -140,7 +141,7 @@ void ObjectTester::TestObjectRanking(const DatasetName& dbname)
 	// save to file
 	ofstream out1("nyu_objpr.txt");
 	for (size_t i=0; i<objprvals.size(); i++) out1<<objprvals[i].x<<" "<<objprvals[i].y<<endl;
-	ofstream out2("nyu_depthpr.txt");
+	ofstream out2("nyu_rgbdpr.txt");
 	for (size_t i=0; i<salprvals.size(); i++) out2<<salprvals[i].x<<" "<<salprvals[i].y<<endl;
 
 	cout<<"Finish evaluation"<<endl;

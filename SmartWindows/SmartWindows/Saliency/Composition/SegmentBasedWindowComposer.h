@@ -241,7 +241,7 @@ class SegmentBasedWindowComposer
 {
 public:
 
-	SalientType use_feat;
+	int use_feat;
 
 	vector<SegSuperPixelComposeFeature> sp_comp_features;	// superpixel features
 

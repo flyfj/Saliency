@@ -551,7 +551,7 @@ bool GenericObjectDetector::ProposeObjects(const Mat& cimg, const Mat& dmap, vec
 
 	// get objectness windows
 	vector<ImgWin> objboxes;
-	if( !GetObjectsFromBing(cimg, objboxes, 500) )
+	if( !GetObjectsFromBing(cimg, objboxes, 800) )
 		return false;
 	//visualsearch::ImgVisualizer::DrawImgWins("objectness", curimg, objboxes);
 

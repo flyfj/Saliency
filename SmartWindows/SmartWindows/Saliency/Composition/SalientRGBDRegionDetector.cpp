@@ -16,7 +16,7 @@ void SalientRGBDRegionDetector::Clear()
 }
 
 
-bool SalientRGBDRegionDetector::Init(const SalientType stype, const Mat& cimg, const Mat& dmap)
+bool SalientRGBDRegionDetector::Init(const int stype, const Mat& cimg, const Mat& dmap)
 {
 	// clear data for new image
 	Clear();
@@ -100,9 +100,9 @@ bool SalientRGBDRegionDetector::Init(const SalientType stype, const Mat& cimg, c
 	{
 		sp_features[i].id = i;
 		//  init
-		if(saltype & SAL_COLOR != 0)
+		if( (saltype & SAL_COLOR) != 0 )
 			sp_features[i].feat.resize(quantBins[0]+quantBins[1]+quantBins[2], 0);
-		if(saltype & SAL_DEPTH != 0)
+		if( (saltype & SAL_DEPTH) != 0 )
 			sp_features[i].dfeat.resize(depth_bin_num, 0);
 		//	set bound box
 		sp_features[i].box = \
@@ -117,7 +117,7 @@ bool SalientRGBDRegionDetector::Init(const SalientType stype, const Mat& cimg, c
 	{
 		for(int x=0; x<cimg.cols; x++)
 		{
-			if((saltype & SAL_DEPTH) != 0)
+			if( (saltype & SAL_DEPTH) != 0 )
 			{
 				/**** depth ****/
 				// get rgb pixel from image
@@ -127,7 +127,7 @@ bool SalientRGBDRegionDetector::Init(const SalientType stype, const Mat& cimg, c
 				sp_features[imgSegmentor.m_idxImg.at<int>(y, x)].dfeat[curid]++;
 			}
 
-			if((saltype & SAL_COLOR) != 0)
+			if( (saltype & SAL_COLOR) != 0 )
 			{
 				/**** color ****/
 				// get rgb pixel from image

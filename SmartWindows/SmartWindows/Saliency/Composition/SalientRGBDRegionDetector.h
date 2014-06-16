@@ -24,7 +24,7 @@ public:
 	SalientRGBDRegionDetector(void);
 	~SalientRGBDRegionDetector() { Clear(); }
 
-	bool Init(const SalientType stype, const Mat& cimg, const Mat& dmap);
+	bool Init(const int stype, const Mat& cimg, const Mat& dmap);
 
 	bool RankWins(vector<ImgWin>& wins);
 
@@ -32,7 +32,7 @@ public:
 
 private:
 
-	SalientType saltype;
+	int saltype;
 
 	void Clear();
 
