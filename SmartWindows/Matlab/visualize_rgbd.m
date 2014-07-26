@@ -1,6 +1,11 @@
-function [] = visualize_rgbd(cimg, dmap)
+function [] = visualize_rgbd(cimgf, dmapf)
 % input: color image and depth map
 
+datadir = 'E:\Datasets\RGBD_Dataset\Berkeley\VOCB3DO\KinectColor\';
+cimgfn = [datadir cimgf];
+dmapfn = [datadir dmapf];
+cimg = imread(cimgfn);
+dmap = imread(dmapfn);
 
 %% to visualize rgbd images as 3d
 
