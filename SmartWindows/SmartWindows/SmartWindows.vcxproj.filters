@@ -16,9 +16,6 @@
     <Filter Include="a9wins">
       <UniqueIdentifier>{1e4ef555-1f22-4180-be33-7f226214aea7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="DataManager">
-      <UniqueIdentifier>{0a009577-af64-4503-9705-f0d36b751dc6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Bing">
       <UniqueIdentifier>{ba5cdf68-ab45-4d10-9219-55f40a2f32af}</UniqueIdentifier>
     </Filter>
@@ -39,6 +36,9 @@
     </Filter>
     <Filter Include="Kinect">
       <UniqueIdentifier>{9e313ae4-90c2-40bd-a0d5-413e92b0d73f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DataManager">
+      <UniqueIdentifier>{0a009577-af64-4503-9705-f0d36b751dc6}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -183,6 +183,15 @@
     <ClInclude Include="Saliency\Composition\SalientRGBDRegionDetector.h">
       <Filter>Saliency\Composition</Filter>
     </ClInclude>
+    <ClInclude Include="Dijkstra.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Tester.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FixationSegmentor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -298,6 +307,12 @@
     </ClCompile>
     <ClCompile Include="Saliency\Composition\SalientRGBDRegionDetector.cpp">
       <Filter>Saliency\Composition</Filter>
+    </ClCompile>
+    <ClCompile Include="Tester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FixationSegmentor.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

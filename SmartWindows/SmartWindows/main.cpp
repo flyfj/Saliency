@@ -14,10 +14,15 @@
 #include "Saliency/Composition/SalientRGBDRegionDetector.h"
 #include "ObjectTester.h"
 #include "Saliency/Depth/DepthSaliency.h"
+#include "Tester.h"
 using namespace std;
 
 int main()
 {
+	Tester tester1;
+	tester1.TestFixationSegmentation();
+	return 0;
+
 
 	ObjectTester tester;
 	//tester.TestObjectRanking(DB_NYU2_RGBD);

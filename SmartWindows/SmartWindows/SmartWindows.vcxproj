@@ -143,6 +143,8 @@
     <ClInclude Include="DataManager\DatasetManager.h" />
     <ClInclude Include="DataManager\NYUDepth2DataMan.h" />
     <ClInclude Include="DataManager\VOCDataManager.h" />
+    <ClInclude Include="Dijkstra.hpp" />
+    <ClInclude Include="FixationSegmentor.h" />
     <ClInclude Include="gcgraph.hpp" />
     <ClInclude Include="GrabCutter.h" />
     <ClInclude Include="ImageSegmentor.h" />
@@ -168,6 +170,7 @@
     <ClInclude Include="Saliency\Composition\SegmentBasedWindowComposer.h" />
     <ClInclude Include="Saliency\Depth\DepthSaliency.h" />
     <ClInclude Include="ShapeAnalyzer.h" />
+    <ClInclude Include="Tester.h" />
     <ClInclude Include="Tools.h" />
     <ClInclude Include="WindowEvaluator.h" />
   </ItemGroup>
@@ -186,6 +189,7 @@
     <ClCompile Include="DataManager\DatasetManager.cpp" />
     <ClCompile Include="DataManager\NYUDepth2DataMan.cpp" />
     <ClCompile Include="DataManager\VOCDataManager.cpp" />
+    <ClCompile Include="FixationSegmentor.cpp" />
     <ClCompile Include="GrabCutter.cpp" />
     <ClCompile Include="ImageSegmentor.cpp" />
     <ClCompile Include="ImgVisualizer.cpp" />
@@ -208,6 +212,7 @@
     <ClCompile Include="Saliency\Composition\SegmentBasedWindowComposer.cpp" />
     <ClCompile Include="Saliency\Depth\DepthSaliency.cpp" />
     <ClCompile Include="ShapeAnalyzer.cpp" />
+    <ClCompile Include="Tester.cpp" />
     <ClCompile Include="Tools.cpp" />
     <ClCompile Include="WindowEvaluator.cpp" />
   </ItemGroup>

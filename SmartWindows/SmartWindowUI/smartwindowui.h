@@ -10,10 +10,13 @@ class SmartWindowUI : public QMainWindow
 
 public:
 	SmartWindowUI(QWidget *parent = 0);
-	~SmartWindowUI();
 
 private:
 	Ui::SmartWindowUIClass ui;
+
+private slots:
+	void on_openImgBtn_clicked();
+
 };
 
 #endif // SMARTWINDOWUI_H
