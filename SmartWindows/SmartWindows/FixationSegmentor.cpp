@@ -19,6 +19,17 @@ namespace visualsearch
 		return dist;
 	}
 
+	float FixationSegmentor::SPCenterDist(const SuperPixel& a, const SuperPixel& b)
+	{
+		float dist = 0;
+		Point acenter(a.box.tl().x+a.box.width/2, a.box.tl().y+a.box.height/2);
+		Point bcenter(b.box.tl().x+b.box.width/2, b.box.tl().x+b.box.height/2);
+		dist = (acenter.x-bcenter.x)*(acenter.x-bcenter.x) + (bcenter.x-bcenter.y)*(bcenter.x-bcenter.y);
+		dist = sqrt(dist);
+
+		return dist;
+	}
+
 
 	bool FixationSegmentor::DoSegmentation(Point fixpt, const Mat& cimg, const Mat& dmap, Mat& objmask)
 	{
@@ -29,7 +40,8 @@ namespace visualsearch
 		int sel_spid = imgsegmentor.m_idxImg.at<int>(fixpt);
 		imshow("segmask", imgsegmentor.superPixels[sel_spid].mask*255);
 		imshow("input", cimg);
-		ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
+		imshow("dmap", dmap);
+		//ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
 		waitKey(0);
 
 		vector<SuperPixel>& sps = imgsegmentor.superPixels;
@@ -39,7 +51,7 @@ namespace visualsearch
 		cvtColor(cimg, labimg, CV_BGR2Lab);
 		for (size_t i=0; i<sps.size(); i++)
 		{
-			Mat meand(1,1,CV_32F);
+			Mat meand(1, 1, CV_32F);
 			meand.at<float>(0,0) = mean(dmap, sps[i].mask).val[0];
 			sps[i].feats.push_back(meand);
 			sps[i].meancolor = mean(labimg, sps[i].mask);
@@ -79,7 +91,7 @@ namespace visualsearch
 		// draw saliency map
 		Mat salmap(cimg.rows, cimg.cols, CV_32F);
 		for (size_t i=0; i<dists.size(); i++)
-			salmap.setTo(dists[i], sps[i].mask);
+			salmap.setTo(dists[i]/SPCenterDist(sps[sel_spid], sps[i]), sps[i].mask);
 		normalize(salmap, salmap, 0, 1, NORM_MINMAX);
 		salmap = 1 - salmap;
 		ImgVisualizer::DrawFloatImg("salmap", salmap, Mat());

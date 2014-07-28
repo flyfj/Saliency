@@ -26,6 +26,8 @@ namespace visualsearch
 		bool DoSegmentation(Point fixpt, const Mat& cimg, const Mat& dmap, Mat& objmask);
 
 		float SPDist(const SuperPixel& a, const SuperPixel& b);
+
+		float SPCenterDist(const SuperPixel& a, const SuperPixel& b);
 	};
 }
 
