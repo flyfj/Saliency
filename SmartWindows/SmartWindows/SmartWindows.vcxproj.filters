@@ -192,6 +192,9 @@
     <ClInclude Include="FixationSegmentor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ViewSearcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -312,6 +315,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FixationSegmentor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewSearcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

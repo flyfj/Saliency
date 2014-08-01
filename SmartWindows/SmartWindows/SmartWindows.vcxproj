@@ -172,6 +172,7 @@
     <ClInclude Include="ShapeAnalyzer.h" />
     <ClInclude Include="Tester.h" />
     <ClInclude Include="Tools.h" />
+    <ClInclude Include="ViewSearcher.h" />
     <ClInclude Include="WindowEvaluator.h" />
   </ItemGroup>
   <ItemGroup>
@@ -214,6 +215,7 @@
     <ClCompile Include="ShapeAnalyzer.cpp" />
     <ClCompile Include="Tester.cpp" />
     <ClCompile Include="Tools.cpp" />
+    <ClCompile Include="ViewSearcher.cpp" />
     <ClCompile Include="WindowEvaluator.cpp" />
   </ItemGroup>
   <ItemGroup>

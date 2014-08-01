@@ -74,4 +74,68 @@ public:
 	static ImgWin GetContextWin(int imgw, int imgh, ImgWin win, float ratio);
 
 	static bool DrawHist(cv::Mat& canvas, cv::Size canvas_size, int max_val, const cv::Mat& hist);
+	
+	//////////////////////////////////////////////////////////////////////////
+	// convert between code and keyvalue
+	template<class KeyType>
+	static bool CodeToKeyValue(const std::vector<bool>& code, KeyType& keyvalue);
+	// compute hamming distance between two int / codes
+	template<class KeyType>
+	static int HammingDist(const KeyType& a, const KeyType& b);
+	template<class KeyType>
+	static void PrintKeyValue(const KeyType& keyvalue);
+
+	
 };
+
+template<class KeyType>
+bool ToolFactory::CodeToKeyValue(const std::vector<bool>& code, KeyType& keyvalue)
+{
+		if(code.empty() || code.size() > 64)
+		{
+				cerr<<"Invalid code: empty or longer than 64."<<endl;
+				return false;
+		}
+			
+		keyvalue = 0;
+		for(std::vector<bool>::const_iterator pi=code.begin(); pi!=code.end(); pi++)	// faster than size_t index (have to mulitply data type size)
+		{
+				keyvalue = (keyvalue << 1) | (*pi);
+		}
+
+		return true;
+}
+
+template<class KeyType>
+void ToolFactory::PrintKeyValue(const KeyType& keyvalue)
+{
+		for (int i = 0; i < sizeof(KeyType) * 8; i++)	// faster than size_t index (have to mulitply data type size)
+		{
+				cout<<(i==0? "":" ")<<((keyvalue >> i) & 1);
+		}
+		cout<<endl;
+}
+
+template<class KeyType>
+int ToolFactory::HammingDist(const KeyType& a, const KeyType& b)
+{
+		KeyType xor_val = a^b;
+		int num_ones = 0;
+		int type_bit_num = sizeof(KeyType)*8;
+		for(int i=0; i<type_bit_num; i++)
+		{
+				num_ones += (xor_val & 1);
+				xor_val = xor_val >> 1;
+		}
+
+		return num_ones;
+
+		/*unsigned int i = a ^ b;
+
+			i = i - ((i >> 1) & 0x55555555);
+
+			i = (i & 0x33333333) + ((i >> 2) & 0x33333333);
+
+			return (((i + (i >> 4)) & 0x0F0F0F0F) * 0x01010101) >> 24;*/
+
+}
