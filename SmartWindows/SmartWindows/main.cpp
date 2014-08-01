@@ -20,6 +20,7 @@ using namespace std;
 int main()
 {
 	Tester tester1;
+	//tester1.TestFixationSegmentation();
 	tester1.TestViewSearch();
 	return 0;
 

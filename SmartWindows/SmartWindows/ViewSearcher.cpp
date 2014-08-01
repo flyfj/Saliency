@@ -83,6 +83,7 @@ namespace visualsearch
 				cnt++;
 
 				VisualObject curobj;
+				curobj.imgfile = fileinfos[j].filepath;
 				curobj.img_data = imread(fileinfos[j].filepath, CV_LOAD_IMAGE_ANYDEPTH);
 				curobj.img_data.convertTo(curobj.img_data, CV_32F);
 				//ImgVisualizer::DrawFloatImg("dmap", curobj.img_data, Mat());
@@ -194,12 +195,7 @@ namespace visualsearch
 			db_hashtable[db_objs.objects[i].visual_desc.hash_key].push_back(Point(0, i));
 		}
 
-		// save to file
-		ofstream out("hashtable.txt");
-		for (HashTable::iterator pi=db_hashtable.begin(); pi!=db_hashtable.end(); pi++)
-		{
-			out<<pi->second.size()<<endl;
-		}
+		SaveSearcher("hashtable.txt");
 
 		return true;
 	}
@@ -228,6 +224,72 @@ namespace visualsearch
 		{
 			sprintf_s(str, "res%d", i);
 			ImgVisualizer::DrawFloatImg(str, db_objs.objects[best_res[i].y].img_data, Mat());
+			cout<<db_objs.objects[best_res[i].y].imgfile<<endl;
+		}
+
+		return true;
+	}
+
+	//////////////////////////////////////////////////////////////////////////
+
+	bool ViewSearcher::LoadSearcher(string loadfn)
+	{
+		db_objs.objects.clear();
+		ifstream in(loadfn);
+		int tablesize;
+		in>>tablesize;
+		for (size_t i=0; i<tablesize; i++)
+		{
+			int bucketsz;
+			visualsearch::HashKeyType curkey;
+			in>>curkey>>bucketsz;
+
+			for (size_t j=0; j<bucketsz; j++)
+			{
+				VisualObject curobj;
+				in>>curobj.imgfile;
+				curobj.visual_desc.hash_key = curkey;
+				// load depthmap
+				curobj.img_data = imread(curobj.imgfile, CV_LOAD_IMAGE_ANYDEPTH);
+				curobj.img_data.convertTo(curobj.img_data, CV_32F);
+				db_objs.objects.push_back(curobj);
+
+				// add to table
+				db_hashtable[curkey].push_back(Point2d(0, db_objs.objects.size()-1));
+			}
+		}
+
+		// load pairs
+		optimalPairs.clear();
+		ifstream in0("pairs.txt");
+		for(size_t i=0; i<32; i++)
+		{
+			PixelPair curpair;
+			in0>>curpair.p0.x>>curpair.p0.y>>curpair.p1.x>>curpair.p1.y;
+			optimalPairs.push_back(curpair);
+		}
+
+		return true;
+	}
+
+	bool ViewSearcher::SaveSearcher(string savefn)
+	{
+		// save optimal pairs
+		ofstream out0("pairs.txt");
+		for(size_t i=0; i<optimalPairs.size(); i++)
+			out0<<optimalPairs[i].p0.x<<" "<<optimalPairs[i].p0.y<<" "<<optimalPairs[i].p1.x<<" "<<optimalPairs[i].p1.y<<endl;
+
+		// save to file
+		ofstream out(savefn);
+		out<<db_hashtable.size()<<endl;
+		for (HashTable::iterator pi=db_hashtable.begin(); pi!=db_hashtable.end(); pi++)
+		{
+			out<<pi->first<<" "<<pi->second.size()<<endl;
+			for(size_t i=0; i<pi->second.size(); i++)
+			{
+				// output db image and hash key
+				out<<db_objs.objects[pi->second[i].y].imgfile<<endl;
+			}
 		}
 
 		return true;

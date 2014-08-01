@@ -61,6 +61,9 @@ namespace visualsearch
 
 		bool Search(const Mat& dwin, vector<int>& res_ids, bool showRes = true);
 
+		bool SaveSearcher(string savefn);
+
+		bool LoadSearcher(string loadfn);
 	};
 
 }

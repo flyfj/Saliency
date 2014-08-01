@@ -43,7 +43,7 @@ void ToolFactory::GetDirsFromDir(const string& dir, DirInfos& dirInfos, const st
 		while( done != -1 )
 		{
 			// _A_SUBDIR is not right
-			if(ffblk.attrib == 16)	// !!! change from 2064 to 16, don't know why !!!
+			if(ffblk.attrib == 2064)	// !!! change from 2064 to 16, don't know why !!!
 			{
 				string fname(ffblk.name);
 				if(fname != "." && fname != "..")
