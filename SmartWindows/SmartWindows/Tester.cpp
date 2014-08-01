@@ -20,7 +20,7 @@ void Tester::TestFixationSegmentation()
 
 void Tester::TestViewSearch()
 {
-	Mat queryimg = imread("‪E:\\1_25_25406.jpg");
+	Mat queryimg = imread("‪E:\\D51.jpg");
 
 	visualsearch::ViewSearcher vsearcher;
 	vsearcher.LoadCategoryDepthMaps("E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-dataset\\");

@@ -118,6 +118,7 @@ namespace visualsearch
 			db_objs.objects[k].visual_desc.binary_code.resize(code_len, false);
 		}
 
+		vector<double> allcosts(code_len, 0);
 		for (int i=0; i<code_len; i++)
 		{
 			vector<PixelPair> curpairs;
@@ -154,9 +155,14 @@ namespace visualsearch
 
 			optimalPairs[i] = curpairs[bestpair];
 
+			allcosts[i] = bestcost;
 			cout<<"Best cost: "<<bestcost<<" - best code: "<<bestpair<<endl;
 			cout<<"Select "<<i<<"th code"<<endl;
 		}
+
+		ofstream out("cost.txt");
+		for (size_t i=0; i<allcosts.size(); i++)
+			out<<allcosts[i]<<endl;
 
 		// generate code for all samples
 		for (int k=0; k<db_objs.objects.size(); k++)
@@ -186,6 +192,13 @@ namespace visualsearch
 		for (size_t i=0; i<db_objs.objects.size(); i++)
 		{
 			db_hashtable[db_objs.objects[i].visual_desc.hash_key].push_back(Point(0, i));
+		}
+
+		// save to file
+		ofstream out("hashtable.txt");
+		for (HashTable::iterator pi=db_hashtable.begin(); pi!=db_hashtable.end(); pi++)
+		{
+			out<<pi->second.size()<<endl;
 		}
 
 		return true;
