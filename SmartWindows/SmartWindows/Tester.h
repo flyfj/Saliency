@@ -8,6 +8,7 @@
 #include "FixationSegmentor.h"
 #include "ViewSearcher.h"
 #include "ImgVisualizer.h"
+#include "Kinect/KinectDataMan.h"
 
 class Tester
 {
@@ -17,6 +18,8 @@ public:
 	void TestFixationSegmentation();
 
 	void TestViewSearch();
+
+	void TestKinectStream();
 
 };
 

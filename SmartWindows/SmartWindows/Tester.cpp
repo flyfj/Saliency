@@ -40,3 +40,27 @@ void Tester::TestViewSearch()
 	vsearcher.Search(queryimg, vector<int>());
 	waitKey(0);
 }
+
+void Tester::TestKinectStream()
+{
+	KinectDataMan kinectDM;
+
+	if( !kinectDM.InitKinect() )
+		return;
+
+	while(1)
+	{
+		Mat cimg, dmap;
+		if( !kinectDM.GetColorDepth(cimg, dmap) )
+			continue;
+
+		imshow("cimg", cimg);
+		imwrite("d:\\dmap.png", dmap);
+		dmap.convertTo(dmap, CV_32F);
+		visualsearch::ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
+		if( waitKey(10) == 'q' )
+			break;
+	}
+
+
+}

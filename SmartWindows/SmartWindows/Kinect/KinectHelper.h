@@ -1065,7 +1065,7 @@ namespace Microsoft {
             }
 
             // Fail if pDepthImage is not the correct size
-            HRESULT hr = VerifySize(pDepthImage, m_depthWidth, m_depthHeight);
+            HRESULT hr = VerifySize(pDepthImage, m_depthResolution);
             if (FAILED(hr))
             {
                 return hr;

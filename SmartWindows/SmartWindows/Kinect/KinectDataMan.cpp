@@ -4,7 +4,7 @@
 KinectDataMan::KinectDataMan(void)
 {
 	color_reso = NUI_IMAGE_RESOLUTION_640x480;
-	depth_reso = NUI_IMAGE_RESOLUTION_640x480;
+	depth_reso = NUI_IMAGE_RESOLUTION_320x240;
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -13,7 +13,9 @@ bool KinectDataMan::InitKinect()
 {
 	if( m_cvhelper.IsInitialized() )
 		return true;
-
+	
+	// set depth to near mode
+	m_cvhelper.SetDepthStreamFlag(NUI_IMAGE_STREAM_FLAG_ENABLE_NEAR_MODE, true);
 	m_cvhelper.SetColorFrameResolution(color_reso);
 	m_cvhelper.SetDepthFrameResolution(depth_reso);
 
@@ -69,7 +71,7 @@ bool KinectDataMan::GetColorDepth(Mat& cimg, Mat& dmap)
 	cimg.create(colorsz, m_cvhelper.COLOR_TYPE);
 	m_cvhelper.GetDepthFrameSize(&width, &height);
 	Size depthsz(width, height);
-	dmap.create(depthsz, m_cvhelper.DEPTH_RGB_TYPE);
+	dmap.create(depthsz, m_cvhelper.DEPTH_TYPE);
 
 	// get color frame
 	if( SUCCEEDED(m_cvhelper.UpdateColorFrame()) )
@@ -91,14 +93,14 @@ bool KinectDataMan::GetColorDepth(Mat& cimg, Mat& dmap)
 
 	if( SUCCEEDED(m_cvhelper.UpdateDepthFrame()) )
 	{
-		HRESULT hr = m_cvhelper.GetDepthImageAsArgb(&dmap);
+		HRESULT hr = m_cvhelper.GetDepthImage(&dmap);
 		if(FAILED(hr))
 		{
 			cerr<<"Fail to get depth image"<<endl;
 			return false;
 		}
 
-		cvtColor(dmap, dmap, CV_BGRA2BGR);
+		//dmap.convertTo(dmap, CV_32F);
 	}
 	else
 	{
