@@ -97,6 +97,8 @@ namespace visualsearch
 		m_mean_img = img.clone();
 		double maxval, minval;
 		cv::minMaxLoc(m_idxImg, &minval, &maxval);
+		Mat labimg;
+		cvtColor(img, labimg, CV_BGR2Lab);
 		for(int i=minval; i<=maxval; i++)
 		{
 			cv::Mat cur_mask;

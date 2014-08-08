@@ -21,7 +21,7 @@ int main()
 {
 	Tester tester1;
 	//tester1.TestFixationSegmentation();
-	tester1.TestKinectStream();
+	tester1.RandomTest();
 	return 0;
 
 
