@@ -169,6 +169,7 @@
     <ClInclude Include="Saliency\Composition\SalientRegionDetector.h" />
     <ClInclude Include="Saliency\Composition\SegmentBasedWindowComposer.h" />
     <ClInclude Include="Saliency\Depth\DepthSaliency.h" />
+    <ClInclude Include="SegmentProposal.h" />
     <ClInclude Include="ShapeAnalyzer.h" />
     <ClInclude Include="Tester.h" />
     <ClInclude Include="Tools.h" />
@@ -212,6 +213,7 @@
     <ClCompile Include="Saliency\Composition\SalientRegionDetector.cpp" />
     <ClCompile Include="Saliency\Composition\SegmentBasedWindowComposer.cpp" />
     <ClCompile Include="Saliency\Depth\DepthSaliency.cpp" />
+    <ClCompile Include="SegmentProposal.cpp" />
     <ClCompile Include="ShapeAnalyzer.cpp" />
     <ClCompile Include="Tester.cpp" />
     <ClCompile Include="Tools.cpp" />

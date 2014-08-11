@@ -18,6 +18,7 @@ namespace visualsearch
 		// position
 		cv::Mat mask;
 		cv::Rect box;
+		float score;
 
 		// features
 		std::vector<cv::Mat> feats;

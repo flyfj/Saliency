@@ -64,3 +64,28 @@ void Tester::TestKinectStream()
 
 
 }
+
+void Tester::TestSegmentProposal()
+{
+	NYUDepth2DataMan nyu_man;
+	FileInfos nyudfiles;
+	FileInfos nyufiles;
+	nyu_man.GetImageList(nyufiles);
+	nyu_man.GetDepthmapList(nyudfiles);
+	Mat cimg, dmap;
+	cimg = imread(nyufiles[5].filepath);
+	imshow("color", cimg);
+	nyu_man.LoadDepthData(nyudfiles[5].filepath, dmap);
+	resize(dmap, dmap, Size(300, 300));
+
+	SegmentProposal segmentor;
+	segmentor.SegmentDepth(dmap);
+	
+}
+
+void Tester::RandomTest()
+{
+	SegmentProposal segprop;
+	Mat img = imread("E:\\Images\\1_28_28763.jpg");
+	segprop.Test1(img, Mat());
+}

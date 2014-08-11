@@ -195,6 +195,9 @@
     <ClInclude Include="ViewSearcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="SegmentProposal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -318,6 +321,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ViewSearcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="SegmentProposal.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
