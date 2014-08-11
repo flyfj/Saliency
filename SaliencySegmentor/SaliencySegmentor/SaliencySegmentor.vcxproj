@@ -28,23 +28,27 @@
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v110</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
@@ -64,8 +68,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\opencv2.4\build\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv2.4\build\x86\vc10\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv245\opencv\build\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv245\opencv\build\x86\vc11\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
@@ -89,7 +93,7 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opencv_core242d.lib;opencv_highgui242d.lib;opencv_imgproc242d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core245d.lib;opencv_highgui245d.lib;opencv_imgproc245d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -143,7 +147,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="common.h" />
+    <ClInclude Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\ImageSegmentor.h" />
+    <ClInclude Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\RGBDTools.h" />
+    <ClInclude Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\RGBDSegmentor.h" />
     <ClInclude Include="GraphBasedSegment\convolve.h" />
     <ClInclude Include="GraphBasedSegment\disjoint-set.h" />
     <ClInclude Include="GraphBasedSegment\filter.h" />
@@ -155,16 +161,13 @@
     <ClInclude Include="GraphBasedSegment\segment-graph.h" />
     <ClInclude Include="GraphBasedSegment\segment-image.h" />
     <ClInclude Include="GraphBasedSegment\wrapper.h" />
-    <ClInclude Include="ImageSegmentor.h" />
-    <ClInclude Include="SaliencyComputer.h" />
-    <ClInclude Include="SaliencySegmentor.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\ImageSegmentor.cpp" />
+    <ClCompile Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\RGBDSegmentor.cpp" />
+    <ClCompile Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\RGBDTools.cpp" />
     <ClCompile Include="GraphBasedSegment\wrapper.cpp" />
-    <ClCompile Include="ImageSegmentor.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="SaliencyComputer.cpp" />
-    <ClCompile Include="SaliencySegmentor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

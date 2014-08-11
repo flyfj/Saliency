@@ -18,9 +18,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="SaliencySegmentor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="GraphBasedSegment\convolve.h">
       <Filter>GraphBasedSegment</Filter>
     </ClInclude>
@@ -54,30 +51,30 @@
     <ClInclude Include="GraphBasedSegment\wrapper.h">
       <Filter>GraphBasedSegment</Filter>
     </ClInclude>
-    <ClInclude Include="ImageSegmentor.h">
+    <ClInclude Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\ImageSegmentor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SaliencyComputer.h">
+    <ClInclude Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\RGBDTools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common.h">
+    <ClInclude Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\RGBDSegmentor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="SaliencySegmentor.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GraphBasedSegment\wrapper.cpp">
       <Filter>GraphBasedSegment</Filter>
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="ImageSegmentor.cpp">
+    <ClCompile Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\ImageSegmentor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="SaliencyComputer.cpp">
+    <ClCompile Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\RGBDTools.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\RGBDMaze\RGBDObjSegmentation\RGBDObjSegmentation\RGBDSegmentor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
