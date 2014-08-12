@@ -5,7 +5,8 @@
 
 int main()
 {
-	Mat img = imread("D:\\imgs\\test.jpg");
+	Mat img = imread("D:\\imgs\\a3.jpg");
+	resize(img, img, Size(300,300));
 	objectproposal::IterativeSegmentor iterSegmentor;
 	iterSegmentor.Init();
 	iterSegmentor.Run(img);

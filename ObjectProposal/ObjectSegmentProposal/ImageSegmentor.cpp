@@ -148,21 +148,21 @@ namespace visualsearch
 					if(cur_sp_id != top_sp_id)
 						adjacencyMat.at<uchar>(cur_sp_id, top_sp_id) = adjacencyMat.at<uchar>(top_sp_id, cur_sp_id) = 1;
 				}
-				if(r<idx_map.rows)
+				if(r<idx_map.rows-1)
 				{
 					int bottom_sp_id = idx_map.at<int>(r+1, c);
 					if(cur_sp_id != bottom_sp_id)
 						adjacencyMat.at<uchar>(cur_sp_id, bottom_sp_id) = adjacencyMat.at<uchar>(bottom_sp_id, cur_sp_id) = 1;
 				}
-				if(c<0)
+				if(c>0)
 				{
 					int left_sp_id = idx_map.at<int>(r, c-1);
 					if(cur_sp_id != left_sp_id)
 						adjacencyMat.at<uchar>(cur_sp_id, left_sp_id) = adjacencyMat.at<uchar>(left_sp_id, cur_sp_id) = 1;
 				}
-				if(c<idx_map.cols)
+				if(c<idx_map.cols-1)
 				{
-					int right_sp_id = idx_map.at<int>(r, c-1);
+					int right_sp_id = idx_map.at<int>(r, c+1);
 					if(cur_sp_id != right_sp_id)
 						adjacencyMat.at<uchar>(cur_sp_id, right_sp_id) = adjacencyMat.at<uchar>(right_sp_id, cur_sp_id) = 1;
 				}

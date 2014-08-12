@@ -39,7 +39,7 @@ namespace objectproposal
 	bool IterativeSegmentor::Run(const Mat& cimg)
 	{
 		// oversegmentation
-		img_segmentor.DoSegmentation(cimg);
+		int num = img_segmentor.DoSegmentation(cimg);
 		imshow("input", cimg);
 		imshow("seg", img_segmentor.m_segImg);
 		waitKey(10);
@@ -55,6 +55,7 @@ namespace objectproposal
 			ComputeSPFeatures(cimg, sps[cur_seg_id]);
 			cur_seg_id++;
 		}
+		cout<<"Initial superpixel num: "<<cur_seg_id<<endl;
 
 		// create initial sp pairs
 		sp_pairs.clear();
@@ -78,6 +79,7 @@ namespace objectproposal
 	bool IterativeSegmentor::DoMergeIteration(const Mat& cimg, bool verbose)
 	{
 		// select the best pair
+		float bestdist = sp_pairs.begin()->first;
 		Point bestpair = sp_pairs.begin()->second;
 		sp_pairs.erase(sp_pairs.begin());
 		// create new sp
@@ -87,7 +89,10 @@ namespace objectproposal
 		sps[cur_seg_id] = newsp;
 		if(verbose)
 		{
-			imshow("new merge", newsp.mask);
+			cout<<"Merged pair: "<<bestpair.x<<" "<<bestpair.y<<" : "<<bestdist<<endl;
+			imshow("merge1", sps[bestpair.x].mask*255);
+			imshow("merge2", sps[bestpair.y].mask*255);
+			imshow("new merge", newsp.mask*255);
 			waitKey(0);
 		}
 		// add new merge pairs and remove old pairs
@@ -100,8 +105,13 @@ namespace objectproposal
 			nextPair.y = cur_seg_id;
 			if(pi->second.x == bestpair.x || pi->second.x == bestpair.y)
 				nextPair.x = pi->second.y;
-			if(pi->second.y == bestpair.x || pi->second.y == bestpair.y)
+			else if(pi->second.y == bestpair.x || pi->second.y == bestpair.y)
 				nextPair.x = pi->second.x;
+			else
+				continue;
+			// remove self neighbor
+			if(nextPair.x == bestpair.x || nextPair.x == bestpair.y)
+				continue;
 			// check if the merge has been done
 			if(mergedPairs[nextPair.x] == nextPair.y)
 				continue;
@@ -118,13 +128,42 @@ namespace objectproposal
 			if(pi->second.x == bestpair.x || pi->second.x == bestpair.y 
 				|| pi->second.y == bestpair.x || pi->second.y == bestpair.y)
 			{	
-				sp_pairs.erase(pi);
+				pi = sp_pairs.erase(pi);
 				hasErased = true;
 			}
 		}
+		if(verbose)
+		{
+			// compute remaining valid sps
+			set<int> valid_sp_ids;
+			for (auto elem: sp_pairs)
+			{
+				valid_sp_ids.insert(elem.second.x);
+				valid_sp_ids.insert(elem.second.y);
+			}
+
+			cout<<"Valid superpixel number after removal: "<<valid_sp_ids.size()<<endl;
+		}
+
 		// add new pairs
 		for (SimPair::iterator pi=newpairs.begin(); pi!=newpairs.end(); pi++)
 			sp_pairs[pi->first] = pi->second;
+
+		if(verbose)
+		{
+			// compute remaining valid sps
+			set<int> valid_sp_ids;
+			for (auto elem: sp_pairs)
+			{
+				valid_sp_ids.insert(elem.second.x);
+				valid_sp_ids.insert(elem.second.y);
+			}
+			for(const auto elem: valid_sp_ids)
+				cout<<elem<<" ";
+			cout<<endl;
+
+			cout<<"Valid superpixel number: "<<valid_sp_ids.size()<<endl<<endl;
+		}
 
 		cur_seg_id++;
 
