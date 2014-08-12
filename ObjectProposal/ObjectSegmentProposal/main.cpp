@@ -11,6 +11,7 @@ int main()
 	iterSegmentor.Init();
 	iterSegmentor.Run(img);
 	
+	waitKey(0);
 	return 0;
 }
 

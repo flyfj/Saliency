@@ -38,6 +38,8 @@ namespace objectproposal
 
 	bool IterativeSegmentor::Run(const Mat& cimg)
 	{
+		double start_t = cv::getTickCount();
+
 		// oversegmentation
 		int num = img_segmentor.DoSegmentation(cimg);
 		imshow("input", cimg);
@@ -70,8 +72,10 @@ namespace objectproposal
 		// start merging process
 		while(!sp_pairs.empty())
 		{
-			DoMergeIteration(cimg, true);
+			DoMergeIteration(cimg, false);
 		}
+
+		cout<<"Segmentation time: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
 
 		return true;
 	}

@@ -1,0 +1,21 @@
+//////////////////////////////////////////////////////////////////////////
+// ranker for candiate object segments
+// jiefeng@2014-08-12
+//////////////////////////////////////////////////////////////////////////
+
+
+#pragma once
+
+#include "common_libs.h"
+
+
+namespace objectproposal
+{
+	class ObjSegmentRanker
+	{
+	public:
+		ObjSegmentRanker(void);
+	};
+}
+
+
