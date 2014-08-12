@@ -7,53 +7,51 @@
 #pragma once
 
 
-#include "stdafx.h"
+#include "common_libs.h"
 #include "ImageSegmentor.h"
 
-
-
-namespace ObjectProposal
+namespace objectproposal
 {
+	using namespace visualsearch;
 
+	// object segment proposal by iteratively merging superpixels
+	// in every iteration, merge most similar connected sps and add a new sp,
+	// update neighborhood relations
 	class IterativeSegmentor
 	{
 
 	private:
 
-		vector<SegSuperPixelFeature> sp_features;
+		typedef map<float, Point> SimPair;	// small id first
+		SimPair sp_pairs;	// generated candidate merge pairs
+		map<int, SuperPixel> sps;	// generated sps
 		Mat lab_img;
 		int prim_seg_num;	// primitive superpixel number
+		int cur_seg_id;
 		vector<bool> bg_sign;
+
+	public:
 
 		// processor
 		ImageSegmentor img_segmentor;
 
-	public:
-
 		IterativeSegmentor(void);
 
-		const Mat& GetSegmentImage() { return img_segmentor.m_segImg; }
 		int GetSegIdByLocation(Point pt) { return img_segmentor.m_idxImg.at<int>(pt.y, pt.x); }
 
-		void Init(const Mat& img);
+		// init data and processors
+		void Init();
 
-		// simply combine two segments and create a new one with updated segment data; return distance of the two segments
-		float MergeSegments(
-			const SegSuperPixelFeature& in_seg1, const SegSuperPixelFeature& in_seg2, 
-			SegSuperPixelFeature& out_seg, bool onlyCombineFeat = false);
+		// main process
+		bool Run(const Mat& cimg);
 
-		// do iterative merging to find salient object
-		bool MineSalientObjectFromSegment(const Mat& img, int start_seg_id, float& best_saliency);
+		// compute features for superpixels
+		bool ComputeSPFeatures(const Mat& cimg, SuperPixel& sp);
 
-		bool MineSalientObjectsByMergingPairs(const Mat& img);
+		float ComputeSPDist(const SuperPixel& sp1, const SuperPixel& sp2);
 
-		bool SegmentSaliencyMeasure(const Mat& img);
+		bool DoMergeIteration(const Mat& cimg, bool verbose = false);
 
-		float SegmentDissimilarity(const SegSuperPixelFeature& seg1, const SegSuperPixelFeature& seg2);
-
-		bool ComputeSaliencyMap(const Mat& img, Mat& sal_map);
-
-		bool ComputeSaliencyMapByBGPropagation(const Mat& img, Mat& sal_map);
 
 	};
 }

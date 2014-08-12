@@ -13,38 +13,62 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="GraphSegment">
+      <UniqueIdentifier>{1e46f0c9-6119-43c5-964d-afebbd679b70}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="IterativeSegmentor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\ImageSegmentor.h">
+    <ClInclude Include="common_libs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\common_libs.h">
+    <ClInclude Include="ImageSegmentor.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\convolve.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\disjoint-set.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\filter.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\image.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\imconv.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\imutil.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\misc.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\segment-graph.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphBasedSegmentor\segment-image.h">
+      <Filter>GraphSegment</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="stdafx.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectSegmentProposal.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="IterativeSegmentor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\ImageSegmentor.cpp">
+    <ClCompile Include="ImageSegmentor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
