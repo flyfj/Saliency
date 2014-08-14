@@ -72,6 +72,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>../Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -85,24 +86,39 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="common_libs.h" />
-    <ClInclude Include="GraphBasedSegmentor\convolve.h" />
-    <ClInclude Include="GraphBasedSegmentor\disjoint-set.h" />
-    <ClInclude Include="GraphBasedSegmentor\filter.h" />
-    <ClInclude Include="GraphBasedSegmentor\image.h" />
-    <ClInclude Include="GraphBasedSegmentor\imconv.h" />
-    <ClInclude Include="GraphBasedSegmentor\imutil.h" />
-    <ClInclude Include="GraphBasedSegmentor\misc.h" />
-    <ClInclude Include="GraphBasedSegmentor\segment-graph.h" />
-    <ClInclude Include="GraphBasedSegmentor\segment-image.h" />
-    <ClInclude Include="ImageSegmentor.h" />
+    <ClInclude Include="..\Shared\Common\common_libs.h" />
+    <ClInclude Include="..\Shared\Common\Tools.h" />
+    <ClInclude Include="..\Shared\DataManager\DataManagerInterface.h" />
+    <ClInclude Include="..\Shared\DataManager\NYUDepth2DataMan.h" />
+    <ClInclude Include="..\Shared\Features\ColorDescriptors.h" />
+    <ClInclude Include="..\Shared\Features\DepthDescriptors.h" />
+    <ClInclude Include="..\Shared\Features\EdgeHistogram.h" />
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\convolve.h" />
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\disjoint-set.h" />
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\filter.h" />
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\image.h" />
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\imconv.h" />
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\imutil.h" />
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\misc.h" />
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\segment-graph.h" />
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\segment-image.h" />
+    <ClInclude Include="..\Shared\Processors\ImageSegmentor.h" />
     <ClInclude Include="IterativeSegmentor.h" />
+    <ClInclude Include="ObjSegmentRanker.h" />
+    <ClInclude Include="SegmentProcessor.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ImageSegmentor.cpp" />
+    <ClCompile Include="..\Shared\Common\Tools.cpp" />
+    <ClCompile Include="..\Shared\DataManager\NYUDepth2DataMan.cpp" />
+    <ClCompile Include="..\Shared\Features\ColorDescriptors.cpp" />
+    <ClCompile Include="..\Shared\Features\DepthDescriptors.cpp" />
+    <ClCompile Include="..\Shared\Features\EdgeHistogram.cpp" />
+    <ClCompile Include="..\Shared\Processors\ImageSegmentor.cpp" />
     <ClCompile Include="IterativeSegmentor.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ObjSegmentRanker.cpp" />
+    <ClCompile Include="SegmentProcessor.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

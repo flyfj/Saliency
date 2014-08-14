@@ -7,6 +7,7 @@ namespace objectproposal
 {
 	IterativeSegmentor::IterativeSegmentor(void)
 	{
+		verbose = false;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -72,7 +73,7 @@ namespace objectproposal
 		// start merging process
 		while(!sp_pairs.empty())
 		{
-			DoMergeIteration(cimg, false);
+			DoMergeIteration(cimg);
 		}
 
 		cout<<"Segmentation time: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
@@ -80,7 +81,7 @@ namespace objectproposal
 		return true;
 	}
 
-	bool IterativeSegmentor::DoMergeIteration(const Mat& cimg, bool verbose)
+	bool IterativeSegmentor::DoMergeIteration(const Mat& cimg)
 	{
 		// select the best pair
 		float bestdist = sp_pairs.begin()->first;

@@ -11,8 +11,12 @@
 
 namespace objectproposal
 {
+	// use saliency or prior to rank object segment
 	class ObjSegmentRanker
 	{
+	private:
+
+
 	public:
 		ObjSegmentRanker(void);
 	};

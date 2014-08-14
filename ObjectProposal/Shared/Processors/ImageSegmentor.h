@@ -7,7 +7,7 @@
 
 #pragma once
 
-#include "common_libs.h"
+#include "../Common/common_libs.h"
 
 
 namespace visualsearch

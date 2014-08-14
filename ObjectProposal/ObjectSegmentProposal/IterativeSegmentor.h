@@ -29,11 +29,12 @@ namespace objectproposal
 		int prim_seg_num;	// primitive superpixel number
 		int cur_seg_id;
 		vector<bool> bg_sign;
+		// processor
+		ImageSegmentor img_segmentor;
 
 	public:
 
-		// processor
-		ImageSegmentor img_segmentor;
+		bool verbose;
 
 		IterativeSegmentor(void);
 
@@ -50,7 +51,7 @@ namespace objectproposal
 
 		float ComputeSPDist(const SuperPixel& sp1, const SuperPixel& sp2);
 
-		bool DoMergeIteration(const Mat& cimg, bool verbose = false);
+		bool DoMergeIteration(const Mat& cimg);
 
 
 	};

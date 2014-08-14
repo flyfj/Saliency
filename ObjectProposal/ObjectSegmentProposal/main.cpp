@@ -2,12 +2,17 @@
 //
 
 #include "IterativeSegmentor.h"
+#include "DataManager/NYUDepth2DataMan.h"
 
 int main()
 {
-	Mat img = imread("D:\\imgs\\a3.jpg");
+	NYUDepth2DataMan nyuman;
+	FileInfos files;
+	nyuman.GetImageList(files);
+	Mat img = imread(files[0].filepath);
 	resize(img, img, Size(300,300));
 	objectproposal::IterativeSegmentor iterSegmentor;
+	iterSegmentor.verbose = true;
 	iterSegmentor.Init();
 	iterSegmentor.Run(img);
 	

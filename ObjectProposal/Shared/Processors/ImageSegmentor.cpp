@@ -2,7 +2,7 @@
 
 
 #include "ImageSegmentor.h"
-#include "GraphBasedSegmentor/segment-image.h"
+#include "../GraphBasedSegmentor/segment-image.h"
 
 
 namespace visualsearch
