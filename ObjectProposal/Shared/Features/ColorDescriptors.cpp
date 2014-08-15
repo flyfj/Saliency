@@ -241,6 +241,8 @@ namespace visualsearch
 				return ComputeColorHistogram(color_img, feat, mask);
 			if(params.feat_type == COLOR_FEAT_CLUSTER)
 				return ComputeColorClusters(color_img, feat, mask);
+			if(params.feat_type == COLOR_FEAT_MEAN)
+				return ComputeMeanColor(color_img, feat, mask);
 
 			return true;
 		}
@@ -379,6 +381,25 @@ namespace visualsearch
 
 				//cout<<feat<<endl;
 			}
+
+			return true;
+		}
+
+		bool ColorDescriptors::ComputeMeanColor(const cv::Mat& color_img, cv::Mat& feat, const cv::Mat& mask)
+		{
+			Mat cimg;
+			Scalar meanc;
+			if(params.meanparams.color_space == COLOR_LAB)
+			{
+				cvtColor(color_img, cimg, CV_BGR2Lab);
+				meanc = mean(cimg, mask);
+			}
+			else
+				meanc = mean(cimg, mask);
+
+			feat.create(1, 3, CV_32F);
+			feat.setTo(0);
+			for(int i=0; i<3; i++) feat.at<float>(i) = meanc.val[i];
 
 			return true;
 		}

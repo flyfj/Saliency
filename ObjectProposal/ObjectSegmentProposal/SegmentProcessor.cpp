@@ -7,7 +7,7 @@ namespace objectproposal
 	{
 		features::ColorFeatParams cparams;
 		cparams.feat_type = features::COLOR_FEAT_HIST;
-		cparams.histParams.color_space = features::COLOR_LAB;
+		cparams.histParams.color_space = features::COLOR_RGB;
 		colorDesc.Init(cparams);
 
 		features::EdgeFeatParams eparams;
@@ -26,7 +26,7 @@ namespace objectproposal
 		{
 			Mat curfeat;
 			colorDesc.Compute(cimg, curfeat, sp.mask);
-			sp.feats.push_back(curfeat);
+			sp.feats["color"] = curfeat;
 		}
 		if( (feattype & SP_TEXTURE) != 0)
 		{
@@ -34,12 +34,13 @@ namespace objectproposal
 			Mat grayimg;
 			cvtColor(cimg, grayimg, CV_BGR2GRAY);
 			edgeDesc.Compute(grayimg, curfeat, sp.mask);
+			sp.feats["texture"] = curfeat;
 		}
 		if( (feattype & SP_DEPTH) != 0 )
 		{
 			Mat curfeat;
 			depthDesc.Compute(dmap, curfeat, sp.mask);
-			sp.feats.push_back(curfeat);
+			sp.feats["depth"] = curfeat;
 		}
 
 		return true;
@@ -50,9 +51,10 @@ namespace objectproposal
 		float dist = 0;
 		if(sp1.feats.size() != sp2.feats.size())
 			return 1;
-		for (size_t i=0; i<sp1.feats.size(); i++)
+		for (MatFeatureSet::const_iterator p1=sp1.feats.begin(), p2=sp2.feats.begin();
+			p1!=sp1.feats.end(); p1++, p2++)
 		{
-			dist += norm(sp1.feats[i], sp2.feats[i], NORM_L2);
+			dist += norm(p1->second, p2->second, NORM_L2);
 		}
 		dist /= sp1.feats.size();
 

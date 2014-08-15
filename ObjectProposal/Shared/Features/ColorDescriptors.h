@@ -50,6 +50,13 @@ namespace visualsearch
 			}
 		};
 
+		struct ColorMeanParams
+		{
+			FeatColorSpace color_space;
+
+			ColorMeanParams() { color_space = COLOR_LAB; }
+		};
+
 		struct ColorClusterParams
 		{
 			FeatColorSpace color_space;
@@ -70,6 +77,7 @@ namespace visualsearch
 
 			ColorHistParams histParams;
 			ColorClusterParams clusterParams;
+			ColorMeanParams meanparams;
 
 			ColorFeatParams()
 			{ feat_type = COLOR_FEAT_HIST; histParams = ColorHistParams(); }
@@ -109,6 +117,9 @@ namespace visualsearch
 
 			// generic interface for color histogram computation
 			bool ComputeColorHistogram(const cv::Mat& color_img, cv::Mat& feat, const cv::Mat& mask = cv::Mat());
+
+			// compute mean color
+			bool ComputeMeanColor(const cv::Mat& color_img, cv::Mat& feat, const cv::Mat& mask = Mat());
 
 			// compute color cluster feature
 			bool ComputeColorClusters(const cv::Mat& color_img, cv::Mat& feat, const cv::Mat& mask = cv::Mat());

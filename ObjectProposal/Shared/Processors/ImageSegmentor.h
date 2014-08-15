@@ -20,7 +20,7 @@ namespace visualsearch
 		bool boundary;
 
 		// features
-		std::vector<cv::Mat> feats;
+		MatFeatureSet feats;
 
 		Scalar meancolor;
 	};

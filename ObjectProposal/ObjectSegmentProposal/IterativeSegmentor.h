@@ -7,8 +7,9 @@
 #pragma once
 
 
-#include "common_libs.h"
-#include "ImageSegmentor.h"
+#include "Common/common_libs.h"
+#include "Processors/ImageSegmentor.h"
+#include "SegmentProcessor.h"
 
 namespace objectproposal
 {
@@ -32,6 +33,9 @@ namespace objectproposal
 		// processor
 		ImageSegmentor img_segmentor;
 
+		SegmentProcessor spProcessor;
+
+
 	public:
 
 		bool verbose;
@@ -44,14 +48,9 @@ namespace objectproposal
 		void Init();
 
 		// main process
-		bool Run(const Mat& cimg);
+		bool Run(const Mat& cimg, const Mat& dmap);
 
-		// compute features for superpixels
-		bool ComputeSPFeatures(const Mat& cimg, SuperPixel& sp);
-
-		float ComputeSPDist(const SuperPixel& sp1, const SuperPixel& sp2);
-
-		bool DoMergeIteration(const Mat& cimg);
+		bool DoMergeIteration(const Mat& cimg, const Mat& dmap);
 
 
 	};

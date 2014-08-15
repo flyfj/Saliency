@@ -5,6 +5,8 @@
 #include "../Common/common_libs.h"
 #include "../Common/Tools.h"
 
+using namespace tools;
+
 enum DatasetName
 {
 	DB_VOC07,
