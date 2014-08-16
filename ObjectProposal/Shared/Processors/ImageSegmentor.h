@@ -14,14 +14,21 @@ namespace visualsearch
 {
 	struct SuperPixel
 	{
-		// position
+		// shape
 		cv::Mat mask;
 		cv::Rect box;
 		bool boundary;
+		Contour contour;
+		Contour approx_contour;
+		int perimeter;
+		bool isConvex;
+		int area;
+		// spatial
+		float meanDepth;
+		Point2f centroid;
 
 		// features
 		MatFeatureSet feats;
-
 		Scalar meancolor;
 	};
 

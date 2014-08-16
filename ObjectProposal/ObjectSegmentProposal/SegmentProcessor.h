@@ -37,6 +37,8 @@ namespace objectproposal
 
 		SegmentProcessor(void);
 
+		bool ExtractBasicSegmentFeatures(SuperPixel& sp, const Mat& cimg, const Mat& dmap);
+
 		bool ExtractSegmentFeatures(SuperPixel& sp, const Mat& cimg, const Mat& dmap, int feattype);
 
 		static float ComputeSegmentDist(const SuperPixel& sp1, const SuperPixel& sp2);

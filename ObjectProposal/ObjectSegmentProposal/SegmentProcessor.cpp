@@ -19,6 +19,42 @@ namespace objectproposal
 
 	//////////////////////////////////////////////////////////////////////////
 
+	bool SegmentProcessor::ExtractBasicSegmentFeatures(SuperPixel& sp, const Mat& cimg, const Mat& dmap)
+	{
+		// edge detection
+		Mat edgemap;
+		cv::Canny(sp.mask*150, edgemap, 100, 200);
+		//imshow("edge", edgemap);
+		//waitKey(0);
+
+		Contours curves;
+		std::vector<cv::Vec4i> hierarchy;
+		findContours( edgemap, curves, hierarchy, CV_RETR_LIST, CV_CHAIN_APPROX_NONE );
+
+		sp.contour = curves[0];
+		approxPolyDP(sp.contour, sp.approx_contour, cv::arcLength(cv::Mat(sp.contour), true)*0.02, true);
+		sp.area = countNonZero(sp.mask);
+		sp.box = boundingRect(sp.approx_contour);
+		sp.perimeter = arcLength(curves[0], true);
+		sp.isConvex = isContourConvex(sp.approx_contour);
+		sp.centroid.x = 0;
+		sp.centroid.y = 0;
+		for (int r=sp.box.y; r<sp.box.br().y; r++)
+		{
+			for(int c=sp.box.x; c<sp.box.br().x; c++)
+			{
+				sp.centroid.x += c*sp.mask.at<uchar>(r,c);
+				sp.centroid.y += r*sp.mask.at<uchar>(r,c);
+			}
+		}
+		sp.centroid.x /= sp.area;
+		sp.centroid.y /= sp.area;
+		
+		sp.meanDepth = mean(dmap, sp.mask).val[0];
+
+		return true;
+	}
+
 	bool SegmentProcessor::ExtractSegmentFeatures(SuperPixel& sp, const Mat& cimg, const Mat& dmap, int feattype)
 	{
 		sp.feats.clear();
@@ -54,7 +90,7 @@ namespace objectproposal
 		for (MatFeatureSet::const_iterator p1=sp1.feats.begin(), p2=sp2.feats.begin();
 			p1!=sp1.feats.end(); p1++, p2++)
 		{
-			dist += norm(p1->second, p2->second, NORM_L2);
+			dist += norm(p1->second, p2->second, NORM_L1);
 		}
 		dist /= sp1.feats.size();
 

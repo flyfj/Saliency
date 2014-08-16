@@ -22,7 +22,7 @@ namespace objectproposal
 		cur_seg_id = 0;
 	}
 
-	bool IterativeSegmentor::Run(const Mat& cimg, const Mat& dmap)
+	bool IterativeSegmentor::Run(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps)
 	{
 		double start_t = cv::getTickCount();
 
@@ -32,17 +32,16 @@ namespace objectproposal
 		imshow("depth", dmap*255);
 		imshow("seg", img_segmentor.m_segImg);
 		waitKey(10);
-		vector<SuperPixel>& res_sps = img_segmentor.superPixels;
+		sps.clear();
+		sps = img_segmentor.superPixels;
+		cur_seg_id = sps.size();
 		Mat adjMat;
-		img_segmentor.ComputeAdjacencyMat(res_sps, adjMat);
+		img_segmentor.ComputeAdjacencyMat(sps, adjMat);
 
 		// add to collection
-		sps.clear();
-		for (size_t i=0; i<res_sps.size(); i++) 
+		for (size_t i=0; i<sps.size(); i++) 
 		{
-			sps[cur_seg_id] = res_sps[i];
-			spProcessor.ExtractSegmentFeatures(sps[cur_seg_id], cimg, dmap, SP_COLOR + SP_DEPTH);
-			cur_seg_id++;
+			spProcessor.ExtractSegmentFeatures(sps[i], cimg, dmap, SP_COLOR + SP_DEPTH);
 		}
 		cout<<"Initial superpixel num: "<<cur_seg_id<<endl;
 
@@ -59,7 +58,7 @@ namespace objectproposal
 		// start merging process
 		while(!sp_pairs.empty())
 		{
-			DoMergeIteration(cimg, dmap);
+			DoMergeIteration(cimg, dmap, sps);
 		}
 
 		cout<<"Segmentation time: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
@@ -67,7 +66,7 @@ namespace objectproposal
 		return true;
 	}
 
-	bool IterativeSegmentor::DoMergeIteration(const Mat& cimg, const Mat& dmap)
+	bool IterativeSegmentor::DoMergeIteration(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps)
 	{
 		// select the best pair
 		float bestdist = sp_pairs.begin()->first;
@@ -76,8 +75,9 @@ namespace objectproposal
 		// create new sp
 		SuperPixel newsp;
 		newsp.mask = sps[bestpair.x].mask | sps[bestpair.y].mask;
+		newsp.box = sps[bestpair.x].box | sps[bestpair.y].box;
 		spProcessor.ExtractSegmentFeatures(newsp, cimg, dmap, SP_COLOR + SP_DEPTH);
-		sps[cur_seg_id] = newsp;
+		sps.push_back(newsp);
 		if(verbose)
 		{
 			cout<<"Merged pair: "<<bestpair.x<<" "<<bestpair.y<<" : "<<bestdist<<endl;
@@ -86,6 +86,7 @@ namespace objectproposal
 			imshow("new merge", newsp.mask*255);
 			Mat segment_img;
 			cimg.copyTo(segment_img, newsp.mask);
+			rectangle(segment_img, newsp.box, CV_RGB(255, 0, 0));
 			imshow("merge image", segment_img);
 			waitKey(0);
 		}
@@ -96,7 +97,7 @@ namespace objectproposal
 		{
 			// for any pair containing one of members in to merge pair
 			Point nextPair;
-			nextPair.y = cur_seg_id;
+			nextPair.y = sps.size()-1;
 			if(pi->second.x == bestpair.x || pi->second.x == bestpair.y)
 				nextPair.x = pi->second.y;
 			else if(pi->second.y == bestpair.x || pi->second.y == bestpair.y)
@@ -158,8 +159,6 @@ namespace objectproposal
 
 			cout<<"Valid superpixel number: "<<valid_sp_ids.size()<<endl<<endl;
 		}
-
-		cur_seg_id++;
 
 		return true;
 	}

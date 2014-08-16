@@ -25,7 +25,7 @@ namespace objectproposal
 
 		typedef map<float, Point> SimPair;	// small id first
 		SimPair sp_pairs;	// generated candidate merge pairs
-		map<int, SuperPixel> sps;	// generated sps
+
 		Mat lab_img;
 		int prim_seg_num;	// primitive superpixel number
 		int cur_seg_id;
@@ -48,9 +48,9 @@ namespace objectproposal
 		void Init();
 
 		// main process
-		bool Run(const Mat& cimg, const Mat& dmap);
+		bool Run(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps);
 
-		bool DoMergeIteration(const Mat& cimg, const Mat& dmap);
+		bool DoMergeIteration(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps);
 
 
 	};

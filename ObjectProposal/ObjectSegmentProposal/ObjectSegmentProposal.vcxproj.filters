@@ -45,25 +45,7 @@
     <ClInclude Include="..\Shared\Common\Tools.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\convolve.h">
-      <Filter>GraphSegment</Filter>
-    </ClInclude>
     <ClInclude Include="..\Shared\GraphBasedSegmentor\disjoint-set.h">
-      <Filter>GraphSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\filter.h">
-      <Filter>GraphSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\image.h">
-      <Filter>GraphSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\imconv.h">
-      <Filter>GraphSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\imutil.h">
-      <Filter>GraphSegment</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\misc.h">
       <Filter>GraphSegment</Filter>
     </ClInclude>
     <ClInclude Include="..\Shared\GraphBasedSegmentor\segment-graph.h">
@@ -89,6 +71,12 @@
     </ClInclude>
     <ClInclude Include="..\Shared\Features\DepthDescriptors.h">
       <Filter>Features</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjSegmentProposal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\ShapeAnalyzer.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -121,6 +109,12 @@
     </ClCompile>
     <ClCompile Include="..\Shared\Features\DepthDescriptors.cpp">
       <Filter>Features</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjSegmentProposal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Processors\ShapeAnalyzer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

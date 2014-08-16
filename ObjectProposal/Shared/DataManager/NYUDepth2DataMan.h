@@ -7,6 +7,7 @@
 
 #include "DataManagerInterface.h"
 #include "../Common/common_libs.h"
+#include "../Processors/ShapeAnalyzer.h"
 
 using namespace visualsearch;
 
@@ -29,6 +30,8 @@ public:
 	bool GetDepthmapList(FileInfos& depthfiles);
 
 	bool LoadDepthData(const string& depthfile, cv::Mat& depthmap);
+
+	bool LoadGTMasks(const FileInfos& imgfiles, map<string, vector<Mat>>& gtmasks);
 
 	bool LoadGTWins(const FileInfos& imgfiles, map<string, vector<ImgWin>>& gtwins);
 
