@@ -98,6 +98,8 @@
     <ClInclude Include="..\Shared\GraphBasedSegmentor\segment-graph.h" />
     <ClInclude Include="..\Shared\GraphBasedSegmentor\segment-image.h" />
     <ClInclude Include="..\Shared\Processors\ImageSegmentor.h" />
+    <ClInclude Include="..\Shared\Processors\Saliency\GlobalContrastSaliency.h" />
+    <ClInclude Include="..\Shared\Processors\Saliency\SaliencyComputer.h" />
     <ClInclude Include="..\Shared\Processors\ShapeAnalyzer.h" />
     <ClInclude Include="IterativeSegmentor.h" />
     <ClInclude Include="ObjSegmentProposal.h" />
@@ -112,6 +114,8 @@
     <ClCompile Include="..\Shared\Features\DepthDescriptors.cpp" />
     <ClCompile Include="..\Shared\Features\EdgeHistogram.cpp" />
     <ClCompile Include="..\Shared\Processors\ImageSegmentor.cpp" />
+    <ClCompile Include="..\Shared\Processors\Saliency\GlobalContrastSaliency.cpp" />
+    <ClCompile Include="..\Shared\Processors\Saliency\SaliencyComputer.cpp" />
     <ClCompile Include="..\Shared\Processors\ShapeAnalyzer.cpp" />
     <ClCompile Include="IterativeSegmentor.cpp" />
     <ClCompile Include="main.cpp" />

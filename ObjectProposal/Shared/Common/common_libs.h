@@ -235,6 +235,23 @@ namespace visualsearch
 		SPM1X3
 	};
 
+
+	namespace processors
+	{
+		namespace saliency
+		{
+			enum SaliencyType
+			{
+				SAL_SR,		// spectral residual
+				SAL_COMP,	// composition
+				SAL_HC,		// histogram contrast
+				SAL_FC,		// frequency tuned
+				SAL_RC,		// region contrast
+				SAL_LC		// luminance contrast
+			};
+		}
+	}
+
 	/*enum NormType
 	{
 	Norm_L2,

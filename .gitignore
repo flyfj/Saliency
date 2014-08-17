@@ -6,6 +6,8 @@ SelectiveSearchCodeIJCV/
 ## data file
 *.ply
 *.mat
+*.txt
+*.mexw64
 
 #################
 ## Eclipse

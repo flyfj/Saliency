@@ -78,6 +78,12 @@
     <ClInclude Include="..\Shared\Processors\ShapeAnalyzer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\SaliencyComputer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\GlobalContrastSaliency.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IterativeSegmentor.cpp">
@@ -114,6 +120,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\Shared\Processors\ShapeAnalyzer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Processors\Saliency\SaliencyComputer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Processors\Saliency\GlobalContrastSaliency.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
