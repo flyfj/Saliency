@@ -245,7 +245,7 @@ namespace visualsearch
 				SAL_SR,		// spectral residual
 				SAL_COMP,	// composition
 				SAL_HC,		// histogram contrast
-				SAL_FC,		// frequency tuned
+				SAL_FT,		// frequency tuned
 				SAL_RC,		// region contrast
 				SAL_LC		// luminance contrast
 			};
