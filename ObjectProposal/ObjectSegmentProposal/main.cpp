@@ -3,12 +3,12 @@
 
 #include "ObjSegmentProposal.h"
 #include "DataManager/NYUDepth2DataMan.h"
-#include "ObjSegmentRanker.h"
+#include "ObjectRanker.h"
 
 int main()
 {
-	objectproposal::ObjSegmentRanker ranker;
-	ranker.LearnObjectPredictorFromNYUDepth();
+	visualsearch::processors::attention::ObjectRanker ranker;
+	ranker.LearnObjectWindowPredictor();
 	getchar();
 	return 0;
 

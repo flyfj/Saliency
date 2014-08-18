@@ -18,7 +18,7 @@ namespace objectproposal
 
 		// rank
 		vector<int> rank_ids;
-		seg_ranker.RankSegments(cimg, dmap, init_res, SEG_RANK_CC, rank_ids);
+		seg_ranker.RankSegments(cimg, dmap, init_res, visualsearch::processors::attention::	SEG_RANK_CC, rank_ids);
 
 		// filter results
 		res.clear();

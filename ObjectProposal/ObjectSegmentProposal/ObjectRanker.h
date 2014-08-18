@@ -13,6 +13,8 @@
 #include "Features/DepthDescriptors.h"
 #include "DataManager/NYUDepth2DataMan.h"
 #include "SegmentProcessor.h"
+#include "Processors/Saliency/SaliencyComputer.h"
+#include "Processors/ShapeAnalyzer.h"
 
 namespace visualsearch
 {
@@ -33,17 +35,22 @@ namespace visualsearch
 				bool RankSegmentsByCC(const Mat& cimg, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids);
 				bool ComputeSegmentRankFeature(const Mat& cimg, const Mat& dmap, SuperPixel& sp, Mat& feat);
 
+				bool ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, ImgWin& win, Mat& feat);
+
 				objectproposal::SegmentProcessor segprocessor;
 				features::ColorDescriptors colordesc;
+				SaliencyComputer salcomputer;
 
 			public:
 				ObjectRanker(void);
 
 				// classifier if a superpixel is an object based a set of features
 				bool LearnObjectPredictorFromNYUDepth();
+				bool LearnObjectWindowPredictor();
 
 				bool RankSegments(const Mat& cimg, const Mat& dmap, const vector<SuperPixel>& sps, SegmentRankType rtype, vector<int>& orded_sp_ids);
 
+				bool RankWindows(const Mat& cimg, const Mat& dmap, const vector<ImgWin>& wins, vector<int>& orded_win_ids);
 			};
 		}
 	}

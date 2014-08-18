@@ -7,7 +7,7 @@
 #pragma once
 
 #include "IterativeSegmentor.h"
-#include "ObjSegmentRanker.h"
+#include "ObjectRanker.h"
 
 namespace objectproposal
 {
@@ -15,7 +15,7 @@ namespace objectproposal
 	{
 	private:
 		IterativeSegmentor iter_segmentor;
-		ObjSegmentRanker seg_ranker;
+		visualsearch::processors::attention::ObjectRanker seg_ranker;
 
 
 	public:

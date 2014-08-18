@@ -5,6 +5,7 @@
 
 #include <opencv2/opencv.hpp>
 #include <map>
+#include <functional>
 using namespace std;
 using namespace cv;
 

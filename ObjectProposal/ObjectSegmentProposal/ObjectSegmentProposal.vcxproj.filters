@@ -84,6 +84,24 @@
     <ClInclude Include="ObjectRanker.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\filter.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\image.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\misc.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\convolve.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\imconv.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\GraphBasedSegmentor\imutil.h">
+      <Filter>GraphSegment</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IterativeSegmentor.cpp">

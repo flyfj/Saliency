@@ -62,30 +62,6 @@ namespace visualsearch
 				return salHC1f;
 			}
 
-			//Mat GlobalContrastSaliency::GetRC(const Mat &img3f, double sigmaDist, double segK, int segMinSize, double segSigma)
-			//{
-			//	Mat regIdx1i, colorIdx1i, regSal1v, tmp, _img3f, color3fv;
-			//	if (Quantize(img3f, colorIdx1i, color3fv, tmp) <= 2) // Color quantization
-			//		return Mat::zeros(img3f.size(), CV_32F);
-			//	cvtColor(img3f, _img3f, CV_BGR2Lab);
-			//	cvtColor(color3fv, color3fv, CV_BGR2Lab);
-			//	int regNum = SegmentImage(_img3f, regIdx1i, segSigma, segK, segMinSize);	
-			//	vector<Region> regs(regNum);
-			//	BuildRegions(regIdx1i, regs, colorIdx1i, color3fv.cols);
-			//	RegionContrast(regs, color3fv, regSal1v, sigmaDist);
-			//	Mat sal1f = Mat::zeros(img3f.size(), CV_32F);
-			//	cv::normalize(regSal1v, regSal1v, 0, 1, NORM_MINMAX, CV_32F);
-			//	float* regSal = (float*)regSal1v.data;
-			//	for (int r = 0; r < img3f.rows; r++){
-			//		const int* regIdx = regIdx1i.ptr<int>(r);
-			//		float* sal = sal1f.ptr<float>(r);
-			//		for (int c = 0; c < img3f.cols; c++)
-			//			sal[c] = regSal[regIdx[c]];
-			//	}
-			//	GaussianBlur(sal1f, sal1f, Size(3, 3), 0);
-			//	return sal1f;
-			//}
-
 			int GlobalContrastSaliency::Quantize(const Mat& img3f, Mat &idx1i, Mat &_color3f, Mat &_colorNum, double ratio)
 			{
 				static const int clrNums[3] = {12, 12, 12};

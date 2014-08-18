@@ -4,7 +4,7 @@ namespace visualsearch
 {
 	namespace processors
 	{
-		namespace saliency
+		namespace attention
 		{
 			SaliencyComputer::SaliencyComputer(void)
 			{
@@ -18,7 +18,7 @@ namespace visualsearch
 					CV_Assert(!cimg.empty());
 
 					Mat fimg;
-					cimg.convertTo(fimg, CV_32F, 1.f/255);
+					cimg.convertTo(fimg, CV_32FC3, 1.f/255);
 					salmap.create(cimg.size(), CV_32F);
 					Mat tImg;
 					GaussianBlur(fimg, tImg, Size(3, 3), 0);
@@ -51,7 +51,7 @@ namespace visualsearch
 					CV_Assert(!cimg.empty());
 
 					Mat fimg;
-					cimg.convertTo(fimg, CV_32F, 1.f/255);
+					cimg.convertTo(fimg, CV_32FC3, 1.f/255);
 					Size sz(64, 64);
 					Mat img1f[2], sr1f, cmplxSrc2f, cmplxDst2f;
 					cvtColor(fimg, img1f[1], CV_BGR2GRAY);
@@ -102,8 +102,8 @@ namespace visualsearch
 					CV_Assert(!cimg.empty());
 
 					Mat fimg;
-					cimg.convertTo(fimg, CV_32F, 1.f/255);
-					salmap = gcsaliency.GetHC(cimg);
+					cimg.convertTo(fimg, CV_32FC3, 1.f/255);
+					salmap = gcsaliency.GetHC(fimg);
 
 					return true;
 				}

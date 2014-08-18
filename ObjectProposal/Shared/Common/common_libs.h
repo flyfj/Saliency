@@ -239,7 +239,7 @@ namespace visualsearch
 
 	namespace processors
 	{
-		namespace saliency
+		namespace attention
 		{
 			enum SaliencyType
 			{

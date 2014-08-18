@@ -13,7 +13,7 @@ namespace visualsearch
 {
 	namespace processors
 	{
-		namespace saliency
+		namespace attention
 		{
 
 			class SaliencyComputer

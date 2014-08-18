@@ -70,6 +70,38 @@ namespace visualsearch
 				return true;
 			}
 
+			bool ObjectRanker::ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, ImgWin& win, Mat& feat)
+			{
+				vector<float> vals;
+				// geometric features
+				vals.push_back(win.area() / (cimg.rows*cimg.cols));		// area percentage
+				vals.push_back(mean(dmap(win)).val[0]);					// mean depth
+				vals.push_back(win.width*1.0f / win.height);			// window ratio
+				vals.push_back((win.x+win.width/2)*1.0f / cimg.cols);
+				vals.push_back((win.y+win.height/2)*1.0f / cimg.rows);	// relative position in image
+
+				// saliency features
+				Mat salmap;
+				salcomputer.ComputeSaliencyMap(cimg, SAL_FT, salmap);
+				vals.push_back(mean(salmap(win)).val[0]);		// mean ft sal
+				imshow("ft", salmap);
+				waitKey(0);
+				salcomputer.ComputeSaliencyMap(cimg, SAL_SR, salmap);
+				vals.push_back(mean(salmap(win)).val[0]);		// mean ft sal
+				salcomputer.ComputeSaliencyMap(cimg, SAL_HC, salmap);
+				imshow("hc", salmap);
+				waitKey(0);
+				vals.push_back(mean(salmap(win)).val[0]);		// mean ft sal
+				salcomputer.ComputeSaliencyMap(cimg, SAL_LC, salmap);
+				vals.push_back(mean(salmap(win)).val[0]);		// mean ft sal
+
+				// convert to mat
+				feat.create(1, vals.size(), CV_32F);
+				for (size_t i=0; i<vals.size(); i++) feat.at<float>(i) = vals[i];
+
+				return true;
+			}
+
 			float ObjectRanker::ComputeCenterSurroundColorContrast(const Mat& cimg, const SuperPixel& sp)
 			{
 				// ignore object bigger than half the image
@@ -203,6 +235,123 @@ namespace visualsearch
 				cout<<"total accu: "<<(pos_corr+neg_corr) / (possamps.rows + negsamps.rows)<<endl;
 
 				return true;
+			}
+
+			bool ObjectRanker::LearnObjectWindowPredictor()
+			{
+				string temp_dir = "E:\\Results\\objectness\\";	// save intermediate results
+				char str[50];
+
+				ImageSegmentor imgsegmentor;
+				vector<float> seg_ths(3);
+				seg_ths[0] = 50;
+				seg_ths[1] = 100;
+				seg_ths[2] = 200;
+
+				// generate training samples from nyudata
+				NYUDepth2DataMan nyuman;
+				FileInfos imgfiles, dmapfiles;
+				nyuman.GetImageList(imgfiles);
+				nyuman.GetDepthmapList(dmapfiles);
+				map<string, vector<Mat>> objmasks;
+				imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
+				nyuman.LoadGTMasks(imgfiles, objmasks);
+
+				// positive sample: object segments
+				Mat possamps, negsamps;
+				for(size_t i=0; i<imgfiles.size(); i++)
+				{
+					Mat cimg = imread(imgfiles[i].filepath);
+					Mat dmap;
+					nyuman.LoadDepthData(dmapfiles[i].filepath, dmap);
+
+					const vector<Mat> masks = objmasks[imgfiles[i].filename];
+					vector<ImgWin> poswins;
+					for (size_t k=0; k<masks.size(); k++)
+					{
+						SuperPixel cursegment;
+						cursegment.mask = masks[k];
+						segprocessor.ExtractBasicSegmentFeatures(cursegment, cimg, dmap);
+						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
+						//imwrite(temp_dir + string(str), cursegment.mask*255);
+						Mat curposfeat;
+						poswins.push_back(ImgWin(cursegment.box.x, cursegment.box.y, cursegment.box.width, cursegment.box.height));
+						ComputeWindowRankFeatures(cimg, dmap, poswins[poswins.size()-1], curposfeat);
+						possamps.push_back(curposfeat);
+					}
+
+					// negative samples: random window don't overlap with object windows
+					int negnum = 0;
+					vector<ImgWin> negwins;
+					while(negnum < masks.size())
+					{
+						// generate random window
+						ImgWin selwin;
+						selwin.x = rand() % cimg.cols;
+						selwin.y = rand() % cimg.rows;
+						selwin.width = rand() % (cimg.cols-selwin.x-1);
+						selwin.height = rand() % (cimg.rows-selwin.y-1);
+
+						// test against all object windows
+						bool isvalid = true;
+						for(size_t k=0; k<poswins.size(); k++)
+						{
+							Rect intersectWin = selwin & poswins[k];
+							if(intersectWin.area()*1.0f / poswins[k].area() > 0.3f)
+							{ isvalid = false; break; }
+						}
+						// pass all tests
+						if(isvalid)
+						{
+							sprintf_s(str, "%d_negseg_%d.jpg", i, negnum);
+							//imwrite(temp_dir + string(str), tsps[sel_id].mask*255);
+							Mat curnegfeat;
+							negwins.push_back(selwin);
+							ComputeWindowRankFeatures(cimg, dmap, selwin, curnegfeat);
+							negsamps.push_back(curnegfeat);
+							negnum++;
+						}
+					}
+
+					cout<<"Finished "<<i<<"/"<<imgfiles.size()<<" image"<<endl;
+				}
+
+				// train svm
+				CvSVM model;
+				Mat responses(1, possamps.rows+negsamps.rows, CV_32S);
+				for(int r=0; r<possamps.rows; r++) responses.at<int>(r) = 1;
+				for(int r=possamps.rows; r<responses.cols; r++) responses.at<int>(r) = -1;
+				Mat allsamps;
+				allsamps.push_back(possamps);
+				allsamps.push_back(negsamps);
+
+				SVMParams params;	
+				model.train_auto(allsamps, responses, Mat(), Mat(), params);
+
+				// save
+				model.save("svm.model");
+
+				// training performance
+				float pos_corr = 0;
+				for (int r=0; r<possamps.rows; r++)
+				{
+					float res = model.predict(possamps.row(r));
+					if(res > 0)
+						pos_corr++;
+				}
+				float neg_corr = 0;
+				for (int r=0; r<negsamps.rows; r++)
+				{
+					float res = model.predict(negsamps.row(r));
+					if(res < 0)
+						neg_corr++;
+				}
+				cout<<"Pos accu: "<<pos_corr / possamps.rows<<endl;
+				cout<<"Neg accu: "<<neg_corr / negsamps.rows<<endl;
+				cout<<"total accu: "<<(pos_corr+neg_corr) / (possamps.rows + negsamps.rows)<<endl;
+
+				return true;
+
 			}
 		}
 	}
