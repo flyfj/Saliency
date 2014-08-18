@@ -160,6 +160,7 @@ namespace visualsearch
 
 	/*
 		every object is associated with an individual image file
+		TODO: merge segment into object
 	*/
 	struct VisualObject 
 	{

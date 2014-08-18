@@ -73,7 +73,6 @@ namespace visualsearch
 			//	vector<Region> regs(regNum);
 			//	BuildRegions(regIdx1i, regs, colorIdx1i, color3fv.cols);
 			//	RegionContrast(regs, color3fv, regSal1v, sigmaDist);
-
 			//	Mat sal1f = Mat::zeros(img3f.size(), CV_32F);
 			//	cv::normalize(regSal1v, regSal1v, 0, 1, NORM_MINMAX, CV_32F);
 			//	float* regSal = (float*)regSal1v.data;
