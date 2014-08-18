@@ -5,6 +5,7 @@ ObjProposalDemo::ObjProposalDemo()
 {
 }
 
+
 bool ObjProposalDemo::RunObjWinProposal()
 {
 	KinectDataMan kinectDM;
@@ -43,7 +44,7 @@ bool ObjProposalDemo::RunObjWinProposal()
 		}
 
 		imshow("img", cimg);
-		if( waitKey(0) == 'q' )
+		if( waitKey(10) == 'q' )
 			break;
 	}
 

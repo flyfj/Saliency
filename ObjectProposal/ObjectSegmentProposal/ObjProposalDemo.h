@@ -24,5 +24,6 @@ public:
 	bool RunObjWinProposal();
 
 	bool RunSaliency(visualsearch::processors::attention::SaliencyType saltype);
+
 };
 

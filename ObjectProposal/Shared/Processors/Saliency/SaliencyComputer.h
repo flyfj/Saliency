@@ -30,6 +30,9 @@ namespace visualsearch
 				bool ComputeHC(const Mat& cimg, Mat& salmap);
 				bool ComputeRC(const Mat& cimg, Mat& salmap);
 
+				// intermediate saliency computer
+
+
 			public:
 				SaliencyComputer(void);
 

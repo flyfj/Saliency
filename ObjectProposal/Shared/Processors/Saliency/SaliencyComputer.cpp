@@ -113,6 +113,7 @@ namespace visualsearch
 				}
 			}
 
+			// TODO: some error here
 			bool SaliencyComputer::ComputeLC(const Mat& cimg, Mat& salmap)
 			{
 				try
@@ -120,7 +121,7 @@ namespace visualsearch
 					CV_Assert(!cimg.empty());
 
 					Mat fimg, img;
-					cimg.convertTo(fimg, CV_32F, 1.f/255);
+					cimg.convertTo(fimg, CV_32FC3, 1.f/255);
 					cvtColor(fimg, img, CV_BGR2GRAY);
 					img.convertTo(img, CV_8U, 255);
 					double f[256], s[256];
@@ -143,7 +144,8 @@ namespace visualsearch
 						for (int c = 0; c < img.cols; c++)
 							sal[c] = s[data[c]];
 					}
-					normalize(sal1f, salmap, 0, 1, NORM_MINMAX, CV_32F);
+					resize(sal1f, salmap, Size(cimg.cols, cimg.rows));
+					normalize(salmap, salmap, 0, 1, NORM_MINMAX, CV_32F);
 
 					return true;
 				}

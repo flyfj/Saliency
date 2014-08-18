@@ -9,7 +9,8 @@
 int main()
 {
 	ObjProposalDemo demo;
-	demo.RunObjWinProposal();
+	demo.RunSaliency(visualsearch::processors::attention::SAL_SR);
+	//demo.RunObjWinProposal();
 	return 0;
 
 	visualsearch::processors::attention::ObjectRanker ranker;
