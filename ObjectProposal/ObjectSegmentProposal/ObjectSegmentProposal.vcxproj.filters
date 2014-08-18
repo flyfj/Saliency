@@ -22,9 +22,24 @@
     <Filter Include="Features">
       <UniqueIdentifier>{263f2223-4c43-42fe-a4c9-5371ff4faaec}</UniqueIdentifier>
     </Filter>
+    <Filter Include="LibLinear">
+      <UniqueIdentifier>{bb6cd2d1-8c5f-464a-96f3-787b6790c776}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="LibLinear\Blas">
+      <UniqueIdentifier>{01e3eefa-bb8c-444f-b3b5-dee67721c04b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Kinect">
+      <UniqueIdentifier>{c0502cbd-094b-439d-9189-2aae6976f6b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Bing">
+      <UniqueIdentifier>{40abfd40-47cd-4660-b9c8-105f8d30e324}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
+    <Text Include="..\Shared\Learners\LibLinear\README.1.93.txt">
+      <Filter>LibLinear</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="targetver.h">
@@ -102,6 +117,60 @@
     <ClInclude Include="..\Shared\GraphBasedSegmentor\imutil.h">
       <Filter>GraphSegment</Filter>
     </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\BingObjectness.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Learners\LibLinear\linear.h">
+      <Filter>LibLinear</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Learners\LibLinear\tron.h">
+      <Filter>LibLinear</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Learners\LibLinear\blas\blas.h">
+      <Filter>LibLinear\Blas</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Learners\LibLinear\blas\blasp.h">
+      <Filter>LibLinear\Blas</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjProposalDemo.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\IO\Kinect\KinectDataMan.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\IO\Kinect\KinectHelper.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\IO\Kinect\OpenCVFrameHelper.h">
+      <Filter>Kinect</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\Bing\CmFile.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\Bing\CmShow.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\Bing\CmTimer.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\Bing\common_bing.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\Bing\DataSetVOC.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\Bing\FilterTIG.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\Bing\ImgContrastBB.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\Bing\Objectness.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Processors\Saliency\Bing\ValStructVec.h">
+      <Filter>Bing</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="IterativeSegmentor.cpp">
@@ -146,5 +215,58 @@
     <ClCompile Include="ObjectRanker.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\Shared\Processors\Saliency\BingObjectness.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Learners\LibLinear\linear.cpp">
+      <Filter>LibLinear</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Learners\LibLinear\tron.cpp">
+      <Filter>LibLinear</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Learners\LibLinear\blas\daxpy.c">
+      <Filter>LibLinear\Blas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Learners\LibLinear\blas\ddot.c">
+      <Filter>LibLinear\Blas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Learners\LibLinear\blas\dnrm2.c">
+      <Filter>LibLinear\Blas</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Learners\LibLinear\blas\dscal.c">
+      <Filter>LibLinear\Blas</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjProposalDemo.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\IO\Kinect\KinectDataMan.cpp">
+      <Filter>Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\IO\Kinect\OpenCVFrameHelper.cpp">
+      <Filter>Kinect</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Processors\Saliency\Bing\CmFile.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Processors\Saliency\Bing\CmShow.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Processors\Saliency\Bing\common_bing.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Processors\Saliency\Bing\DataSetVOC.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Processors\Saliency\Bing\FilterTIG.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Processors\Saliency\Bing\Objectness.cpp">
+      <Filter>Bing</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Shared\Learners\LibLinear\LibLinear.vcxproj.filters">
+      <Filter>LibLinear</Filter>
+    </None>
   </ItemGroup>
 </Project>

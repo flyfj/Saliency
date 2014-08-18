@@ -27,6 +27,27 @@ namespace visualsearch
 				return true;
 			}
 
+			bool ObjectRanker::RankWindowsBySaliency(const Mat& cimg, const vector<ImgWin>& wins, vector<int>& ordered_win_ids)
+			{
+				map<float, int, greater<float>> win_scores;
+				vector<Mat> feats;
+				ComputeWindowRankFeatures(cimg, Mat(), wins, feats);
+				for (size_t i=0; i<wins.size(); i++)
+				{
+					win_scores[sum(feats[i]).val[0]/feats[i].cols] = i;
+				}
+
+				ordered_win_ids.clear();
+				ordered_win_ids.reserve(wins.size());
+				for (map<float, int, greater<float>>::const_iterator pi=win_scores.begin();
+					pi!=win_scores.end(); pi++)
+				{
+					ordered_win_ids.push_back(pi->second);
+				}
+
+				return true;
+			}
+
 			bool ObjectRanker::RankSegmentsByCC(const Mat& cimg, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids)
 			{
 				map<float, int, greater<float>> sp_scores;
@@ -70,34 +91,36 @@ namespace visualsearch
 				return true;
 			}
 
-			bool ObjectRanker::ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, ImgWin& win, Mat& feat)
+			bool ObjectRanker::ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, const vector<ImgWin>& wins, vector<Mat>& feats)
 			{
-				vector<float> vals;
+				feats.clear();
+				feats.resize(wins.size());
 				// geometric features
-				vals.push_back(win.area() / (cimg.rows*cimg.cols));		// area percentage
-				vals.push_back(mean(dmap(win)).val[0]);					// mean depth
-				vals.push_back(win.width*1.0f / win.height);			// window ratio
-				vals.push_back((win.x+win.width/2)*1.0f / cimg.cols);
-				vals.push_back((win.y+win.height/2)*1.0f / cimg.rows);	// relative position in image
+				//vals.push_back(win.area() / (cimg.rows*cimg.cols));		// area percentage
+				//vals.push_back(mean(dmap(win)).val[0]);					// mean depth
+				//vals.push_back(win.width*1.0f / win.height);			// window ratio
+				//vals.push_back((win.x+win.width/2)*1.0f / cimg.cols);
+				//vals.push_back((win.y+win.height/2)*1.0f / cimg.rows);	// relative position in image
 
 				// saliency features
-				Mat salmap;
-				salcomputer.ComputeSaliencyMap(cimg, SAL_FT, salmap);
-				vals.push_back(mean(salmap(win)).val[0]);		// mean ft sal
-				imshow("ft", salmap);
-				waitKey(0);
-				salcomputer.ComputeSaliencyMap(cimg, SAL_SR, salmap);
-				vals.push_back(mean(salmap(win)).val[0]);		// mean ft sal
-				salcomputer.ComputeSaliencyMap(cimg, SAL_HC, salmap);
-				imshow("hc", salmap);
-				waitKey(0);
-				vals.push_back(mean(salmap(win)).val[0]);		// mean ft sal
-				salcomputer.ComputeSaliencyMap(cimg, SAL_LC, salmap);
-				vals.push_back(mean(salmap(win)).val[0]);		// mean ft sal
+				vector<Mat> salmaps(4);
+				salcomputer.ComputeSaliencyMap(cimg, SAL_FT, salmaps[0]);
+				salcomputer.ComputeSaliencyMap(cimg, SAL_SR, salmaps[1]);
+				salcomputer.ComputeSaliencyMap(cimg, SAL_HC, salmaps[2]);
+				salcomputer.ComputeSaliencyMap(cimg, SAL_LC, salmaps[3]);
 
-				// convert to mat
-				feat.create(1, vals.size(), CV_32F);
-				for (size_t i=0; i<vals.size(); i++) feat.at<float>(i) = vals[i];
+				for (size_t i=0; i<wins.size(); i++)
+				{
+					vector<float> vals;
+					for (size_t j=0; j<salmaps.size(); j++)
+					{
+						vals.push_back(mean(salmaps[j](wins[i])).val[0]);		// mean ft sal
+					}
+					
+					// convert to mat
+					feats[i].create(1, vals.size(), CV_32F);
+					for (size_t k=0; k<vals.size(); k++) feats[i].at<float>(k) = vals[k];
+				}
 
 				return true;
 			}
@@ -274,10 +297,12 @@ namespace visualsearch
 						segprocessor.ExtractBasicSegmentFeatures(cursegment, cimg, dmap);
 						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
 						//imwrite(temp_dir + string(str), cursegment.mask*255);
-						Mat curposfeat;
 						poswins.push_back(ImgWin(cursegment.box.x, cursegment.box.y, cursegment.box.width, cursegment.box.height));
-						ComputeWindowRankFeatures(cimg, dmap, poswins[poswins.size()-1], curposfeat);
-						possamps.push_back(curposfeat);
+						vector<ImgWin> wins;
+						wins.push_back(poswins[poswins.size()-1]);
+						vector<Mat> feats;
+						ComputeWindowRankFeatures(cimg, dmap, wins, feats);
+						possamps.push_back(feats[0]);
 					}
 
 					// negative samples: random window don't overlap with object windows
@@ -305,10 +330,12 @@ namespace visualsearch
 						{
 							sprintf_s(str, "%d_negseg_%d.jpg", i, negnum);
 							//imwrite(temp_dir + string(str), tsps[sel_id].mask*255);
-							Mat curnegfeat;
 							negwins.push_back(selwin);
-							ComputeWindowRankFeatures(cimg, dmap, selwin, curnegfeat);
-							negsamps.push_back(curnegfeat);
+							vector<ImgWin> wins;
+							wins.push_back(selwin);
+							vector<Mat> feats;
+							ComputeWindowRankFeatures(cimg, dmap, wins, feats);
+							negsamps.push_back(feats[0]);
 							negnum++;
 						}
 					}

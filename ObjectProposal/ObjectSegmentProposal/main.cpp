@@ -4,9 +4,14 @@
 #include "ObjSegmentProposal.h"
 #include "DataManager/NYUDepth2DataMan.h"
 #include "ObjectRanker.h"
+#include "ObjProposalDemo.h"
 
 int main()
 {
+	ObjProposalDemo demo;
+	demo.RunObjWinProposal();
+	return 0;
+
 	visualsearch::processors::attention::ObjectRanker ranker;
 	ranker.LearnObjectWindowPredictor();
 	getchar();
