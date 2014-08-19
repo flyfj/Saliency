@@ -153,17 +153,21 @@ void ObjectTester::RunVideoDemo()
 {
 	GenericObjectDetector detector;
 
-	KinectDataMan kinectDM;
-
-	if( !kinectDM.InitKinect() )
+	visualsearch::io::OpenCVCameraIO cam;
+	if( !cam.InitCamera() )
 		return;
+	//KinectDataMan kinectDM;
+
+	//if( !kinectDM.InitKinect() )
+		//return;
 
 	bool doRank = true;
 	// start fetching stream data
 	while(1)
 	{
 		Mat cimg, dmap;
-		kinectDM.GetColorDepth(cimg, dmap);
+		//kinectDM.GetColorDepth(cimg, dmap);
+		cam.QueryNextFrame(visualsearch::io::STREAM_COLOR, cimg);
 
 		// resize image
 		Size newsz;
@@ -201,7 +205,7 @@ void ObjectTester::RunVideoDemo()
 		Scalar salcolor(0, 0, 255);
 		for(int i=0; i<topK; i++)
 		{
-			rectangle(cimg, objwins[i], objcolor);
+			//rectangle(cimg, objwins[i], objcolor);
 			rectangle(cimg, salwins[i], salcolor);
 		}
 		circle(cimg, Point(cimg.cols/2, cimg.rows/2), 2, CV_RGB(255,0,0));

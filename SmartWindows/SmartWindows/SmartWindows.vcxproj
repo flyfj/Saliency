@@ -146,6 +146,7 @@
     <ClInclude Include="Dijkstra.hpp" />
     <ClInclude Include="FixationSegmentor.h" />
     <ClInclude Include="gcgraph.hpp" />
+    <ClInclude Include="GenericCameraIO.h" />
     <ClInclude Include="GrabCutter.h" />
     <ClInclude Include="ImageSegmentor.h" />
     <ClInclude Include="ImgVisualizer.h" />
@@ -159,6 +160,7 @@
     <ClInclude Include="LibLinear\tron.h" />
     <ClInclude Include="ObjectSegmentor.h" />
     <ClInclude Include="ObjectTester.h" />
+    <ClInclude Include="OpenCVCameraIO.h" />
     <ClInclude Include="RGBDTools.h" />
     <ClInclude Include="Saliency\Composition\colorconverthelper.h" />
     <ClInclude Include="Saliency\Composition\functional_ex.h" />
@@ -207,6 +209,7 @@
     <ClCompile Include="GenericObjectDetector.cpp" />
     <ClCompile Include="ObjectSegmentor.cpp" />
     <ClCompile Include="ObjectTester.cpp" />
+    <ClCompile Include="OpenCVCameraIO.cpp" />
     <ClCompile Include="RGBDTools.cpp" />
     <ClCompile Include="Saliency\Composition\IntegralImage.cpp" />
     <ClCompile Include="Saliency\Composition\SalientRGBDRegionDetector.cpp" />

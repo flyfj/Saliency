@@ -198,6 +198,12 @@
     <ClInclude Include="SegmentProposal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="GenericCameraIO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OpenCVCameraIO.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -324,6 +330,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="SegmentProposal.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="OpenCVCameraIO.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

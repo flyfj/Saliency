@@ -19,7 +19,8 @@
 #include "Saliency/Composition/SalientRegionDetector.h"
 #include "Saliency/Composition/SalientRGBDRegionDetector.h"
 #include "Saliency/Depth/DepthSaliency.h"
-#include "Kinect/KinectDataMan.h"
+//#include "Kinect/KinectDataMan.h"
+#include "OpenCVCameraIO.h"
 using namespace std;
 
 

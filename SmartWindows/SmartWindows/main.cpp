@@ -19,10 +19,10 @@ using namespace std;
 
 int main()
 {
-	Tester tester1;
+	//Tester tester1;
 	//tester1.TestFixationSegmentation();
-	tester1.RandomTest();
-	return 0;
+	//tester1.RandomTest();
+	//return 0;
 
 
 	ObjectTester tester;

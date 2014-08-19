@@ -572,12 +572,12 @@ bool GenericObjectDetector::ProposeObjects(const Mat& cimg, const Mat& dmap, vec
 	Point centerp(cimg.cols/2, cimg.rows/2);
 	for(size_t i=0; i<salboxes.size(); i++)
 	{
-		if(salboxes[i].contains(centerp) && (salboxes[i].width < cimg.cols*2/3 || salboxes[i].height < cimg.rows*2/3))
+		//if(salboxes[i].contains(centerp) && (salboxes[i].width < cimg.cols*2/3 || salboxes[i].height < cimg.rows*2/3))
 			salwins.push_back(salboxes[i]);
 	}
 	for(size_t i=0; i<objboxes.size(); i++)
 	{
-		if(objboxes[i].contains(centerp) && (objboxes[i].width < cimg.cols*2/3 || objboxes[i].height < cimg.rows*2/3))
+		//if(objboxes[i].contains(centerp) && (objboxes[i].width < cimg.cols*2/3 || objboxes[i].height < cimg.rows*2/3))
 			objwins.push_back(objboxes[i]);
 	}
 
