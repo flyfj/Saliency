@@ -21,6 +21,9 @@ namespace objectproposal
 
 	bool SegmentProcessor::ExtractBasicSegmentFeatures(SuperPixel& sp, const Mat& cimg, const Mat& dmap)
 	{
+		if(countNonZero(sp.mask) < 200)
+			return false;
+
 		// edge detection
 		Mat edgemap;
 		cv::Canny(sp.mask*150, edgemap, 100, 200);
@@ -57,6 +60,8 @@ namespace objectproposal
 
 	bool SegmentProcessor::ExtractSegmentFeatures(SuperPixel& sp, const Mat& cimg, const Mat& dmap, int feattype)
 	{
+		//ExtractBasicSegmentFeatures(sp, cimg, dmap);
+
 		sp.feats.clear();
 		if( (feattype & SP_COLOR) != 0)
 		{

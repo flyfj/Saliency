@@ -27,14 +27,15 @@ namespace visualsearch
 				return true;
 			}
 
-			bool ObjectRanker::RankWindowsBySaliency(const Mat& cimg, const vector<ImgWin>& wins, vector<int>& ordered_win_ids)
+			bool ObjectRanker::RankWindowsBySaliency(const Mat& cimg, vector<ImgWin>& wins, vector<int>& ordered_win_ids)
 			{
 				map<float, int, greater<float>> win_scores;
 				vector<Mat> feats;
 				ComputeWindowRankFeatures(cimg, Mat(), wins, feats);
 				for (size_t i=0; i<wins.size(); i++)
 				{
-					win_scores[sum(feats[i]).val[0]/feats[i].cols] = i;
+					wins[i].score = sum(feats[i]).val[0]/feats[i].cols;
+					win_scores[wins[i].score] = i;
 				}
 
 				ordered_win_ids.clear();
@@ -91,7 +92,7 @@ namespace visualsearch
 				return true;
 			}
 
-			bool ObjectRanker::ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, const vector<ImgWin>& wins, vector<Mat>& feats)
+			bool ObjectRanker::ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, vector<ImgWin>& wins, vector<Mat>& feats)
 			{
 				feats.clear();
 				feats.resize(wins.size());
@@ -103,10 +104,10 @@ namespace visualsearch
 				//vals.push_back((win.y+win.height/2)*1.0f / cimg.rows);	// relative position in image
 
 				// saliency features
-				vector<Mat> salmaps(2);
-				salcomputer.ComputeSaliencyMap(cimg, SAL_FT, salmaps[0]);
+				vector<Mat> salmaps(1);
+				//salcomputer.ComputeSaliencyMap(cimg, SAL_FT, salmaps[0]);
 				//salcomputer.ComputeSaliencyMap(cimg, SAL_SR, salmaps[1]);
-				salcomputer.ComputeSaliencyMap(cimg, SAL_HC, salmaps[1]);
+				salcomputer.ComputeSaliencyMap(cimg, SAL_HC, salmaps[0]);
 				//salcomputer.ComputeSaliencyMap(cimg, SAL_LC, salmaps[3]);
 
 				for (size_t i=0; i<wins.size(); i++)

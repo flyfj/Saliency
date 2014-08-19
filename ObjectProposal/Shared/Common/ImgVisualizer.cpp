@@ -13,30 +13,29 @@ namespace visualsearch
 
 		//////////////////////////////////////////////////////////////////////////
 
-		bool ImgVisualizer::DrawWinsOnImg(string winname, const Mat& img, const vector<ImgWin>& wins)
+		bool ImgVisualizer::DrawWinsOnImg(string winname, const Mat& img, const vector<ImgWin>& wins, Mat& oimg)
 		{
 			cv::RNG rng(cv::getTickCount());
-			cv::Mat dispimg;
 			if(img.channels() == 3)
-				dispimg = img.clone();
+				oimg = img.clone();
 			else
 			{
-				DrawFloatImg("", img, dispimg, false);
-				cvtColor(dispimg, dispimg, CV_GRAY2BGR);
+				DrawFloatImg("", img, oimg, false);
+				cvtColor(oimg, oimg, CV_GRAY2BGR);
 			}
 
 			int num = MIN(wins.size(), 100);
 			for(size_t i=0; i<num; i++)
 			{
-				cv::rectangle(dispimg, wins[i], CV_RGB(rng.next()%255, rng.next()%255, rng.next()%255), 2);
+				cv::rectangle(oimg, wins[i], CV_RGB(rng.next()%255, rng.next()%255, rng.next()%255), 2);
 			}
-			cv::imshow(winname, dispimg);
+			cv::imshow(winname, oimg);
 			cv::waitKey(10);
 
 			return true;
 		}
 
-		bool ImgVisualizer::DrawCroppedWins(string winname, const Mat& cimg, const vector<ImgWin>& wins, int numperrow)
+		bool ImgVisualizer::DrawCroppedWins(string winname, const Mat& cimg, const vector<ImgWin>& wins, int numperrow, Mat& oimg)
 		{
 			vector<Mat> subimgs(wins.size());
 			for (size_t i=0; i<wins.size(); i++)
@@ -44,8 +43,7 @@ namespace visualsearch
 				cimg(wins[i]).copyTo(subimgs[i]);
 			}
 
-			return DrawImgCollection(winname, subimgs, numperrow, Mat());
-			
+			return DrawImgCollection(winname, subimgs, numperrow, oimg);
 		}
 
 		bool ImgVisualizer::DrawFloatImg(string winname, const Mat& img, Mat& oimg, bool toDraw)

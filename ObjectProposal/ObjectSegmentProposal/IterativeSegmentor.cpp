@@ -29,7 +29,7 @@ namespace objectproposal
 		// oversegmentation
 		int num = img_segmentor.DoSegmentation(cimg);
 		imshow("input", cimg);
-		imshow("depth", dmap*255);
+		//imshow("depth", dmap*255);
 		imshow("seg", img_segmentor.m_segImg);
 		waitKey(10);
 		sps.clear();
@@ -41,7 +41,7 @@ namespace objectproposal
 		// add to collection
 		for (size_t i=0; i<sps.size(); i++) 
 		{
-			spProcessor.ExtractSegmentFeatures(sps[i], cimg, dmap, SP_COLOR + SP_DEPTH);
+			spProcessor.ExtractSegmentFeatures(sps[i], cimg, dmap, SP_COLOR);
 		}
 		cout<<"Initial superpixel num: "<<cur_seg_id<<endl;
 
@@ -76,7 +76,7 @@ namespace objectproposal
 		SuperPixel newsp;
 		newsp.mask = sps[bestpair.x].mask | sps[bestpair.y].mask;
 		newsp.box = sps[bestpair.x].box | sps[bestpair.y].box;
-		spProcessor.ExtractSegmentFeatures(newsp, cimg, dmap, SP_COLOR + SP_DEPTH);
+		spProcessor.ExtractSegmentFeatures(newsp, cimg, dmap, SP_COLOR);
 		sps.push_back(newsp);
 		if(verbose)
 		{

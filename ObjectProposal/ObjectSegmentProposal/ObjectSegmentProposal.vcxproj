@@ -111,6 +111,7 @@
     <ClInclude Include="..\Shared\Learners\LibLinear\linear.h" />
     <ClInclude Include="..\Shared\Learners\LibLinear\tron.h" />
     <ClInclude Include="..\Shared\Processors\ImageSegmentor.h" />
+    <ClInclude Include="..\Shared\Processors\nms.h" />
     <ClInclude Include="..\Shared\Processors\Saliency\BingObjectness.h" />
     <ClInclude Include="..\Shared\Processors\Saliency\Bing\CmFile.h" />
     <ClInclude Include="..\Shared\Processors\Saliency\Bing\CmShow.h" />

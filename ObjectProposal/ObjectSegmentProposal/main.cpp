@@ -9,7 +9,8 @@
 int main()
 {
 	ObjProposalDemo demo;
-	demo.RunSaliency(visualsearch::processors::attention::SAL_HC);
+	Mat cimg = imread("E:\\res\\objectness\\51_1.jpg");
+	demo.RunObjWinProposal(cimg, Mat());
 	//demo.RunObjWinProposal();
 	return 0;
 

@@ -52,11 +52,16 @@ namespace visualsearch
 
 				int validwinnum = MIN(winnum, boxes.size());
 				detWins.clear();
-				detWins.resize(validwinnum);
+				detWins.reserve(validwinnum);
 				for (int i=0; i<validwinnum; i++)
 				{
-					detWins[i] = ImgWin( boxes[i].val[0], boxes[i].val[1], boxes[i].val[2]-boxes[i].val[0]-1, boxes[i].val[3]-boxes[i].val[1]-1 );
-					detWins[i].score = 1;
+					// filter out small windows
+					ImgWin curwin = ImgWin( boxes[i].val[0], boxes[i].val[1], boxes[i].val[2]-boxes[i].val[0]-1, boxes[i].val[3]-boxes[i].val[1]-1 );
+					if(curwin.area()*1.0f / (cimg.rows*cimg.cols) < 0.2)
+						continue;
+
+					curwin.score = 1;
+					detWins.push_back(curwin);
 				}
 
 				return true;

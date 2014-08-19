@@ -37,7 +37,7 @@ namespace visualsearch
 
 				bool ComputeSegmentRankFeature(const Mat& cimg, const Mat& dmap, SuperPixel& sp, Mat& feat);
 
-				bool ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, const vector<ImgWin>& wins, vector<Mat>& feats);
+				bool ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, vector<ImgWin>& wins, vector<Mat>& feats);
 
 				objectproposal::SegmentProcessor segprocessor;
 				features::ColorDescriptors colordesc;
@@ -46,7 +46,7 @@ namespace visualsearch
 			public:
 				ObjectRanker(void);
 
-				bool RankWindowsBySaliency(const Mat& cimg, const vector<ImgWin>& wins, vector<int>& ordered_win_ids);
+				bool RankWindowsBySaliency(const Mat& cimg, vector<ImgWin>& wins, vector<int>& ordered_win_ids);
 
 				// classifier if a superpixel is an object based a set of features
 				bool LearnObjectPredictorFromNYUDepth();

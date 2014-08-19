@@ -22,10 +22,10 @@ namespace visualsearch
 			ImgVisualizer(void);
 
 			// draw image windows
-			static bool DrawWinsOnImg(string winname, const Mat& img, const vector<ImgWin>& wins);
+			static bool DrawWinsOnImg(string winname, const Mat& img, const vector<ImgWin>& wins, Mat& oimg = Mat());
 
 			// draw grid of cropped images
-			static bool DrawCroppedWins(string winname, const Mat& cimg, const vector<ImgWin>& wins, int numperrow);
+			static bool DrawCroppedWins(string winname, const Mat& cimg, const vector<ImgWin>& wins, int numperrow, Mat& oimg = Mat());
 
 			// visualize float precision image
 			static bool DrawFloatImg(string winname, const Mat& img, Mat& oimg, bool toDraw = true);
