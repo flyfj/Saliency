@@ -4,8 +4,10 @@
 
 #include "ObjectRanker.h"
 #include "Common/common_libs.h"
-#include "IO/Kinect/KinectDataMan.h"
+//#include "IO/Kinect/KinectDataMan.h"
+#include "IO/OpenCVCameraIO.h"
 #include "Processors/Saliency/BingObjectness.h"
+#include "Common/ImgVisualizer.h"
 
 //////////////////////////////////////////////////////////////////////////
 // general video demo components
@@ -16,7 +18,7 @@
 class ObjProposalDemo
 {
 private:
-
+	
 
 public:
 	ObjProposalDemo(void);

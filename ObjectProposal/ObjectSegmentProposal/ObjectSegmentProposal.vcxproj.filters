@@ -28,9 +28,6 @@
     <Filter Include="LibLinear\Blas">
       <UniqueIdentifier>{01e3eefa-bb8c-444f-b3b5-dee67721c04b}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Kinect">
-      <UniqueIdentifier>{c0502cbd-094b-439d-9189-2aae6976f6b6}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Bing">
       <UniqueIdentifier>{40abfd40-47cd-4660-b9c8-105f8d30e324}</UniqueIdentifier>
     </Filter>
@@ -135,15 +132,6 @@
     <ClInclude Include="ObjProposalDemo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\Shared\IO\Kinect\KinectDataMan.h">
-      <Filter>Kinect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\IO\Kinect\KinectHelper.h">
-      <Filter>Kinect</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\IO\Kinect\OpenCVFrameHelper.h">
-      <Filter>Kinect</Filter>
-    </ClInclude>
     <ClInclude Include="..\Shared\Processors\Saliency\Bing\CmFile.h">
       <Filter>Bing</Filter>
     </ClInclude>
@@ -170,6 +158,12 @@
     </ClInclude>
     <ClInclude Include="..\Shared\Processors\Saliency\Bing\ValStructVec.h">
       <Filter>Bing</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\Common\ImgVisualizer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\Shared\IO\OpenCVCameraIO.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -239,12 +233,6 @@
     <ClCompile Include="ObjProposalDemo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\Shared\IO\Kinect\KinectDataMan.cpp">
-      <Filter>Kinect</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Shared\IO\Kinect\OpenCVFrameHelper.cpp">
-      <Filter>Kinect</Filter>
-    </ClCompile>
     <ClCompile Include="..\Shared\Processors\Saliency\Bing\CmFile.cpp">
       <Filter>Bing</Filter>
     </ClCompile>
@@ -262,6 +250,12 @@
     </ClCompile>
     <ClCompile Include="..\Shared\Processors\Saliency\Bing\Objectness.cpp">
       <Filter>Bing</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\Common\ImgVisualizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\Shared\IO\OpenCVCameraIO.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

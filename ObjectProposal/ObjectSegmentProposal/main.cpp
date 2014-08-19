@@ -9,7 +9,7 @@
 int main()
 {
 	ObjProposalDemo demo;
-	demo.RunSaliency(visualsearch::processors::attention::SAL_SR);
+	demo.RunSaliency(visualsearch::processors::attention::SAL_HC);
 	//demo.RunObjWinProposal();
 	return 0;
 

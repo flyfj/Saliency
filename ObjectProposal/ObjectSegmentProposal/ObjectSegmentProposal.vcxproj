@@ -80,7 +80,7 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opencv_core245.lib;opencv_highgui245.lib;opencv_imgproc245.lib;opencv_ml245.lib;kinect10.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opencv_core245.lib;opencv_highgui245.lib;opencv_imgproc245.lib;opencv_ml245.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -89,6 +89,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Shared\Common\common_libs.h" />
+    <ClInclude Include="..\Shared\Common\ImgVisualizer.h" />
     <ClInclude Include="..\Shared\Common\Tools.h" />
     <ClInclude Include="..\Shared\DataManager\DataManagerInterface.h" />
     <ClInclude Include="..\Shared\DataManager\NYUDepth2DataMan.h" />
@@ -104,9 +105,7 @@
     <ClInclude Include="..\Shared\GraphBasedSegmentor\misc.h" />
     <ClInclude Include="..\Shared\GraphBasedSegmentor\segment-graph.h" />
     <ClInclude Include="..\Shared\GraphBasedSegmentor\segment-image.h" />
-    <ClInclude Include="..\Shared\IO\Kinect\KinectDataMan.h" />
-    <ClInclude Include="..\Shared\IO\Kinect\KinectHelper.h" />
-    <ClInclude Include="..\Shared\IO\Kinect\OpenCVFrameHelper.h" />
+    <ClInclude Include="..\Shared\IO\OpenCVCameraIO.h" />
     <ClInclude Include="..\Shared\Learners\LibLinear\blas\blas.h" />
     <ClInclude Include="..\Shared\Learners\LibLinear\blas\blasp.h" />
     <ClInclude Include="..\Shared\Learners\LibLinear\linear.h" />
@@ -133,13 +132,13 @@
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\Shared\Common\ImgVisualizer.cpp" />
     <ClCompile Include="..\Shared\Common\Tools.cpp" />
     <ClCompile Include="..\Shared\DataManager\NYUDepth2DataMan.cpp" />
     <ClCompile Include="..\Shared\Features\ColorDescriptors.cpp" />
     <ClCompile Include="..\Shared\Features\DepthDescriptors.cpp" />
     <ClCompile Include="..\Shared\Features\EdgeHistogram.cpp" />
-    <ClCompile Include="..\Shared\IO\Kinect\KinectDataMan.cpp" />
-    <ClCompile Include="..\Shared\IO\Kinect\OpenCVFrameHelper.cpp" />
+    <ClCompile Include="..\Shared\IO\OpenCVCameraIO.cpp" />
     <ClCompile Include="..\Shared\Learners\LibLinear\blas\daxpy.c" />
     <ClCompile Include="..\Shared\Learners\LibLinear\blas\ddot.c" />
     <ClCompile Include="..\Shared\Learners\LibLinear\blas\dnrm2.c" />

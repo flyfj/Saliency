@@ -103,10 +103,10 @@ namespace visualsearch
 				//vals.push_back((win.y+win.height/2)*1.0f / cimg.rows);	// relative position in image
 
 				// saliency features
-				vector<Mat> salmaps(3);
+				vector<Mat> salmaps(2);
 				salcomputer.ComputeSaliencyMap(cimg, SAL_FT, salmaps[0]);
-				salcomputer.ComputeSaliencyMap(cimg, SAL_SR, salmaps[1]);
-				salcomputer.ComputeSaliencyMap(cimg, SAL_HC, salmaps[2]);
+				//salcomputer.ComputeSaliencyMap(cimg, SAL_SR, salmaps[1]);
+				salcomputer.ComputeSaliencyMap(cimg, SAL_HC, salmaps[1]);
 				//salcomputer.ComputeSaliencyMap(cimg, SAL_LC, salmaps[3]);
 
 				for (size_t i=0; i<wins.size(); i++)

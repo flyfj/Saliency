@@ -8,18 +8,23 @@ ObjProposalDemo::ObjProposalDemo()
 
 bool ObjProposalDemo::RunObjWinProposal()
 {
-	KinectDataMan kinectDM;
-
-	if( !kinectDM.InitKinect() )
+	//KinectDataMan kinectDM;
+	visualsearch::io::OpenCVCameraIO cam;
+	if( !cam.InitCamera() )
 		return false;
+
+	//if( !kinectDM.InitKinect() )
+		//return false;
 
 	visualsearch::processors::attention::BingObjectness bing;
 	visualsearch::processors::attention::ObjectRanker ranker;
+	visualsearch::visualization::ImgVisualizer imgvis;
 
 	while(1)
 	{
 		Mat cimg, dmap;
-		kinectDM.GetColorDepth(cimg, dmap);
+		cam.QueryNextFrame(visualsearch::io::STREAM_COLOR, cimg);
+		//kinectDM.GetColorDepth(cimg, dmap);
 
 		// resize image
 		Size newsz;
@@ -28,22 +33,20 @@ bool ObjProposalDemo::RunObjWinProposal()
 
 		// get objects
 		vector<ImgWin> objwins, salwins;
-		if( !bing.GetProposals(cimg, objwins, 500) )
+		if( !bing.GetProposals(cimg, objwins, 1000) )
 			continue;
 
 		// rank
 		vector<int> sorted_ids;
 		ranker.RankWindowsBySaliency(cimg, objwins, sorted_ids);
 
-		// show results
-		for (size_t i=0; i<sorted_ids.size(); i++)
-		{
-			if(i > 10)
-				break;
-			rectangle(cimg, objwins[i], CV_RGB(255, 0, 0));
-		}
+		vector<ImgWin> drawwins;
+		for (size_t i=0; i<MIN(sorted_ids.size(), 10); i++)
+			drawwins.push_back(objwins[sorted_ids[i]]);
 
-		imshow("img", cimg);
+		imshow("input", cimg);
+		imgvis.DrawCroppedWins("obj", cimg, drawwins, 5);
+
 		if( waitKey(10) == 'q' )
 			break;
 	}
@@ -55,17 +58,21 @@ bool ObjProposalDemo::RunObjWinProposal()
 
 bool ObjProposalDemo::RunSaliency(visualsearch::processors::attention::SaliencyType saltype)
 {
-	KinectDataMan kinectDM;
-
-	if( !kinectDM.InitKinect() )
+	//KinectDataMan kinectDM;
+	visualsearch::io::OpenCVCameraIO cam;
+	if( !cam.InitCamera() )
 		return false;
+
+	//if( !kinectDM.InitKinect() )
+		//return false;
 
 	visualsearch::processors::attention::SaliencyComputer salcomputer;
 
 	while(1)
 	{
 		Mat cimg, dmap;
-		kinectDM.GetColorDepth(cimg, dmap);
+		cam.QueryNextFrame(visualsearch::io::STREAM_COLOR, cimg);
+		//kinectDM.GetColorDepth(cimg, dmap);
 
 		// resize image
 		Size newsz;
