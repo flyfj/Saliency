@@ -7,19 +7,24 @@
 #pragma once
 
 #include "Common/common_libs.h"
-#include "Processors/ImageSegmentor.h"
-#include "Common/Tools.h"
-#include "Features/ColorDescriptors.h"
+#include "Processors/Segmentation/ImageSegmentor.h"
+#include "Common/tools/Tools.h"
+#include "Features/Color/ColorDescriptors.h"
 #include "Features/DepthDescriptors.h"
-#include "DataManager/NYUDepth2DataMan.h"
-#include "SegmentProcessor.h"
-#include "Processors/Saliency/SaliencyComputer.h"
+#include "IO/Dataset/NYUDepth2DataMan.h"
+#include "Processors/Segmentation/SegmentProcessor.h"
+#include "Processors/Attention/SaliencyComputer.h"
 #include "Processors/ShapeAnalyzer.h"
 
 namespace visualsearch
 {
+	using namespace features;
+	using namespace io::dataset;
+
 	namespace processors
 	{
+		using namespace segmentation;
+
 		namespace attention
 		{
 			enum SegmentRankType
@@ -39,8 +44,8 @@ namespace visualsearch
 
 				bool ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, vector<ImgWin>& wins, vector<Mat>& feats);
 
-				objectproposal::SegmentProcessor segprocessor;
-				features::ColorDescriptors colordesc;
+				processors::segmentation::SegmentProcessor segprocessor;
+				features::color::ColorDescriptors colordesc;
 				SaliencyComputer salcomputer;
 
 			public:

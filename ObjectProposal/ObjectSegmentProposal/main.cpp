@@ -2,7 +2,7 @@
 //
 
 #include "ObjSegmentProposal.h"
-#include "DataManager/NYUDepth2DataMan.h"
+#include "IO/Dataset/NYUDepth2DataMan.h"
 #include "ObjectRanker.h"
 #include "ObjProposalDemo.h"
 
@@ -20,7 +20,7 @@ int main()
 	return 0;
 
 	// get input
-	NYUDepth2DataMan nyuman;
+	visualsearch::io::dataset::NYUDepth2DataMan nyuman;
 	FileInfos imgfiles, dmapfiles;
 	nyuman.GetImageList(imgfiles);
 	nyuman.GetDepthmapList(dmapfiles);

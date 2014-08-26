@@ -6,15 +6,18 @@
 
 #pragma once
 
-#include "IterativeSegmentor.h"
+#include "Common\common_libs.h"
+#include "Processors\Segmentation\IterativeSegmentor.h"
 #include "ObjectRanker.h"
 
 namespace objectproposal
 {
+	using namespace visualsearch::common;
+
 	class ObjSegmentProposal
 	{
 	private:
-		IterativeSegmentor iter_segmentor;
+		visualsearch::processors::segmentation::IterativeSegmentor iter_segmentor;
 		visualsearch::processors::attention::ObjectRanker seg_ranker;
 
 

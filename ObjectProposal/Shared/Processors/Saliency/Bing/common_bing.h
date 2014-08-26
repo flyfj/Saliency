@@ -36,7 +36,7 @@
 using namespace std;
 
 // TODO: reference additional headers your program requires here
-#include "Learners/LibLinear/linear.h"
+#include "Learners/SVM/LibLinear/linear.h"
 #include <opencv2/opencv.hpp> 
 
 #define CV_VERSION_ID CVAUX_STR(CV_MAJOR_VERSION) CVAUX_STR(CV_MINOR_VERSION) CVAUX_STR(CV_SUBMINOR_VERSION)

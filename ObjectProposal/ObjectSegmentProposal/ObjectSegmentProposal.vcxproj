@@ -73,7 +73,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>../Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>E:\Projects\GitHub\VisualSearchEngine\VisualSearchEngine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -84,34 +84,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <Text Include="..\Shared\Learners\LibLinear\README.1.93.txt" />
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\Shared\Common\common_libs.h" />
-    <ClInclude Include="..\Shared\Common\ImgVisualizer.h" />
-    <ClInclude Include="..\Shared\Common\Tools.h" />
     <ClInclude Include="..\Shared\DataManager\DataManagerInterface.h" />
     <ClInclude Include="..\Shared\DataManager\NYUDepth2DataMan.h" />
-    <ClInclude Include="..\Shared\Features\ColorDescriptors.h" />
-    <ClInclude Include="..\Shared\Features\DepthDescriptors.h" />
-    <ClInclude Include="..\Shared\Features\EdgeHistogram.h" />
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\convolve.h" />
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\disjoint-set.h" />
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\filter.h" />
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\image.h" />
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\imconv.h" />
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\imutil.h" />
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\misc.h" />
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\segment-graph.h" />
-    <ClInclude Include="..\Shared\GraphBasedSegmentor\segment-image.h" />
-    <ClInclude Include="..\Shared\IO\OpenCVCameraIO.h" />
-    <ClInclude Include="..\Shared\Learners\LibLinear\blas\blas.h" />
-    <ClInclude Include="..\Shared\Learners\LibLinear\blas\blasp.h" />
-    <ClInclude Include="..\Shared\Learners\LibLinear\linear.h" />
-    <ClInclude Include="..\Shared\Learners\LibLinear\tron.h" />
-    <ClInclude Include="..\Shared\Processors\ImageSegmentor.h" />
-    <ClInclude Include="..\Shared\Processors\nms.h" />
     <ClInclude Include="..\Shared\Processors\Saliency\BingObjectness.h" />
     <ClInclude Include="..\Shared\Processors\Saliency\Bing\CmFile.h" />
     <ClInclude Include="..\Shared\Processors\Saliency\Bing\CmShow.h" />
@@ -122,31 +99,13 @@
     <ClInclude Include="..\Shared\Processors\Saliency\Bing\ImgContrastBB.h" />
     <ClInclude Include="..\Shared\Processors\Saliency\Bing\Objectness.h" />
     <ClInclude Include="..\Shared\Processors\Saliency\Bing\ValStructVec.h" />
-    <ClInclude Include="..\Shared\Processors\Saliency\GlobalContrastSaliency.h" />
-    <ClInclude Include="..\Shared\Processors\Saliency\SaliencyComputer.h" />
-    <ClInclude Include="..\Shared\Processors\ShapeAnalyzer.h" />
     <ClInclude Include="ObjProposalDemo.h" />
-    <ClInclude Include="IterativeSegmentor.h" />
     <ClInclude Include="ObjSegmentProposal.h" />
     <ClInclude Include="ObjectRanker.h" />
-    <ClInclude Include="SegmentProcessor.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\Shared\Common\ImgVisualizer.cpp" />
-    <ClCompile Include="..\Shared\Common\Tools.cpp" />
     <ClCompile Include="..\Shared\DataManager\NYUDepth2DataMan.cpp" />
-    <ClCompile Include="..\Shared\Features\ColorDescriptors.cpp" />
-    <ClCompile Include="..\Shared\Features\DepthDescriptors.cpp" />
-    <ClCompile Include="..\Shared\Features\EdgeHistogram.cpp" />
-    <ClCompile Include="..\Shared\IO\OpenCVCameraIO.cpp" />
-    <ClCompile Include="..\Shared\Learners\LibLinear\blas\daxpy.c" />
-    <ClCompile Include="..\Shared\Learners\LibLinear\blas\ddot.c" />
-    <ClCompile Include="..\Shared\Learners\LibLinear\blas\dnrm2.c" />
-    <ClCompile Include="..\Shared\Learners\LibLinear\blas\dscal.c" />
-    <ClCompile Include="..\Shared\Learners\LibLinear\linear.cpp" />
-    <ClCompile Include="..\Shared\Learners\LibLinear\tron.cpp" />
-    <ClCompile Include="..\Shared\Processors\ImageSegmentor.cpp" />
     <ClCompile Include="..\Shared\Processors\Saliency\BingObjectness.cpp" />
     <ClCompile Include="..\Shared\Processors\Saliency\Bing\CmFile.cpp" />
     <ClCompile Include="..\Shared\Processors\Saliency\Bing\CmShow.cpp" />
@@ -154,18 +113,10 @@
     <ClCompile Include="..\Shared\Processors\Saliency\Bing\DataSetVOC.cpp" />
     <ClCompile Include="..\Shared\Processors\Saliency\Bing\FilterTIG.cpp" />
     <ClCompile Include="..\Shared\Processors\Saliency\Bing\Objectness.cpp" />
-    <ClCompile Include="..\Shared\Processors\Saliency\GlobalContrastSaliency.cpp" />
-    <ClCompile Include="..\Shared\Processors\Saliency\SaliencyComputer.cpp" />
-    <ClCompile Include="..\Shared\Processors\ShapeAnalyzer.cpp" />
     <ClCompile Include="ObjProposalDemo.cpp" />
-    <ClCompile Include="IterativeSegmentor.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjSegmentProposal.cpp" />
     <ClCompile Include="ObjectRanker.cpp" />
-    <ClCompile Include="SegmentProcessor.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Shared\Learners\LibLinear\LibLinear.vcxproj.filters" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -11,7 +11,7 @@ ObjProposalDemo::ObjProposalDemo()
 bool ObjProposalDemo::RunVideoDemo(DemoType dtype)
 {
 	//KinectDataMan kinectDM;
-	visualsearch::io::OpenCVCameraIO cam;
+	visualsearch::io::camera::OpenCVCameraIO cam;
 	if( !cam.InitCamera() )
 		return false;
 
@@ -24,7 +24,7 @@ bool ObjProposalDemo::RunVideoDemo(DemoType dtype)
 	{
 		Mat cimg, dmap;
 		//kinectDM.GetColorDepth(cimg, dmap);
-		if( !cam.QueryNextFrame(visualsearch::io::STREAM_COLOR, cimg) )
+		if( !cam.QueryNextFrame(visualsearch::io::camera::STREAM_COLOR, cimg) )
 			continue;
 
 		frameid++;
@@ -47,7 +47,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 {
 	// resize image
 	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+	visualsearch::common::tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
 
 	vector<SuperPixel> sps;
@@ -68,7 +68,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 	ranker.RankWindowsBySaliency(cimg, objwins, sorted_ids);
 
 	// nms
-	vector<ImgWin> drawwins = nms(objwins, 0.6f);
+	vector<ImgWin> drawwins = visualsearch::processors::nms(objwins, 0.6f);
 	drawwins.resize(MIN(drawwins.size(), 10));
 
 	Mat oimg;
@@ -88,7 +88,7 @@ bool ObjProposalDemo::RunObjWinProposal(Mat& cimg, Mat& dmap)
 {
 	// resize image
 	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+	tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
 
 	/*Mat salmap;
@@ -109,7 +109,7 @@ bool ObjProposalDemo::RunObjWinProposal(Mat& cimg, Mat& dmap)
 	ranker.RankWindowsBySaliency(cimg, objwins, sorted_ids);
 
 	// nms
-	vector<ImgWin> drawwins = nms(objwins, 0.4f);
+	vector<ImgWin> drawwins = visualsearch::processors::nms(objwins, 0.4f);
 	drawwins.resize(MIN(drawwins.size(), 10));
 
 	//for (size_t i=0; i<MIN(sorted_ids.size(), 10); i++)
@@ -133,7 +133,7 @@ bool ObjProposalDemo::RunSaliency(Mat& cimg, Mat& dmap, visualsearch::processors
 {
 	// resize image
 	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+	tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 	resize(cimg, cimg, newsz);
 
 	Mat salmap;

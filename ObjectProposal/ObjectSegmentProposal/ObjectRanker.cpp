@@ -8,9 +8,9 @@ namespace visualsearch
 		{
 			ObjectRanker::ObjectRanker(void)
 			{
-				features::ColorFeatParams cparams;
-				cparams.feat_type = features::COLOR_FEAT_MEAN;
-				cparams.histParams.color_space = features::COLOR_LAB;
+				features::color::ColorFeatParams cparams;
+				cparams.feat_type = features::color::COLOR_FEAT_MEAN;
+				cparams.histParams.color_space = features::color::COLOR_LAB;
 				colordesc.Init(cparams);
 
 

@@ -5,11 +5,11 @@
 #include "ObjectRanker.h"
 #include "Common/common_libs.h"
 //#include "IO/Kinect/KinectDataMan.h"
-#include "IO/OpenCVCameraIO.h"
-#include "Processors/Saliency/BingObjectness.h"
-#include "Common/ImgVisualizer.h"
+#include "IO/Camera/OpenCVCameraIO.hpp"
+#include "Processors/Attention/BingObjectness.h"
+#include "Common/tools/ImgVisualizer.h"
 #include "Processors/nms.h"
-#include "IterativeSegmentor.h"
+#include "Processors/Segmentation/IterativeSegmentor.h"
 
 //////////////////////////////////////////////////////////////////////////
 // general video demo components
@@ -25,16 +25,16 @@ enum DemoType
 	DEMO_OBJECT_SEG
 };
 
-using namespace visualsearch::processors::attention;
+using namespace visualsearch::common;
 
 class ObjProposalDemo
 {
 private:
 	visualsearch::processors::attention::BingObjectness bing;
 	visualsearch::processors::attention::ObjectRanker ranker;
-	visualsearch::visualization::ImgVisualizer imgvis;
+	visualsearch::tools::ImgVisualizer imgvis;
 	visualsearch::processors::attention::SaliencyComputer salcomputer;
-	objectproposal::IterativeSegmentor iterSegmentor;
+	visualsearch::processors::segmentation::IterativeSegmentor iterSegmentor;
 
 	int frameid;
 
