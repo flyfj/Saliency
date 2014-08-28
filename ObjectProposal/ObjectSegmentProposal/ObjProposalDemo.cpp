@@ -4,16 +4,26 @@
 ObjProposalDemo::ObjProposalDemo()
 {
 	frameid = 0;
+	DATADIR = "e:\\searchdemo\\";
 }
 
 //////////////////////////////////////////////////////////////////////////
 
-bool ObjProposalDemo::RunVideoDemo(DemoType dtype)
+bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 {
-	//KinectDataMan kinectDM;
+	
 	visualsearch::io::camera::OpenCVCameraIO cam;
-	if( !cam.InitCamera() )
-		return false;
+	if(stype == SENSOR_CAMERA)
+	{
+		if( !cam.InitCamera() )
+			return false;
+	}
+	KinectDataMan kinect;
+	if(stype == SENSOR_KINECT)
+	{
+		if( !kinect.InitKinect() )
+			return false;
+	}
 
 	//if( !kinectDM.InitKinect() )
 	//return false;
@@ -23,10 +33,22 @@ bool ObjProposalDemo::RunVideoDemo(DemoType dtype)
 	while(1)
 	{
 		Mat cimg, dmap;
-		//kinectDM.GetColorDepth(cimg, dmap);
-		if( !cam.QueryNextFrame(visualsearch::io::camera::STREAM_COLOR, cimg) )
-			continue;
+		if(stype == SENSOR_CAMERA) {
+			if( !cam.QueryNextFrame(visualsearch::io::camera::STREAM_COLOR, cimg) )
+				continue;
+		}
+		if(stype == SENSOR_KINECT) {
+			if( !kinect.GetColorDepth(cimg, dmap) )
+				continue;
+		}
 
+		// downsample cimg to have same size as dmap
+		resize(cimg, cimg, Size(cimg.cols/2, cimg.rows/2));
+		// show input
+		imshow("color", cimg);
+		imshow("depth", dmap);
+		//imgvis.DrawFloatImg("depth", dmap, Mat());
+		
 		frameid++;
 
 		if(dtype == DEMO_OBJECT_WIN)
@@ -49,6 +71,8 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 	Size newsz;
 	visualsearch::common::tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
+	if(!dmap.empty())
+		resize(dmap, dmap, newsz);
 
 	vector<SuperPixel> sps;
 	//iterSegmentor.verbose = true;
@@ -59,7 +83,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 	for (size_t i=0; i<sps.size(); i++)
 	{
 		ImgWin curwin = ImgWin(sps[i].box.x, sps[i].box.y, sps[i].box.width, sps[i].box.height);
-		if(curwin.area()*1.0f / (cimg.rows*cimg.cols) < 0.2)
+		if(curwin.area()*1.0f / (cimg.rows*cimg.cols) < 0.15)
 			continue;
 
 		objwins.push_back(curwin);
@@ -68,18 +92,44 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 	ranker.RankWindowsBySaliency(cimg, objwins, sorted_ids);
 
 	// nms
-	vector<ImgWin> drawwins = visualsearch::processors::nms(objwins, 0.6f);
+	vector<ImgWin> drawwins = visualsearch::processors::nms(objwins, 0.7f);
 	drawwins.resize(MIN(drawwins.size(), 10));
-
+	
+	// output
 	Mat oimg;
 	char str[30];
-	imgvis.DrawWinsOnImg("input", cimg, drawwins);
-	sprintf_s(str, "e:\\res\\objectness\\%d_1.jpg", frameid);
-	imwrite(str, cimg);
+	sprintf_s(str, "%d_0.jpg", frameid);
+	imwrite(DATADIR + string(str), cimg);
+	imgvis.DrawWinsOnImg("input", cimg, drawwins, oimg);
+	sprintf_s(str, "%d_1.png", frameid);
+	dmap.copyTo(oimg);
+	imwrite(DATADIR + string(str), oimg);
 	imgvis.DrawCroppedWins("obj", cimg, drawwins, 5, oimg);
-	sprintf_s(str, "e:\\res\\objectness\\%d_2.jpg", frameid);
-	imwrite(str, oimg);
+	sprintf_s(str, "%d_2.jpg", frameid);
+	imwrite(DATADIR + string(str), oimg);
+	
+	// check lock file
+	/*string lockfn = DATADIR + "demo.lock";
+	ifstream in(lockfn);
+	if( in.is_open() )
+		return true;*/
 
+	// save object
+	for (size_t i=0; i<drawwins.size(); i++)
+	{
+		// color
+		sprintf_s(str, "obj_%d_%d_c.png", frameid, i);
+		imwrite(DATADIR+string(str), cimg(drawwins[i]));
+		if( dmap.empty() )
+			continue;
+		// depth
+		sprintf_s(str, "obj_%d_%d_d.png", frameid, i);
+		imwrite(DATADIR+string(str), dmap(drawwins[i]));
+	}
+
+	// write lock file
+	/*ofstream out(lockfn);
+	out.close();*/
 
 	return true;
 }
@@ -127,7 +177,6 @@ bool ObjProposalDemo::RunObjWinProposal(Mat& cimg, Mat& dmap)
 
 	return true;
 }
-
 
 bool ObjProposalDemo::RunSaliency(Mat& cimg, Mat& dmap, visualsearch::processors::attention::SaliencyType saltype)
 {

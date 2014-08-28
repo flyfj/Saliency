@@ -4,7 +4,7 @@
 
 #include "ObjectRanker.h"
 #include "Common/common_libs.h"
-//#include "IO/Kinect/KinectDataMan.h"
+#include "IO/Camera/KinectDataMan.h"
 #include "IO/Camera/OpenCVCameraIO.hpp"
 #include "Processors/Attention/BingObjectness.h"
 #include "Common/tools/ImgVisualizer.h"
@@ -26,6 +26,7 @@ enum DemoType
 };
 
 using namespace visualsearch::common;
+using namespace visualsearch::io::camera;
 
 class ObjProposalDemo
 {
@@ -36,9 +37,12 @@ private:
 	visualsearch::processors::attention::SaliencyComputer salcomputer;
 	visualsearch::processors::segmentation::IterativeSegmentor iterSegmentor;
 
+	string DATADIR;
+
 	int frameid;
 
 public:
+
 	ObjProposalDemo(void);
 
 	bool RunObjSegProposal(Mat& cimg, Mat& dmap);
@@ -47,7 +51,7 @@ public:
 
 	bool RunSaliency(Mat& cimg, Mat& dmap, visualsearch::processors::attention::SaliencyType saltype);
 
-	bool RunVideoDemo(DemoType dtype);
+	bool RunVideoDemo(SensorType stype, DemoType dtype);
 
 };
 
