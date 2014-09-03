@@ -75,6 +75,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 		resize(dmap, dmap, newsz);
 
 	vector<SuperPixel> sps;
+	iterSegmentor.verbose = false;
 	//iterSegmentor.verbose = true;
 	iterSegmentor.Run(cimg, dmap, sps);
 

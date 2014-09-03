@@ -10,7 +10,7 @@ int main()
 {
 	ObjProposalDemo demo;
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
-	Mat cimg = imread("E:\\res\\objectness\\51_1.jpg");
+	Mat cimg = imread("d:\\imgs\\img_0263.png");
 	demo.RunObjSegProposal(cimg, Mat());
 	waitKey(0);
 	//demo.RunObjWinProposal();

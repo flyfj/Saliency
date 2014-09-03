@@ -90,11 +90,20 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\ValStructVec.h">
       <Filter>Library\others</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
     <ClInclude Include="RGBDTools.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\DataManagerInterface.h">
+      <Filter>Library\others</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\ShapeAnalyzer.h">
+      <Filter>Library\others</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\Tools.h">
+      <Filter>Library\others</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.h">
+      <Filter>Library\segmentation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -146,9 +155,6 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\blas\ddot.c">
       <Filter>Library\others</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\blas\dnrm2.c">
       <Filter>Library\others</Filter>
     </ClCompile>
@@ -196,6 +202,12 @@
     </ClCompile>
     <ClCompile Include="RGBDTools.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\DatasetIO.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.cpp">
+      <Filter>Library\segmentation</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
