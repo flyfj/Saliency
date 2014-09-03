@@ -7,58 +7,47 @@
 
 #pragma once
 
-#include "../Common/common_libs.h"
+#include "../../Common/common_libs.h"
 
 
 namespace visualsearch
 {
-	struct SuperPixel
+	namespace processors
 	{
-		// shape
-		cv::Mat mask;
-		cv::Rect box;
-		bool boundary;
-		Contour contour;
-		Contour approx_contour;
-		int perimeter;
-		bool isConvex;
-		int area;
-		// spatial
-		float meanDepth;
-		Point2f centroid;
+		namespace segmentation
+		{
+			using namespace common;
 
-		// features
-		MatFeatureSet feats;
-		Scalar meancolor;
-	};
+			// mainly for oversegmentation
+			class ImageSegmentor
+			{
+			public:
 
-	// mainly for oversegmentation
-	class ImageSegmentor
-	{
-	public:
+				// params
+				float m_dSmoothSigma;
+				float m_dThresholdK;
+				int m_dMinArea;
 
-		// params
-		float m_dSmoothSigma;
-		float m_dThresholdK;
-		int m_dMinArea;
+			public:
 
-	public:
+				std::vector<SuperPixel> superPixels;
 
-		std::vector<SuperPixel> superPixels;
-		
-		cv::Mat m_segImg;
-		cv::Mat m_idxImg;	// superpixel index
-		cv::Mat m_mean_img;	// set mean color to pixels in same segment
-		cv::Mat m_adjacency_mat;	// adjacency matrix for superpixels
+				cv::Mat m_segImg;
+				cv::Mat m_idxImg;	// superpixel index
+				cv::Mat m_mean_img;	// set mean color to pixels in same segment
+				cv::Mat m_adjacency_mat;	// adjacency matrix for superpixels
 
-	public:
+			public:
 
-		ImageSegmentor(void);
+				ImageSegmentor(void);
 
-		int DoSegmentation(const cv::Mat& img);
+				int DoSegmentation(const cv::Mat& img);
 
-		// this is used for any input collection
-		bool ComputeAdjacencyMat(const std::vector<SuperPixel>& sps, cv::Mat& adjacencyMat);
-	};
+				// this is used for any input collection
+				bool ComputeAdjacencyMat(const std::vector<SuperPixel>& sps, cv::Mat& adjacencyMat);
+			};
+		}
+	}
+	
 
 }
