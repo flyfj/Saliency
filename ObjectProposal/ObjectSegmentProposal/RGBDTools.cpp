@@ -86,6 +86,21 @@ namespace visualsearch
 				return true;
 			}
 
+			bool RGBDTools::SavePointsToOBJ(const string& filename, const Mat& pts)
+			{
+				std::ofstream out(filename.c_str());
+				for (int r=0; r<pts.rows; r++)
+				{
+					for(int c=0; c<pts.cols; c++)
+					{
+						Vec3f curval = pts.at<Vec3f>(r, c);
+						out<<"v "<<curval.val[0]<<" "<<curval.val[1]<<" "<<curval.val[2]<<std::endl;
+					}
+				}
+
+				return true;
+			}
+
 			//////////////////////////////////////////////////////////////////////////
 
 			
@@ -114,6 +129,33 @@ namespace visualsearch
 
 				// convert to local coordinates (x, y, z)
 				homo_coords = homo_coords / dvalmap;
+
+				return true;
+			}
+
+			bool RGBDTools::KinectDepthTo3D(const Mat& dmap, Mat& pts3d)
+			{
+				// dmap is in millimeter
+				Point2f centerp(dmap.cols/2, dmap.rows/2);
+				int imgh = dmap.rows, imgw = dmap.cols;
+				float constant = 585.6f;
+				float MM_PER_M = 1000;
+
+				// transform
+				pts3d.create(dmap.rows, dmap.cols, CV_32FC3);
+				pts3d.setTo(Vec3f(0, 0, 0));
+				for (int r=0; r<dmap.rows; r++) {
+					for(int c=0; c<dmap.cols; c++) {
+						float dval = dmap.at<float>(r, c);
+						if( dval == 0 )
+							continue;
+
+						Vec3f& curval = pts3d.at<Vec3f>(r, c);
+						curval.val[0] = (c-centerp.x) * dval / constant / MM_PER_M;
+						curval.val[1] = (r-centerp.y) * dval / constant / MM_PER_M;
+						curval.val[2] = dval / MM_PER_M;
+					}
+				}
 
 				return true;
 			}

@@ -5,9 +5,18 @@
 #include "IO/Dataset/NYUDepth2DataMan.h"
 #include "ObjectRanker.h"
 #include "ObjProposalDemo.h"
+#include "RGBDTools.h"
 
 int main()
 {
+	visualsearch::common::tools::RGBDTools rgbdtool;
+	Mat dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
+	dmap.convertTo(dmap, CV_32F);
+	Mat pts;
+	rgbdtool.KinectDepthTo3D(dmap, pts);
+	rgbdtool.SavePointsToOBJ("d:\\test.obj", pts);
+	return 0;
+
 	ObjProposalDemo demo;
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
 	Mat cimg = imread("d:\\imgs\\img_0263.png");
@@ -27,7 +36,6 @@ int main()
 	nyuman.GetImageList(imgfiles);
 	nyuman.GetDepthmapList(dmapfiles);
 	Mat img = imread(imgfiles[5].filepath);
-	Mat dmap;
 	nyuman.LoadDepthData(dmapfiles[5].filepath, dmap);
 	resize(img, img, Size(300,300));
 	resize(dmap, dmap, Size(300,300));
