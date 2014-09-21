@@ -8,6 +8,56 @@ namespace objectproposal
 
 	//////////////////////////////////////////////////////////////////////////
 
+	bool ObjSegmentProposal::Compute3DDistMap(const Mat& dmap, Mat& distmap)
+	{
+		Mat map3d;
+		visualsearch::common::tools::RGBDTools::KinectDepthTo3D(dmap, map3d);
+		distmap.create(dmap.rows, dmap.cols, CV_32F);
+		distmap.setTo(0);
+
+		for(int r=1; r<map3d.rows-1; r++) {
+			for(int c=1; c<map3d.cols-1; c++) {
+				Vec3f leftpt = map3d.at<Vec3f>(r, c-1);
+				Vec3f rightpt = map3d.at<Vec3f>(r, c+1);
+				Vec3f toppt = map3d.at<Vec3f>(r-1, c);
+				Vec3f bottompt = map3d.at<Vec3f>(r+1, c);
+				Vec3f curpt = map3d.at<Vec3f>(r, c);
+				float maxdist = 0;
+				float dist = 0;
+				for(int i=0; i<3; i++)
+					dist += (curpt.val[i]-leftpt.val[i])*(curpt.val[i]-leftpt.val[i]);
+				dist = sqrt(dist);
+				maxdist = (dist > maxdist? dist: maxdist);
+				
+				dist = 0;
+				for(int i=0; i<3; i++)
+					dist += (curpt.val[i]-rightpt.val[i])*(curpt.val[i]-rightpt.val[i]);
+				dist = sqrt(dist);
+				maxdist = (dist > maxdist? dist: maxdist);
+				
+				dist = 0;
+				for(int i=0; i<3; i++)
+					dist += (curpt.val[i]-toppt.val[i])*(curpt.val[i]-toppt.val[i]);
+				dist = sqrt(dist);
+				maxdist = (dist > maxdist? dist: maxdist);
+				
+				dist = 0;
+				for(int i=0; i<3; i++)
+					dist += (curpt.val[i]-bottompt.val[i])*(curpt.val[i]-bottompt.val[i]);
+				dist = sqrt(dist);
+				maxdist = (dist > maxdist? dist: maxdist);
+
+				distmap.at<float>(r, c) = maxdist;
+			}
+		}
+
+		visualsearch::tools::ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
+		visualsearch::tools::ImgVisualizer::DrawFloatImg("3dmap", distmap, Mat());
+		waitKey(0);
+
+		return true;
+	}
+
 	bool ObjSegmentProposal::Run(const Mat& cimg, const Mat& dmap, int topK, vector<SuperPixel>& res)
 	{
 		// get candidates

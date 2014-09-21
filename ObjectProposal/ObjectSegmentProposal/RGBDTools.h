@@ -45,7 +45,8 @@ namespace visualsearch
 				static bool Proj2Dto3D(const cv::Mat& fg_mask, const cv::Mat& dmap, const cv::Mat& w2c_mat, std::vector<cv::Vec3f>& pts3d);
 
 				// convert kinect depth map to 3d points
-				bool KinectDepthTo3D(const Mat& dmap, Mat& pts3d);
+				// depth in mm unit
+				static bool KinectDepthTo3D(const Mat& dmap, Mat& pts3d);
 			};
 		}
 	}
