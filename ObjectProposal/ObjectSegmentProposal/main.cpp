@@ -5,10 +5,16 @@
 #include "IO/Dataset/NYUDepth2DataMan.h"
 #include "ObjectRanker.h"
 #include "ObjProposalDemo.h"
-#include "RGBDTools.h"
+#include "Common/Tools/RGBDTools.h"
+#include "Processors/Segmentation/IterativeSegmentor.h"
 
 int main()
 {
+	visualsearch::processors::segmentation::IterativeSegmentor segmentor;
+	segmentor.PrepareMergerTrainingSamples();
+	getchar();
+	return 0;
+
 	visualsearch::common::tools::RGBDTools rgbdtool;
 	objectproposal::ObjSegmentProposal prop;
 	Mat dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);

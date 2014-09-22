@@ -9,7 +9,7 @@
 #include "Common\common_libs.h"
 #include "Processors\Segmentation\IterativeSegmentor.h"
 #include "ObjectRanker.h"
-#include "RGBDTools.h"
+#include "Common/Tools/RGBDTools.h"
 
 namespace objectproposal
 {

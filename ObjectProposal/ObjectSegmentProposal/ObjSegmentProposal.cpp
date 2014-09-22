@@ -62,9 +62,9 @@ namespace objectproposal
 	{
 		// get candidates
 		vector<SuperPixel> init_res;
-		iter_segmentor.Init();
+		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.verbose = false;
-		iter_segmentor.Run(cimg, dmap, init_res);
+		iter_segmentor.Run();
 
 		// rank
 		vector<int> rank_ids;
