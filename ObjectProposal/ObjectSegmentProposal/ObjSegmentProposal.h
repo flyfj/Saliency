@@ -9,6 +9,7 @@
 #include "Common\common_libs.h"
 #include "Processors\Segmentation\IterativeSegmentor.h"
 #include "ObjectRanker.h"
+#include "Common/Tools/RGBDTools.h"
 
 namespace objectproposal
 {
@@ -25,6 +26,8 @@ namespace objectproposal
 		ObjSegmentProposal(void);
 
 		bool Run(const Mat& cimg, const Mat& dmap, int topK, vector<SuperPixel>& res);
+
+		bool Compute3DDistMap(const Mat& dmap, Mat& distmap);
 
 		//////////////////////////////////////////////////////////////////////////
 

@@ -116,6 +116,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\ImgVisualizer.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\RGBDTools.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\Tools.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Color\ColorDescriptors.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.cpp" />
@@ -124,6 +125,9 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Camera\Kinect\OpenCVFrameHelper.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\DatasetIO.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\NYUDepth2DataMan.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\RandomTrees\DecisionTree.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\RandomTrees\RandomForest.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\jsvm.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\blas\daxpy.c" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\blas\ddot.c" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\blas\dnrm2.c" />
@@ -148,7 +152,6 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjSegmentProposal.cpp" />
     <ClCompile Include="ObjectRanker.cpp" />
-    <ClCompile Include="RGBDTools.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

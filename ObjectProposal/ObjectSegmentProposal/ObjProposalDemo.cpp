@@ -77,7 +77,9 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 	vector<SuperPixel> sps;
 	iterSegmentor.verbose = false;
 	//iterSegmentor.verbose = true;
-	iterSegmentor.Run(cimg, dmap, sps);
+	iterSegmentor.Init(cimg, dmap);
+	iterSegmentor.Run();
+	sps = iterSegmentor.sps;
 
 	// rank
 	vector<ImgWin> objwins;

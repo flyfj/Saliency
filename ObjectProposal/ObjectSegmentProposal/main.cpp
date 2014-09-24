@@ -5,10 +5,12 @@
 #include "IO/Dataset/NYUDepth2DataMan.h"
 #include "ObjectRanker.h"
 #include "ObjProposalDemo.h"
-#include "RGBDTools.h"
+#include "Common/Tools/RGBDTools.h"
+#include "Processors/Segmentation/IterativeSegmentor.h"
 
 int main()
 {
+<<<<<<< HEAD
 	Mat dmap, cimg;
 	/*visualsearch::common::tools::RGBDTools rgbdtool;
 	dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
@@ -17,6 +19,22 @@ int main()
 	rgbdtool.KinectDepthTo3D(dmap, pts);
 	rgbdtool.SavePointsToOBJ("d:\\test.obj", pts);
 	return 0;*/
+=======
+	visualsearch::processors::segmentation::IterativeSegmentor segmentor;
+	segmentor.PrepareMergerTrainingSamples();
+	getchar();
+	return 0;
+
+	visualsearch::common::tools::RGBDTools rgbdtool;
+	objectproposal::ObjSegmentProposal prop;
+	Mat dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
+	dmap.convertTo(dmap, CV_32F);
+	Mat pts;
+	//rgbdtool.KinectDepthTo3D(dmap, pts);
+	prop.Compute3DDistMap(dmap, Mat());
+	//rgbdtool.SavePointsToOBJ("d:\\test.obj", pts);
+	return 0;
+>>>>>>> 93b4eeb3454e70bb2b891d59cd7444c0edc45be9
 
 	ObjProposalDemo demo;
 	demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
