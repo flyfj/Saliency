@@ -22,7 +22,8 @@ enum DemoType
 {
 	DEMO_SAL,
 	DEMO_OBJECT_WIN,
-	DEMO_OBJECT_SEG
+	DEMO_OBJECT_SEG,
+	DEMO_VIEW_ONLY
 };
 
 using namespace visualsearch::common;

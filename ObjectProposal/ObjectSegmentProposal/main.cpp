@@ -9,17 +9,20 @@
 
 int main()
 {
-	visualsearch::common::tools::RGBDTools rgbdtool;
-	Mat dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap, cimg;
+	/*visualsearch::common::tools::RGBDTools rgbdtool;
+	dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	Mat pts;
 	rgbdtool.KinectDepthTo3D(dmap, pts);
 	rgbdtool.SavePointsToOBJ("d:\\test.obj", pts);
-	return 0;
+	return 0;*/
 
 	ObjProposalDemo demo;
+	demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
+	return 0;
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
-	Mat cimg = imread("d:\\imgs\\img_0263.png");
+	cimg = imread("d:\\imgs\\img_0263.png");
 	demo.RunObjSegProposal(cimg, Mat());
 	waitKey(0);
 	//demo.RunObjWinProposal();
