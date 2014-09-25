@@ -179,9 +179,6 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Camera\KinectDataMan.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\NYUDepth2DataMan.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\Objectness.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
@@ -219,6 +216,9 @@
       <Filter>Library\others</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\jsvm.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\NYUDepth2DataMan.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
   </ItemGroup>

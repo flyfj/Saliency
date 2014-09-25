@@ -10,7 +10,6 @@
 
 int main()
 {
-<<<<<<< HEAD
 	Mat dmap, cimg;
 	/*visualsearch::common::tools::RGBDTools rgbdtool;
 	dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
@@ -19,28 +18,33 @@ int main()
 	rgbdtool.KinectDepthTo3D(dmap, pts);
 	rgbdtool.SavePointsToOBJ("d:\\test.obj", pts);
 	return 0;*/
-=======
+
 	visualsearch::processors::segmentation::IterativeSegmentor segmentor;
-	segmentor.PrepareMergerTrainingSamples();
+	/*segmentor.PrepareMergerTrainingSamples();
 	getchar();
-	return 0;
+	return 0;*/
 
 	visualsearch::common::tools::RGBDTools rgbdtool;
 	objectproposal::ObjSegmentProposal prop;
-	Mat dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
+	cimg = imread("d:\\imgs\\img_0263.png");
+	dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	Mat pts;
+	vector<SuperPixel> sps;
+	segmentor.verbose = true;
+	segmentor.Init(cimg, dmap);
+	segmentor.Run();
+	segmentor.SaveResults("E:\\res\\seg_prop\\", cimg, sps);
 	//rgbdtool.KinectDepthTo3D(dmap, pts);
-	prop.Compute3DDistMap(dmap, Mat());
+	//prop.Compute3DDistMap(dmap, Mat());
 	//rgbdtool.SavePointsToOBJ("d:\\test.obj", pts);
-	return 0;
->>>>>>> 93b4eeb3454e70bb2b891d59cd7444c0edc45be9
+	//return 0;
 
 	ObjProposalDemo demo;
 	demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
 	return 0;
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
-	cimg = imread("d:\\imgs\\img_0263.png");
+	
 	demo.RunObjSegProposal(cimg, Mat());
 	waitKey(0);
 	//demo.RunObjWinProposal();
