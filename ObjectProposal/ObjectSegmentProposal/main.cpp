@@ -20,9 +20,9 @@ int main()
 	return 0;*/
 
 	visualsearch::processors::segmentation::IterativeSegmentor segmentor;
-	/*segmentor.PrepareMergerTrainingSamples();
+	segmentor.PrepareMergerTrainingSamples();
 	getchar();
-	return 0;*/
+	return 0;
 
 	visualsearch::common::tools::RGBDTools rgbdtool;
 	objectproposal::ObjSegmentProposal prop;
