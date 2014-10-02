@@ -90,9 +90,6 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\ValStructVec.h">
       <Filter>Library\others</Filter>
     </ClInclude>
-    <ClInclude Include="RGBDTools.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\DataManagerInterface.h">
       <Filter>Library\others</Filter>
     </ClInclude>

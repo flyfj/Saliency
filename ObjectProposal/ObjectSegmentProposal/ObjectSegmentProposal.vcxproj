@@ -111,7 +111,6 @@
     <ClInclude Include="ObjProposalDemo.h" />
     <ClInclude Include="ObjSegmentProposal.h" />
     <ClInclude Include="ObjectRanker.h" />
-    <ClInclude Include="RGBDTools.h" />
     <ClInclude Include="targetver.h" />
   </ItemGroup>
   <ItemGroup>
