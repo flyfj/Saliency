@@ -9,7 +9,7 @@
 #include "Processors/Attention/BingObjectness.h"
 #include "Common/tools/ImgVisualizer.h"
 #include "Processors/nms.h"
-#include "Processors/Segmentation/IterativeSegmentor.h"
+#include "ObjSegmentProposal.h"
 
 //////////////////////////////////////////////////////////////////////////
 // general video demo components
@@ -37,6 +37,7 @@ private:
 	visualsearch::tools::ImgVisualizer imgvis;
 	visualsearch::processors::attention::SaliencyComputer salcomputer;
 	visualsearch::processors::segmentation::IterativeSegmentor iterSegmentor;
+	objectproposal::ObjSegmentProposal seg_proposal;
 
 	string DATADIR;
 

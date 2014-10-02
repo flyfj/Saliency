@@ -11,6 +11,15 @@
 int main()
 {
 	Mat dmap, cimg;
+	visualsearch::common::tools::RGBDTools rgbdtool;
+	objectproposal::ObjSegmentProposal prop;
+	visualsearch::processors::segmentation::IterativeSegmentor segmentor;
+	ObjProposalDemo demo;
+
+	demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
+
+	return 0;
+	
 	/*visualsearch::common::tools::RGBDTools rgbdtool;
 	dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
@@ -19,13 +28,12 @@ int main()
 	rgbdtool.SavePointsToOBJ("d:\\test.obj", pts);
 	return 0;*/
 
-	visualsearch::processors::segmentation::IterativeSegmentor segmentor;
+
 	segmentor.PrepareMergerTrainingSamples();
 	getchar();
 	return 0;
 
-	visualsearch::common::tools::RGBDTools rgbdtool;
-	objectproposal::ObjSegmentProposal prop;
+	
 	cimg = imread("d:\\imgs\\img_0263.png");
 	dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
@@ -40,7 +48,6 @@ int main()
 	//rgbdtool.SavePointsToOBJ("d:\\test.obj", pts);
 	//return 0;
 
-	ObjProposalDemo demo;
 	demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
 	return 0;
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);

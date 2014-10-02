@@ -61,21 +61,29 @@ namespace objectproposal
 	bool ObjSegmentProposal::Run(const Mat& cimg, const Mat& dmap, int topK, vector<SuperPixel>& res)
 	{
 		// get candidates
-		vector<SuperPixel> init_res;
+		iter_segmentor.merge_feat_types = visualsearch::processors::segmentation::SP_COLOR;
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.verbose = false;
 		iter_segmentor.Run();
+		const vector<SuperPixel>& res_sps = iter_segmentor.sps;
 
 		// rank
 		vector<int> rank_ids;
-		seg_ranker.RankSegments(cimg, dmap, init_res, visualsearch::processors::attention::	SEG_RANK_CC, rank_ids);
+		seg_ranker.RankSegments(cimg, dmap, res_sps, visualsearch::processors::attention::SEG_RANK_SALIENCY, rank_ids);
 
 		// filter results
+		/*vector<int> valid_ids;
+		for (size_t i=0; i<rank_ids.size(); i++) {
+		if(res_sps[rank_ids[i]].area*1.0f / (cimg.rows*cimg.cols) < 0.15)
+		continue;
+
+		valid_ids.push_back(rank_ids[i]);
+		}*/
+
 		res.clear();
 		res.reserve(topK);
-		for (int i=0; i<MIN(topK, rank_ids.size()); i++)
-		{
-			res.push_back(init_res[rank_ids[i]]);
+		for (int i=0; i<MIN(topK, rank_ids.size()); i++) {
+			res.push_back(res_sps[rank_ids[i]]);
 		}
 
 		return true;

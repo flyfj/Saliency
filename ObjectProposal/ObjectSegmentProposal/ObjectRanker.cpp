@@ -23,6 +23,8 @@ namespace visualsearch
 			{
 				if(rtype == SEG_RANK_CC)
 					return RankSegmentsByCC(cimg, sps, orded_sp_ids);
+				if(rtype == SEG_RANK_SALIENCY)
+					return RankSegmentsBySaliency(cimg, dmap, sps, orded_sp_ids);
 
 				return true;
 			}
@@ -44,6 +46,31 @@ namespace visualsearch
 					pi!=win_scores.end(); pi++)
 				{
 					ordered_win_ids.push_back(pi->second);
+				}
+
+				return true;
+			}
+
+			bool ObjectRanker::RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids)
+			{
+				// compute saliency map
+				Mat sal_map;
+				salcomputer.ComputeSaliencyMap(cimg, SAL_HC, sal_map);
+				imshow("salmap", sal_map);
+
+				// compute saliency score for each superpixel
+				map<float, int, greater<float>> sp_scores;
+				for (size_t i=0; i<sps.size(); i++)
+				{
+					float objscore = cv::mean(sal_map, sps[i].mask).val[0];
+					//float contextscore = 
+					sp_scores[objscore] = i;
+				}
+
+				orded_sp_ids.clear();
+				orded_sp_ids.reserve(sp_scores.size());
+				for (auto pi=sp_scores.begin(); pi!=sp_scores.end(); pi++) {
+					orded_sp_ids.push_back(pi->second);
 				}
 
 				return true;

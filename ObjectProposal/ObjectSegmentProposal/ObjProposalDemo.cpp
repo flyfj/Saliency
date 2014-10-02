@@ -69,38 +69,18 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 {
 	// resize image
 	Size newsz;
-	visualsearch::common::tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+	visualsearch::common::tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 320, newsz);
 	resize(cimg, cimg, newsz);
-	if(!dmap.empty())
-		resize(dmap, dmap, newsz);
+	if(!dmap.empty()) resize(dmap, dmap, newsz);
 
+	// propose
 	vector<SuperPixel> sps;
-	iterSegmentor.verbose = false;
-	//iterSegmentor.verbose = true;
-	iterSegmentor.Init(cimg, dmap);
-	iterSegmentor.Run();
-	sps = iterSegmentor.sps;
-
-	// rank
-	vector<ImgWin> objwins;
-	for (size_t i=0; i<sps.size(); i++)
-	{
-		ImgWin curwin = ImgWin(sps[i].box.x, sps[i].box.y, sps[i].box.width, sps[i].box.height);
-		if(curwin.area()*1.0f / (cimg.rows*cimg.cols) < 0.15)
-			continue;
-
-		objwins.push_back(curwin);
-	}
-	vector<int> sorted_ids;
-	ranker.RankWindowsBySaliency(cimg, objwins, sorted_ids);
-
-	// nms
-	vector<ImgWin> drawwins = visualsearch::processors::nms(objwins, 0.7f);
-	drawwins.resize(MIN(drawwins.size(), 10));
+	seg_proposal.Run(cimg, dmap, 10, sps);
 	
-	// output
+	// display results
 	Mat oimg;
-	char str[30];
+	imgvis.DrawShapes(cimg, sps);
+	/*char str[30];
 	sprintf_s(str, "%d_0.jpg", frameid);
 	imwrite(DATADIR + string(str), cimg);
 	imgvis.DrawWinsOnImg("input", cimg, drawwins, oimg);
@@ -109,7 +89,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 	imwrite(DATADIR + string(str), oimg);
 	imgvis.DrawCroppedWins("obj", cimg, drawwins, 5, oimg);
 	sprintf_s(str, "%d_2.jpg", frameid);
-	imwrite(DATADIR + string(str), oimg);
+	imwrite(DATADIR + string(str), oimg);*/
 	
 	// check lock file
 	/*string lockfn = DATADIR + "demo.lock";
@@ -118,17 +98,17 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 		return true;*/
 
 	// save object
-	for (size_t i=0; i<drawwins.size(); i++)
-	{
-		// color
-		sprintf_s(str, "obj_%d_%d_c.png", frameid, i);
-		imwrite(DATADIR+string(str), cimg(drawwins[i]));
-		if( dmap.empty() )
-			continue;
-		// depth
-		sprintf_s(str, "obj_%d_%d_d.png", frameid, i);
-		imwrite(DATADIR+string(str), dmap(drawwins[i]));
-	}
+	//for (size_t i=0; i<drawwins.size(); i++)
+	//{
+	//	// color
+	//	sprintf_s(str, "obj_%d_%d_c.png", frameid, i);
+	//	imwrite(DATADIR+string(str), cimg(drawwins[i]));
+	//	if( dmap.empty() )
+	//		continue;
+	//	// depth
+	//	sprintf_s(str, "obj_%d_%d_d.png", frameid, i);
+	//	imwrite(DATADIR+string(str), dmap(drawwins[i]));
+	//}
 
 	// write lock file
 	/*ofstream out(lockfn);
