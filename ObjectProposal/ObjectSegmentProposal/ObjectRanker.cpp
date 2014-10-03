@@ -51,6 +51,8 @@ namespace visualsearch
 				return true;
 			}
 
+			// use saliency map to find the best salient segments
+			// multi-scale contrast is used to filter  
 			bool ObjectRanker::RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids)
 			{
 				// compute saliency map
@@ -60,11 +62,23 @@ namespace visualsearch
 
 				// compute saliency score for each superpixel
 				map<float, int, greater<float>> sp_scores;
+				float context_ratios[3] = {1, 1.2, 1.3};
 				for (size_t i=0; i<sps.size(); i++)
 				{
-					float objscore = cv::mean(sal_map, sps[i].mask).val[0];
-					//float contextscore = 
-					sp_scores[objscore] = i;
+					float mean_obj_score = cv::mean(sal_map, sps[i].mask).val[0];
+					float sum_obj_score = mean_obj_score * sps[i].area;
+					float sum_context_score = 0;
+					float context_scores[3];
+					for(int k=0; k<3; k++) { 
+						ImgWin context_win = tools::ToolFactory::GetContextWin(cimg.cols, cimg.rows, sps[i].box, context_ratios[k]);
+						//cout<<context_win<<endl;
+						context_scores[k] = (cv::mean(sal_map(context_win)).val[0]*context_win.area() - sum_obj_score) / (context_win.area()-sps[i].area);
+						sum_context_score += context_scores[k];
+					}
+					
+					float total_diff = fabs(sum_context_score - 3*mean_obj_score) / 3;
+					total_diff = total_diff * mean_obj_score * (sps[i].area / sps[i].box.area());
+					sp_scores[total_diff] = i;
 				}
 
 				orded_sp_ids.clear();

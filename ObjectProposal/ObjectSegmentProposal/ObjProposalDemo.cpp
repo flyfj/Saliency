@@ -75,7 +75,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 
 	// propose
 	vector<SuperPixel> sps;
-	seg_proposal.Run(cimg, dmap, 10, sps);
+	seg_proposal.Run(cimg, dmap, 5, sps);
 	
 	// display results
 	Mat oimg;
