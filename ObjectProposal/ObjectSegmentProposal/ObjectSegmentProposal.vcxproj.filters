@@ -13,9 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="DataManager">
-      <UniqueIdentifier>{ef75734e-85ec-467f-aca1-6b0ad32b0ef5}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Library">
       <UniqueIdentifier>{ba53245a-f7a7-4727-89f2-11f1374b3999}</UniqueIdentifier>
     </Filter>
@@ -32,12 +29,6 @@
   <ItemGroup>
     <ClInclude Include="targetver.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\DataManager\DataManagerInterface.h">
-      <Filter>DataManager</Filter>
-    </ClInclude>
-    <ClInclude Include="..\Shared\DataManager\NYUDepth2DataMan.h">
-      <Filter>DataManager</Filter>
     </ClInclude>
     <ClInclude Include="ObjSegmentProposal.h">
       <Filter>Header Files</Filter>
@@ -100,9 +91,6 @@
   <ItemGroup>
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\Shared\DataManager\NYUDepth2DataMan.cpp">
-      <Filter>DataManager</Filter>
     </ClCompile>
     <ClCompile Include="ObjSegmentProposal.cpp">
       <Filter>Source Files</Filter>
