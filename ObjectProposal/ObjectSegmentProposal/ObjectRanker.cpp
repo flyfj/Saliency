@@ -381,7 +381,7 @@ namespace visualsearch
 
 				db_man->GetImageList(imgfiles);
 				db_man->GetDepthmapList(dmapfiles);
-				imgfiles.erase(imgfiles.begin()+50, imgfiles.end());
+				imgfiles.erase(imgfiles.begin()+200, imgfiles.end());
 				db_man->LoadGTMasks(imgfiles, objmasks);
 
 				Mat possamps, negsamps;

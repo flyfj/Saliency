@@ -8,6 +8,9 @@ SelectiveSearchCodeIJCV/
 *.mat
 *.txt
 *.mexw64
+*.jpg
+*.png
+*.dat
 
 #################
 ## Eclipse
