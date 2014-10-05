@@ -1,5 +1,6 @@
 #include "ObjectRanker.h"
 
+
 namespace visualsearch
 {
 	namespace processors
@@ -13,6 +14,8 @@ namespace visualsearch
 				cparams.histParams.color_space = features::color::COLOR_LAB;
 				colordesc.Init(cparams);
 
+				features::DepthFeatParams dparams;
+				dparams.dtype = DEPTH_FEAT_HIST;
 
 
 			}
@@ -36,7 +39,7 @@ namespace visualsearch
 				ComputeWindowRankFeatures(cimg, Mat(), wins, feats);
 				for (size_t i=0; i<wins.size(); i++)
 				{
-					wins[i].score = sum(feats[i]).val[0]/feats[i].cols;
+					wins[i].score = (float)sum(feats[i]).val[0] / feats[i].cols;
 					win_scores[wins[i].score] = i;
 				}
 
@@ -62,10 +65,10 @@ namespace visualsearch
 
 				// compute saliency score for each superpixel
 				map<float, int, greater<float>> sp_scores;
-				float context_ratios[3] = {1, 1.2, 1.3};
+				float context_ratios[3] = {1.0, 1.2, 1.3};
 				for (size_t i=0; i<sps.size(); i++)
 				{
-					float mean_obj_score = cv::mean(sal_map, sps[i].mask).val[0];
+					float mean_obj_score = (float)cv::mean(sal_map, sps[i].mask).val[0];
 					float sum_obj_score = mean_obj_score * sps[i].area;
 					float sum_context_score = 0;
 					float context_scores[3];
@@ -95,7 +98,7 @@ namespace visualsearch
 				map<float, int, greater<float>> sp_scores;
 				for (size_t i=0; i<sps.size(); i++)
 				{
-					float curscore = ComputeCenterSurroundColorContrast(cimg, sps[i]);
+					float curscore = cs_contraster.ComputeContrast(cimg, Mat(), sps[i], FEAT_TYPE_COLOR, 1.2);
 					sp_scores[curscore] = i;
 				}
 
@@ -115,16 +118,32 @@ namespace visualsearch
 				vector<float> vals;
 				// geometric features
 				segprocessor.ExtractBasicSegmentFeatures(sp, cimg, dmap);
-				vals.push_back(sp.area / (sp.mask.rows*sp.mask.cols));	// area percentage
+				//vector<SuperPixel> sps;
+				//sps.push_back(sp);
+				//img_vis_.DrawShapes(cimg, sps);
+				//waitKey(0);
+				vals.push_back((float)sp.area / (sp.mask.rows*sp.mask.cols));	// area percentage
 				vals.push_back(sp.isConvex);
-				vals.push_back(sp.meanDepth);
-				vals.push_back(sp.area / sp.box.area());	// segment /box ratio
-				vals.push_back(sp.perimeter / (2*(sp.box.width+sp.box.height)));	// segment perimeter / box perimeter ratio
-				vals.push_back(sp.centroid.x / cimg.cols);
-				vals.push_back(sp.centroid.y / cimg.rows);	// relative position in image
+				vals.push_back((float)sp.area / sp.box.area());	// segment / box ratio
+				vals.push_back((float)sp.perimeter / (2*(sp.box.width+sp.box.height)));	// segment perimeter / box perimeter ratio
+				vals.push_back((float)sp.centroid.x / cimg.cols);
+				vals.push_back((float)sp.centroid.y / cimg.rows);	// normalized position in image
 
 				// saliency features
+				vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.0) );
+				vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.2) );
+				vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.5) );
+				// TODO: use saliency composition cost
 
+				// depth: depth contrast
+				if( !dmap.empty() ) {
+					vals.push_back( cs_contraster.ComputeContrast(cimg, dmap, sp, FEAT_TYPE_DEPTH, 1.0) );
+					vals.push_back( cs_contraster.ComputeContrast(cimg, dmap, sp, FEAT_TYPE_DEPTH, 1.2) );
+					vals.push_back( cs_contraster.ComputeContrast(cimg, dmap, sp, FEAT_TYPE_DEPTH, 1.5) );
+					// TODO: use depth composition cost
+
+					// 3D
+				}
 
 				// convert to mat
 				feat.create(1, vals.size(), CV_32F);
@@ -168,30 +187,6 @@ namespace visualsearch
 				return true;
 			}
 
-			float ObjectRanker::ComputeCenterSurroundColorContrast(const Mat& cimg, const SuperPixel& sp)
-			{
-				// ignore object bigger than half the image
-				if(sp.box.area() > cimg.rows*cimg.cols*0.5f)
-					return 0;
-
-				// context window
-				ImgWin spbox(sp.box.x, sp.box.y, sp.box.width, sp.box.height);
-				ImgWin contextWin = tools::ToolFactory::GetContextWin(cimg.cols, cimg.rows, spbox, 1.5);
-				Mat contextMask(cimg.rows, cimg.cols, CV_8U);
-				contextMask.setTo(0);
-				contextMask(contextWin).setTo(1);
-				contextMask.setTo(0, sp.mask);
-
-				// compute color descriptors
-				Mat contextColor;
-				Mat spColor;
-				colordesc.Compute(cimg, contextColor, contextMask);
-				colordesc.Compute(cimg, spColor, sp.mask);
-
-				float score = norm(contextColor, spColor, NORM_L2);
-				return score;
-			}
-
 			//////////////////////////////////////////////////////////////////////////
 
 			bool ObjectRanker::LearnObjectPredictor()
@@ -199,7 +194,7 @@ namespace visualsearch
 				// train svm
 				CvSVM model;
 				SVMParams params;
-				rank_train_label = rank_train_label * 2 - 1;	// transform label to be -1 and 1
+				//rank_train_label = rank_train_label * 2 - 1;	// transform label to be -1 and 1
 				//model.train_auto(rank_train_data, rank_train_label, Mat(), Mat(), params);
 
 				// save
@@ -211,6 +206,7 @@ namespace visualsearch
 
 				rfparams.tree_params.feat_type = learners::trees::DTREE_FEAT_LINEAR;
 				rfparams.num_trees = 5;
+				rfparams.tree_params.min_samp_num = 10;
 				rfparams.tree_params.MaxLevel = 8;
 				rfparams.tree_params.feature_num = 200;
 				rfparams.tree_params.th_num = 50;
@@ -234,7 +230,8 @@ namespace visualsearch
 					pred_scores.at<float>(0) = -res;*/
 				}
 				visualsearch::learners::LearnerTools learn_tool;
-				learn_tool.ClassificationAccuracy((rank_test_label+1)/2, pred_scores, 1);
+				float acc = learn_tool.ClassificationAccuracy(rank_test_label, pred_scores, 1);
+				cout<<"Accuracy: "<<acc<<endl;
 
 				return true;
 			}
@@ -360,8 +357,6 @@ namespace visualsearch
 
 			}
 
-			//////////////////////////////////////////////////////////////////////////
-
 			// positive samples: gt object and its variants
 			// negative samples: random segments having low overlap with gt objects
 			bool ObjectRanker::PrepareRankTrainData(DatasetName dbs)
@@ -377,16 +372,16 @@ namespace visualsearch
 
 				// generate training samples from given database
 				FileInfos imgfiles, dmapfiles;
-				std::shared_ptr<DataManagerInterface> db_man = NULL;
+				DataManagerInterface* db_man = NULL;
 				map<string, vector<Mat>> objmasks;
 				if( (dbs & DB_NYU2_RGBD) != 0 )
-					db_man = std::shared_ptr<NYUDepth2DataMan>();
+					db_man = new NYUDepth2DataMan();
 				if( (dbs & DB_SALIENCY_RGBD) != 0 )
-					db_man = std::shared_ptr<RGBDECCV14>();
+					db_man = new RGBDECCV14();
 
 				db_man->GetImageList(imgfiles);
 				db_man->GetDepthmapList(dmapfiles);
-				imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
+				imgfiles.erase(imgfiles.begin()+50, imgfiles.end());
 				db_man->LoadGTMasks(imgfiles, objmasks);
 
 				Mat possamps, negsamps;
@@ -395,7 +390,8 @@ namespace visualsearch
 					Mat cimg = imread(imgfiles[i].filepath);
 					Mat dmap;
 					db_man->LoadDepthData(dmapfiles[i].filepath, dmap);
-
+					img_vis_.DrawFloatImg("dmap", dmap, Mat());
+					
 					const vector<Mat> masks = objmasks[imgfiles[i].filename];
 					// positive sample: object segments
 					for (size_t k=0; k<masks.size(); k++) {
@@ -437,6 +433,39 @@ namespace visualsearch
 
 					cout<<"Finished "<<i<<"/"<<imgfiles.size()<<" image"<<endl;
 				}
+
+				// divide into train and test data with 3:7
+				rank_train_data.release();
+				rank_test_data.release();
+				rank_train_label.release();
+				rank_test_label.release();
+				for (int r=0; r<possamps.rows; r++)
+				{
+					if(r<possamps.rows*0.8) {
+						rank_train_data.push_back(possamps.row(r));
+						rank_train_label.push_back(1);
+					}
+					else {
+						rank_test_data.push_back(possamps.row(r));
+						rank_test_label.push_back(1);
+					}
+				}
+				for (int r=0; r<negsamps.rows; r++)
+				{
+					if(r<negsamps.rows*0.8) {
+						rank_train_data.push_back(negsamps.row(r));
+						rank_train_label.push_back(0);
+					}
+					else {
+						rank_test_data.push_back(negsamps.row(r));
+						rank_test_label.push_back(0);
+					}
+				}
+
+				cout<<"Rank training data ready."<<endl;
+
+				delete db_man;
+				db_man = NULL;
 
 				return true;
 			}

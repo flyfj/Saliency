@@ -2,14 +2,15 @@
 
 #pragma once
 
-#include "ObjectRanker.h"
+
 #include "Common/common_libs.h"
 #include "IO/Camera/KinectDataMan.h"
 #include "IO/Camera/OpenCVCameraIO.hpp"
 #include "Processors/Attention/BingObjectness.h"
 #include "Common/tools/ImgVisualizer.h"
-#include "Processors/nms.h"
+#include "Processors/nms.hpp"
 #include "ObjSegmentProposal.h"
+#include "ObjectRanker.h"
 
 //////////////////////////////////////////////////////////////////////////
 // general video demo components

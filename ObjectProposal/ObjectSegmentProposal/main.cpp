@@ -7,7 +7,7 @@
 #include "ObjProposalDemo.h"
 #include "Common/Tools/RGBDTools.h"
 #include "Processors/Segmentation/IterativeSegmentor.h"
-
+#include "Tester.hpp"
 
 // link
 // libs
@@ -35,6 +35,11 @@
 
 int main()
 {
+	ObjectProposalTester tester;
+	tester.TestRankerLearner();
+	getchar();
+	return 0;
+
 	Mat dmap, cimg;
 	visualsearch::common::tools::RGBDTools rgbdtool;
 	objectproposal::ObjSegmentProposal prop;

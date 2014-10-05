@@ -87,6 +87,9 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.h">
       <Filter>Library\segmentation</Filter>
     </ClInclude>
+    <ClInclude Include="Tester.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -201,6 +204,15 @@
       <Filter>Library\others</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\NYUDepth2DataMan.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\RGBDECCV14.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\LearnerTools.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\CenterSurroundFeatureContraster.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
   </ItemGroup>

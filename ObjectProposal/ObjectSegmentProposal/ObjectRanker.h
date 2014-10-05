@@ -10,15 +10,17 @@
 
 #include "Common/common_libs.h"
 #include "Common/tools/Tools.h"
+#include "Common/tools/ImgVisualizer.h"
 #include "Processors/Segmentation/ImageSegmentor.h"
 #include "Features/Color/ColorDescriptors.h"
 #include "Features/DepthDescriptors.h"
 #include "IO/Dataset/NYUDepth2DataMan.h"
-#include "IO/Dataset/RGBDECCV14.hpp"
+#include "IO/Dataset/RGBDECCV14.h"
 #include "Processors/Segmentation/SegmentProcessor.h"
 #include "Processors/Attention/SaliencyComputer.h"
+#include "Processors/Attention/CenterSurroundFeatureContraster.h"
 #include "Processors/ShapeAnalyzer.h"
-#include "Learners/LearnerTools.hpp"
+#include "Learners/LearnerTools.h"
 #include "Learners/RandomTrees/RandomForest.h"
 
 
@@ -43,6 +45,7 @@ namespace visualsearch {
 				ObjectRanker(void);
 
 				// classifier if a superpixel is an object based a set of features
+				bool PrepareRankTrainData(DatasetName dbs);
 				bool LearnObjectPredictor();
 				bool LearnObjectWindowPredictor();
 
@@ -54,8 +57,6 @@ namespace visualsearch {
 
 			private:
 				// hand-craft rank methods
-				float ComputeCenterSurroundColorContrast(const Mat& cimg, const SuperPixel& sp);
-
 				bool RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids);
 
 				bool RankSegmentsByCC(const Mat& cimg, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids);
@@ -65,14 +66,15 @@ namespace visualsearch {
 				bool ComputeSegmentRankFeature(const Mat& cimg, const Mat& dmap, SuperPixel& sp, Mat& feat);
 
 				bool ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, vector<ImgWin>& wins, vector<Mat>& feats);
-
-				//////////////////////////////////////////////////////////////////////////
-				bool PrepareRankTrainData(DatasetName dbs);
+				
 
 				//////////////////////////////////////////////////////////////////////////
 				processors::segmentation::SegmentProcessor segprocessor;
 				features::color::ColorDescriptors colordesc;
+				features::DepthDescriptors depth_desc_;
 				SaliencyComputer salcomputer;
+				CenterSurroundFeatureContraster cs_contraster;
+				common::tools::ImgVisualizer img_vis_;
 
 				Mat rank_train_data, rank_train_label;
 				Mat rank_test_data, rank_test_label;
