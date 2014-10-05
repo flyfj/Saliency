@@ -8,6 +8,31 @@
 #include "Common/Tools/RGBDTools.h"
 #include "Processors/Segmentation/IterativeSegmentor.h"
 
+
+// link
+// libs
+#ifdef _DEBUG
+#pragma comment(lib, "opencv_core249d.lib")
+#pragma comment(lib, "opencv_imgproc249d.lib")
+#pragma comment(lib, "opencv_highgui249d.lib")
+#pragma comment(lib, "opencv_ml249d.lib")
+#pragma comment(lib, "opencv_features2d249d.lib")
+#pragma comment(lib, "opencv_nonfree249d.lib")
+#pragma comment(lib, "opencv_objdetect249d.lib")
+#pragma comment(lib, "opencv_flann249d.lib")
+#else
+#pragma comment(lib, "opencv_core249.lib")
+#pragma comment(lib, "opencv_imgproc249.lib")
+#pragma comment(lib, "opencv_highgui249.lib")
+#pragma comment(lib, "opencv_ml249.lib")
+#pragma comment(lib, "opencv_features2d249.lib")
+#pragma comment(lib, "opencv_nonfree249.lib")
+#pragma comment(lib, "opencv_objdetect249.lib")
+#pragma comment(lib, "opencv_flann249.lib")
+#endif
+
+
+
 int main()
 {
 	Mat dmap, cimg;

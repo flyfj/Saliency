@@ -192,113 +192,49 @@ namespace visualsearch
 				return score;
 			}
 
-			bool ObjectRanker::LearnObjectPredictorFromNYUDepth()
+			//////////////////////////////////////////////////////////////////////////
+
+			bool ObjectRanker::LearnObjectPredictor()
 			{
-				string temp_dir = "E:\\Results\\objectness\\";	// save intermediate results
-				char str[50];
-
-				ImageSegmentor imgsegmentor;
-				vector<float> seg_ths(3);
-				seg_ths[0] = 50;
-				seg_ths[1] = 100;
-				seg_ths[2] = 200;
-
-				// generate training samples from nyudata
-				NYUDepth2DataMan nyuman;
-				FileInfos imgfiles, dmapfiles;
-				nyuman.GetImageList(imgfiles);
-				nyuman.GetDepthmapList(dmapfiles);
-				map<string, vector<Mat>> objmasks;
-				imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
-				nyuman.LoadGTMasks(imgfiles, objmasks);
-
-				// positive sample: object segments
-				Mat possamps, negsamps;
-				for(size_t i=0; i<imgfiles.size(); i++)
-				{
-					Mat cimg = imread(imgfiles[i].filepath);
-					Mat dmap;
-					nyuman.LoadDepthData(dmapfiles[i].filepath, dmap);
-
-					const vector<Mat> masks = objmasks[imgfiles[i].filename];
-					for (size_t k=0; k<masks.size(); k++)
-					{
-						SuperPixel cursegment;
-						cursegment.mask = masks[k];
-						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
-						//imwrite(temp_dir + string(str), cursegment.mask*255);
-						Mat curposfeat;
-						ComputeSegmentRankFeature(cimg, dmap, cursegment, curposfeat);
-						possamps.push_back(curposfeat);
-					}
-
-					// negative samples: random segments don't overlap with objects
-					for (size_t k=0; k<seg_ths.size(); k++)
-					{
-						imgsegmentor.m_dThresholdK = seg_ths[k];
-						imgsegmentor.DoSegmentation(cimg);
-						vector<SuperPixel>& tsps = imgsegmentor.superPixels;
-						// randomly select 3x samples for every segment level
-						int sumnum = 0;
-						while(sumnum < masks.size())
-						{
-							int sel_id = rand() % imgsegmentor.superPixels.size();
-							bool isvalid = true;
-							for (size_t j=0; j<masks.size(); j++)
-							{
-								Mat intersectMask = masks[j] & tsps[sel_id].mask;
-								if( countNonZero(intersectMask) / countNonZero(masks[j]) > 0.3 )
-								{
-									isvalid = false;
-									break;
-								}
-							}
-							// pass all tests
-							sprintf_s(str, "%d_negseg_%d.jpg", i, sumnum);
-							//imwrite(temp_dir + string(str), tsps[sel_id].mask*255);
-							Mat curnegfeat;
-							ComputeSegmentRankFeature(cimg, dmap, tsps[sel_id], curnegfeat);
-							negsamps.push_back(curnegfeat);
-							sumnum++;
-						}
-					}
-
-					cout<<"Finished "<<i<<"/"<<imgfiles.size()<<" image"<<endl;
-				}
-
 				// train svm
 				CvSVM model;
-				Mat responses(1, possamps.rows+negsamps.rows, CV_32S);
-				for(int r=0; r<possamps.rows; r++) responses.at<int>(r) = 1;
-				for(int r=possamps.rows; r<responses.cols; r++) responses.at<int>(r) = -1;
-				Mat allsamps;
-				allsamps.push_back(possamps);
-				allsamps.push_back(negsamps);
-
-				SVMParams params;	
-				model.train_auto(allsamps, responses, Mat(), Mat(), params);
+				SVMParams params;
+				rank_train_label = rank_train_label * 2 - 1;	// transform label to be -1 and 1
+				//model.train_auto(rank_train_data, rank_train_label, Mat(), Mat(), params);
 
 				// save
-				model.save("svm.model");
+				//model.save("svm.model");
+
+				// dtrees
+				learners::trees::RandomForest rforest;
+				learners::trees::RForestTrainingParams rfparams;
+
+				rfparams.tree_params.feat_type = learners::trees::DTREE_FEAT_LINEAR;
+				rfparams.num_trees = 5;
+				rfparams.tree_params.MaxLevel = 8;
+				rfparams.tree_params.feature_num = 200;
+				rfparams.tree_params.th_num = 50;
+
+				rforest.Train(rank_train_data, rank_train_label, rfparams);
+				rforest.Save("forest_ranker.dat");
+				//rforest.EvaluateRandomForest(rank_test_data, rank_test_label, 2);
 
 				// training performance
-				float pos_corr = 0;
-				for (int r=0; r<possamps.rows; r++)
+				Mat pred_scores(rank_test_data.rows, 2, CV_32F);
+				pred_scores.setTo(0);
+				for (int r=0; r<rank_test_data.rows; r++)
 				{
-					float res = model.predict(possamps.row(r));
-					if(res > 0)
-						pos_corr++;
+					vector<double> scores;
+					rforest.ForestPredict(rank_test_data.row(r), scores);
+					for(size_t i=0; i<scores.size(); i++) pred_scores.at<float>(r, i) = (float)scores[i];
+					/*float res = model.predict(rank_test_data.row(r));
+					if(res > 0) 
+					pred_scores.at<float>(1) = res;
+					else 
+					pred_scores.at<float>(0) = -res;*/
 				}
-				float neg_corr = 0;
-				for (int r=0; r<negsamps.rows; r++)
-				{
-					float res = model.predict(negsamps.row(r));
-					if(res < 0)
-						neg_corr++;
-				}
-				cout<<"Pos accu: "<<pos_corr / possamps.rows<<endl;
-				cout<<"Neg accu: "<<neg_corr / negsamps.rows<<endl;
-				cout<<"total accu: "<<(pos_corr+neg_corr) / (possamps.rows + negsamps.rows)<<endl;
+				visualsearch::learners::LearnerTools learn_tool;
+				learn_tool.ClassificationAccuracy((rank_test_label+1)/2, pred_scores, 1);
 
 				return true;
 			}
@@ -422,6 +358,87 @@ namespace visualsearch
 
 				return true;
 
+			}
+
+			//////////////////////////////////////////////////////////////////////////
+
+			// positive samples: gt object and its variants
+			// negative samples: random segments having low overlap with gt objects
+			bool ObjectRanker::PrepareRankTrainData(DatasetName dbs)
+			{
+				string temp_dir = "E:\\Results\\objectness\\";	// save intermediate results
+				char str[50];
+
+				ImageSegmentor imgsegmentor;
+				vector<float> seg_ths(3);
+				seg_ths[0] = 50;
+				seg_ths[1] = 100;
+				seg_ths[2] = 200;
+
+				// generate training samples from given database
+				FileInfos imgfiles, dmapfiles;
+				std::shared_ptr<DataManagerInterface> db_man = NULL;
+				map<string, vector<Mat>> objmasks;
+				if( (dbs & DB_NYU2_RGBD) != 0 )
+					db_man = std::shared_ptr<NYUDepth2DataMan>();
+				if( (dbs & DB_SALIENCY_RGBD) != 0 )
+					db_man = std::shared_ptr<RGBDECCV14>();
+
+				db_man->GetImageList(imgfiles);
+				db_man->GetDepthmapList(dmapfiles);
+				imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
+				db_man->LoadGTMasks(imgfiles, objmasks);
+
+				Mat possamps, negsamps;
+				for(size_t i=0; i<imgfiles.size(); i++)
+				{
+					Mat cimg = imread(imgfiles[i].filepath);
+					Mat dmap;
+					db_man->LoadDepthData(dmapfiles[i].filepath, dmap);
+
+					const vector<Mat> masks = objmasks[imgfiles[i].filename];
+					// positive sample: object segments
+					for (size_t k=0; k<masks.size(); k++) {
+						SuperPixel cursegment;
+						cursegment.mask = masks[k];
+						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
+						//imwrite(temp_dir + string(str), cursegment.mask*255);
+						Mat curposfeat;
+						ComputeSegmentRankFeature(cimg, dmap, cursegment, curposfeat);
+						possamps.push_back(curposfeat);
+					}
+
+					// negative samples: random segments don't overlap with objects
+					for (size_t k=0; k<seg_ths.size(); k++) {
+						imgsegmentor.m_dThresholdK = seg_ths[k];
+						imgsegmentor.DoSegmentation(cimg);
+						vector<SuperPixel>& tsps = imgsegmentor.superPixels;
+						// randomly select 3x samples for every segment level
+						int sumnum = 0;
+						while(sumnum < masks.size()) {
+							int sel_id = rand() % imgsegmentor.superPixels.size();
+							bool isvalid = true;
+							for (size_t j=0; j<masks.size(); j++) {
+								Mat intersectMask = masks[j] & tsps[sel_id].mask;
+								if( countNonZero(intersectMask) / countNonZero(masks[j]) > 0.3 ) {
+									isvalid = false;
+									break;
+								}
+							}
+							// pass all tests
+							sprintf_s(str, "%d_negseg_%d.jpg", i, sumnum);
+							//imwrite(temp_dir + string(str), tsps[sel_id].mask*255);
+							Mat curnegfeat;
+							ComputeSegmentRankFeature(cimg, dmap, tsps[sel_id], curnegfeat);
+							negsamps.push_back(curnegfeat);
+							sumnum++;
+						}
+					}
+
+					cout<<"Finished "<<i<<"/"<<imgfiles.size()<<" image"<<endl;
+				}
+
+				return true;
 			}
 		}
 	}
