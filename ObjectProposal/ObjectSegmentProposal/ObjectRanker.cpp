@@ -16,8 +16,6 @@ namespace visualsearch
 
 				features::DepthFeatParams dparams;
 				dparams.dtype = DEPTH_FEAT_HIST;
-
-
 			}
 
 			//////////////////////////////////////////////////////////////////////////
@@ -64,8 +62,10 @@ namespace visualsearch
 
 					// compute composition cost for each superpixel
 					ImageSegmentor segmentor;
-					segmentor.m_dThresholdK = 40;
-					segmentor.DoSegmentation(cimg);
+					segmentor.m_dThresholdK = 30;
+					cout<<"seg num "<<segmentor.DoSegmentation(cimg)<<endl;
+					imshow("baseseg", segmentor.m_segImg);
+					waitKey(0);
 					for(size_t i=0; i<segmentor.superPixels.size(); i++) 
 						segprocessor.ExtractBasicSegmentFeatures(segmentor.superPixels[i], cimg, dmap);
 

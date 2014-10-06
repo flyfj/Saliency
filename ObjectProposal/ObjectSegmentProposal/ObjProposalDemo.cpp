@@ -4,14 +4,14 @@
 ObjProposalDemo::ObjProposalDemo()
 {
 	frameid = 0;
-	DATADIR = "e:\\searchdemo\\";
+	DATADIR = "e:\\res\\kinectvideos\\1\\";
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 {
-	
+	bool tosave = true;
 	visualsearch::io::camera::OpenCVCameraIO cam;
 	if(stype == SENSOR_CAMERA)
 	{
@@ -28,6 +28,7 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 	//if( !kinectDM.InitKinect() )
 	//return false;
 
+	char str[100];
 	frameid = 0;
 
 	while(1)
@@ -43,11 +44,18 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 		}
 
 		// downsample cimg to have same size as dmap
-		resize(cimg, cimg, Size(cimg.cols/2, cimg.rows/2));
+		//resize(cimg, cimg, Size(cimg.cols/2, cimg.rows/2));
 		// show input
 		imshow("color", cimg);
 		imshow("depth", dmap);
 		//imgvis.DrawFloatImg("depth", dmap, Mat());
+
+		if(tosave) {
+			sprintf_s(str, "frame_%d.jpg", frameid);
+			imwrite(DATADIR+string(str), cimg);
+			sprintf_s(str, "frame_%d_d.png", frameid);
+			imwrite(DATADIR+string(str), dmap);
+		}
 		
 		frameid++;
 
@@ -57,6 +65,8 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 			RunObjSegProposal(cimg, dmap);
 		if(dtype == DEMO_SAL)
 			RunSaliency(cimg, dmap, visualsearch::processors::attention::SAL_HC);
+
+
 
 		if( waitKey(10) == 'q' )
 			break;
