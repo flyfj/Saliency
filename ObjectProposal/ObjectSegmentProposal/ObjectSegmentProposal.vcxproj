@@ -107,7 +107,7 @@
     <ClInclude Include="ObjSegmentProposal.h" />
     <ClInclude Include="ObjectRanker.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Tester.hpp" />
+    <ClInclude Include="Tester.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\ImgVisualizer.cpp" />
@@ -139,6 +139,8 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\FilterTIG.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\Objectness.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\CenterSurroundFeatureContraster.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Composition\SalientRGBDRegionDetector.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Composition\SegmentBasedWindowComposer.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Geodesic\BGMapExtractor_Grid.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Geodesic\GeodesicSaliencyDetector.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\GlobalContrastSaliency.cpp" />
@@ -151,6 +153,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjSegmentProposal.cpp" />
     <ClCompile Include="ObjectRanker.cpp" />
+    <ClCompile Include="Tester.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

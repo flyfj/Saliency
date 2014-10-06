@@ -87,7 +87,7 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.h">
       <Filter>Library\segmentation</Filter>
     </ClInclude>
-    <ClInclude Include="Tester.hpp">
+    <ClInclude Include="Tester.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -213,6 +213,15 @@
       <Filter>Library\others</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\CenterSurroundFeatureContraster.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Composition\SalientRGBDRegionDetector.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="Tester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Composition\SegmentBasedWindowComposer.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
   </ItemGroup>

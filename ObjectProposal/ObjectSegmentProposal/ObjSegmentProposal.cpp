@@ -66,7 +66,6 @@ namespace objectproposal
 		iter_segmentor.verbose = false;
 		iter_segmentor.Run();
 		const vector<SuperPixel>& res_sps = iter_segmentor.sps;
-
 		// rank
 		cout<<"Ranking segments..."<<endl;
 		vector<int> rank_ids;

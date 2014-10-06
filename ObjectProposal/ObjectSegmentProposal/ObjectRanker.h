@@ -17,7 +17,9 @@
 #include "IO/Dataset/NYUDepth2DataMan.h"
 #include "IO/Dataset/RGBDECCV14.h"
 #include "Processors/Segmentation/SegmentProcessor.h"
+#include "Processors/Segmentation/ImageSegmentor.h"
 #include "Processors/Attention/SaliencyComputer.h"
+#include "Processors/Attention/Composition/SalientRGBDRegionDetector.h"
 #include "Processors/Attention/CenterSurroundFeatureContraster.h"
 #include "Processors/ShapeAnalyzer.h"
 #include "Learners/LearnerTools.h"
@@ -73,11 +75,14 @@ namespace visualsearch {
 				features::color::ColorDescriptors colordesc;
 				features::DepthDescriptors depth_desc_;
 				SaliencyComputer salcomputer;
+				SalientRGBDRegionDetector sal_comp_;
 				CenterSurroundFeatureContraster cs_contraster;
 				common::tools::ImgVisualizer img_vis_;
 
 				Mat rank_train_data, rank_train_label;
 				Mat rank_test_data, rank_test_label;
+				Mat debug_img_;		// used to save intermediate or debug results
+				bool test_;
 			};
 		}
 	}

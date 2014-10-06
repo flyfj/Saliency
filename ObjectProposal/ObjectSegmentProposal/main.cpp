@@ -7,7 +7,7 @@
 #include "ObjProposalDemo.h"
 #include "Common/Tools/RGBDTools.h"
 #include "Processors/Segmentation/IterativeSegmentor.h"
-#include "Tester.hpp"
+#include "Tester.h"
 
 // link
 // libs
@@ -35,18 +35,20 @@
 
 int main()
 {
-	ObjectProposalTester tester;
+	/*ObjectProposalTester tester;
 	tester.TestRankerLearner();
 	getchar();
-	return 0;
+	return 0;*/
 
 	Mat dmap, cimg;
 	visualsearch::common::tools::RGBDTools rgbdtool;
 	objectproposal::ObjSegmentProposal prop;
 	visualsearch::processors::segmentation::IterativeSegmentor segmentor;
 	ObjProposalDemo demo;
-
-	demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
+	cimg = imread("E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\3_10-09-52.jpg");
+	demo.RunObjSegProposal(cimg, Mat());
+	waitKey(0);
+	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
 
 	return 0;
 	
