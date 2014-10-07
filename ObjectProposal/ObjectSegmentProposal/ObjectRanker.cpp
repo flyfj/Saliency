@@ -62,7 +62,7 @@ namespace visualsearch
 
 					// compute composition cost for each superpixel
 					ImageSegmentor segmentor;
-					segmentor.m_dThresholdK = 30;
+					segmentor.m_dThresholdK = 25.f;
 					cout<<"seg num "<<segmentor.DoSegmentation(cimg)<<endl;
 					imshow("baseseg", segmentor.m_segImg);
 					waitKey(0);

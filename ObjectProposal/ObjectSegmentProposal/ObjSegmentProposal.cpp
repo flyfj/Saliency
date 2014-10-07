@@ -66,26 +66,35 @@ namespace objectproposal
 		iter_segmentor.verbose = false;
 		iter_segmentor.Run();
 		const vector<SuperPixel>& res_sps = iter_segmentor.sps;
+		cout<<"object candidates: "<<res_sps.size()<<endl;
+
 		// rank
 		cout<<"Ranking segments..."<<endl;
 		vector<int> rank_ids;
 		seg_ranker.RankSegments(cimg, dmap, res_sps, visualsearch::processors::attention::SEG_RANK_SALIENCY, rank_ids);
 
-		// filter very small or big windows
-		cout<<"Filter segments..."<<endl;
-		vector<int> valid_ids;
+		// nms for segments
+		cout<<"Filter overlap segments..."<<endl;
+		vector<bool> valid_seg(rank_ids.size(), true);
 		for (size_t i=0; i<rank_ids.size(); i++) {
-			float obj_img_ratio = res_sps[rank_ids[i]].area*1.0f / (cimg.rows*cimg.cols);
-			if(obj_img_ratio < 0.05 || obj_img_ratio > 0.85)
-				continue;
-
-			valid_ids.push_back(rank_ids[i]);
+			//imshow("rankmask", res_sps[rank_ids[i]].mask*255);
+			//waitKey(0);
+			if( !valid_seg[i] ) continue;
+			for(size_t j=i+1; j<rank_ids.size(); j++) {
+				if( valid_seg[j] && 
+					(float)countNonZero(res_sps[rank_ids[i]].mask & res_sps[rank_ids[j]].mask) / countNonZero(res_sps[rank_ids[i]].mask | res_sps[rank_ids[j]].mask) > 0.8) {
+					valid_seg[j] = false;
+				}
+			}
 		}
 
 		res.clear();
 		res.reserve(topK);
-		for (int i=0; i<MIN(topK, valid_ids.size()); i++) {
-			res.push_back(res_sps[valid_ids[i]]);
+		for (int i=0; i<valid_seg.size(); i++) {
+			if(valid_seg[i])
+				res.push_back(res_sps[rank_ids[i]]);
+			if(res.size() == topK)
+				break;
 		}
 
 		return true;

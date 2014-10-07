@@ -45,8 +45,10 @@ int main()
 	objectproposal::ObjSegmentProposal prop;
 	visualsearch::processors::segmentation::IterativeSegmentor segmentor;
 	ObjProposalDemo demo;
-	cimg = imread("E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\3_10-09-52.jpg");
-	demo.RunObjSegProposal(cimg, Mat());
+	cimg = imread("E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\1_03-14-28.jpg");
+	dmap = imread("E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\1_03-14-28_Depth.png");
+	dmap.convertTo(dmap, CV_32F);
+	demo.RunObjSegProposal(cimg, dmap);
 	waitKey(0);
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
 
