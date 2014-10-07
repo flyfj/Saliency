@@ -14,6 +14,7 @@
 namespace objectproposal
 {
 	using namespace visualsearch::common;
+	using namespace visualsearch::processors::segmentation;
 
 	class ObjSegmentProposal
 	{

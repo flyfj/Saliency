@@ -61,7 +61,8 @@ namespace objectproposal
 	bool ObjSegmentProposal::Run(const Mat& cimg, const Mat& dmap, int topK, vector<SuperPixel>& res)
 	{
 		// get candidates
-		iter_segmentor.merge_feat_types = visualsearch::processors::segmentation::SP_COLOR;
+		iter_segmentor.merge_feat_types = SP_COLOR;
+		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.75f);
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.verbose = false;
 		iter_segmentor.Run();
@@ -77,8 +78,6 @@ namespace objectproposal
 		cout<<"Filter overlap segments..."<<endl;
 		vector<bool> valid_seg(rank_ids.size(), true);
 		for (size_t i=0; i<rank_ids.size(); i++) {
-			//imshow("rankmask", res_sps[rank_ids[i]].mask*255);
-			//waitKey(0);
 			if( !valid_seg[i] ) continue;
 			for(size_t j=i+1; j<rank_ids.size(); j++) {
 				if( valid_seg[j] && 
