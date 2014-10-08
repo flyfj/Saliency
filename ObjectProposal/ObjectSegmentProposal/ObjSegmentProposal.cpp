@@ -61,10 +61,10 @@ namespace objectproposal
 	bool ObjSegmentProposal::Run(const Mat& cimg, const Mat& dmap, int topK, vector<SuperPixel>& res)
 	{
 		// get candidates
-		iter_segmentor.merge_feat_types = SP_3D;
+		iter_segmentor.merge_feat_types = SP_COLOR;
 		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.75f);
 		iter_segmentor.Init(cimg, dmap);
-		iter_segmentor.verbose = false;
+		iter_segmentor.verbose = true;
 		iter_segmentor.Run();
 		const vector<SuperPixel>& res_sps = iter_segmentor.sps;
 		cout<<"object candidates: "<<res_sps.size()<<endl;
