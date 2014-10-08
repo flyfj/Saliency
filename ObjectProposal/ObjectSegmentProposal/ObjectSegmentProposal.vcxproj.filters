@@ -224,5 +224,8 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Composition\SegmentBasedWindowComposer.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.cpp">
+      <Filter>Library\segmentation</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

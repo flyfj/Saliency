@@ -61,7 +61,7 @@ namespace objectproposal
 	bool ObjSegmentProposal::Run(const Mat& cimg, const Mat& dmap, int topK, vector<SuperPixel>& res)
 	{
 		// get candidates
-		iter_segmentor.merge_feat_types = SP_COLOR;
+		iter_segmentor.merge_feat_types = SP_3D;
 		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.75f);
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.verbose = false;
@@ -69,6 +69,7 @@ namespace objectproposal
 		const vector<SuperPixel>& res_sps = iter_segmentor.sps;
 		cout<<"object candidates: "<<res_sps.size()<<endl;
 
+		return true;
 		// rank
 		cout<<"Ranking segments..."<<endl;
 		vector<int> rank_ids;
@@ -81,7 +82,9 @@ namespace objectproposal
 			if( !valid_seg[i] ) continue;
 			for(size_t j=i+1; j<rank_ids.size(); j++) {
 				if( valid_seg[j] && 
-					(float)countNonZero(res_sps[rank_ids[i]].mask & res_sps[rank_ids[j]].mask) / countNonZero(res_sps[rank_ids[i]].mask | res_sps[rank_ids[j]].mask) > 0.8) {
+					(float)countNonZero(
+					res_sps[rank_ids[i]].mask & res_sps[rank_ids[j]].mask) / 
+					countNonZero(res_sps[rank_ids[i]].mask | res_sps[rank_ids[j]].mask) > 0.6) {
 					valid_seg[j] = false;
 				}
 			}

@@ -148,6 +148,7 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\ImageSegmentor.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\IterativeSegmentor.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SegmentProcessor.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\ShapeAnalyzer.cpp" />
     <ClCompile Include="ObjProposalDemo.cpp" />
     <ClCompile Include="main.cpp" />
