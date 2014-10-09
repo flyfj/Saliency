@@ -46,7 +46,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\opencv249\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;$(IncludePath)</IncludePath>
+    <IncludePath>C:\opencv249\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;C:\Program Files %28x86%29\PCL\include\pcl-1.8;C:\Program Files %28x86%29\flann\include;C:\Program Files %28x86%29\Eigen\include;$(IncludePath)</IncludePath>
     <LibraryPath>C:\opencv249\opencv\build\x86\vc11\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">

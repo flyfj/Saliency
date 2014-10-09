@@ -79,7 +79,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 {
 	// resize image
 	Size newsz;
-	visualsearch::common::tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 320, newsz);
+	visualsearch::common::tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
 	if(!dmap.empty()) resize(dmap, dmap, newsz);
 
