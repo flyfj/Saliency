@@ -46,8 +46,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\opencv249\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;C:\Program Files %28x86%29\PCL\include\pcl-1.8;C:\Program Files %28x86%29\flann\include;C:\Program Files %28x86%29\Eigen\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv249\opencv\build\x86\vc11\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\Program Files %28x86%29\boost_1_56_0;C:\Program Files %28x86%29\PCL\include\pcl-1.8;C:\Program Files %28x86%29\flann\include;C:\Program Files %28x86%29\Eigen\include;C:\opencv249\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;C:\Program Files %28x86%29\VTK\include\vtk-6.1;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\Program Files %28x86%29\boost_1_56_0\lib32-msvc-11.0;C:\Program Files %28x86%29\flann\lib;C:\Program Files %28x86%29\VTK\lib\Release;C:\Program Files %28x86%29\PCL\lib;C:\opencv249\opencv\build\x86\vc11\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -74,6 +74,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>E:\Projects\GitHub\VisualSearchEngine\VisualSearchEngine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -103,6 +104,7 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\ImageSegmentor.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\IterativeSegmentor.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SegmentProcessor.h" />
+    <ClInclude Include="common3d.h" />
     <ClInclude Include="ObjProposalDemo.h" />
     <ClInclude Include="ObjSegmentProposal.h" />
     <ClInclude Include="ObjectRanker.h" />

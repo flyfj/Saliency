@@ -18,12 +18,12 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 		if( !cam.InitCamera() )
 			return false;
 	}
-	KinectDataMan kinect;
+	/*KinectDataMan kinect;
 	if(stype == SENSOR_KINECT)
 	{
-		if( !kinect.InitKinect() )
-			return false;
-	}
+	if( !kinect.InitKinect() )
+	return false;
+	}*/
 
 	//if( !kinectDM.InitKinect() )
 	//return false;
@@ -38,10 +38,10 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 			if( !cam.QueryNextFrame(visualsearch::io::camera::STREAM_COLOR, cimg) )
 				continue;
 		}
-		if(stype == SENSOR_KINECT) {
-			if( !kinect.GetColorDepth(cimg, dmap) )
-				continue;
-		}
+		/*if(stype == SENSOR_KINECT) {
+		if( !kinect.GetColorDepth(cimg, dmap) )
+		continue;
+		}*/
 
 		// downsample cimg to have same size as dmap
 		//resize(cimg, cimg, Size(cimg.cols/2, cimg.rows/2));

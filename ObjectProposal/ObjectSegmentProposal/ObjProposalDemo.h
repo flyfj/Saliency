@@ -4,7 +4,7 @@
 
 
 #include "Common/common_libs.h"
-#include "IO/Camera/KinectDataMan.h"
+//#include "IO/Camera/KinectDataMan.h"
 #include "IO/Camera/OpenCVCameraIO.hpp"
 #include "Processors/Attention/BingObjectness.h"
 #include "Common/tools/ImgVisualizer.h"

@@ -6,6 +6,9 @@
 
 #pragma once
 
+#include "common3d.h"
+#include "Common/common_libs.h"
+
 #include "ObjectRanker.h"
 using namespace visualsearch;
 using namespace visualsearch::io;
@@ -16,6 +19,7 @@ class ObjectProposalTester {
 public:
 	void TestRankerLearner();
 
+	void ComputeNormals(SuperPixel& sp);
 
 private:
 

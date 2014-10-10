@@ -6,3 +6,8 @@ void ObjectProposalTester::TestRankerLearner() {
 	ranker.LearnObjectPredictor();
 }
 
+void ObjectProposalTester::ComputeNormals(SuperPixel& sp) {
+
+	// use pcl integral normal
+
+}

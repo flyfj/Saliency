@@ -1,5 +1,6 @@
 // ObjectSegmentProposal.cpp : Defines the entry point for the console application.
 //
+#include "Tester.h"
 
 #include "ObjSegmentProposal.h"
 #include "IO/Dataset/NYUDepth2DataMan.h"
@@ -7,11 +8,21 @@
 #include "ObjProposalDemo.h"
 #include "Common/Tools/RGBDTools.h"
 #include "Processors/Segmentation/IterativeSegmentor.h"
-#include "Tester.h"
+
 
 // link
-// libs
 #ifdef _DEBUG
+#pragma comment(lib, "pcl_common_debug.lib")
+#pragma comment(lib, "pcl_features_debug.lib")
+#pragma comment(lib, "pcl_filters_debug.lib")
+#pragma comment(lib, "pcl_visualization_debug.lib")
+#pragma comment(lib, "pcl_search_debug.lib")
+#pragma comment(lib, "pcl_kdtree_debug.lib")
+#pragma comment(lib, "pcl_keypoints_debug.lib")
+#pragma comment(lib, "pcl_registration_debug.lib")
+#pragma comment(lib, "pcl_io_debug.lib")
+#pragma comment(lib, "pcl_ml_debug.lib")
+#pragma comment(lib, "pcl_recognition_debug.lib")
 #pragma comment(lib, "opencv_core249d.lib")
 #pragma comment(lib, "opencv_imgproc249d.lib")
 #pragma comment(lib, "opencv_highgui249d.lib")
@@ -20,7 +31,19 @@
 #pragma comment(lib, "opencv_nonfree249d.lib")
 #pragma comment(lib, "opencv_objdetect249d.lib")
 #pragma comment(lib, "opencv_flann249d.lib")
+
 #else
+#pragma comment(lib, "pcl_common_release.lib")
+#pragma comment(lib, "pcl_features_release.lib")
+#pragma comment(lib, "pcl_filters_release.lib")
+#pragma comment(lib, "pcl_visualization_release.lib")
+#pragma comment(lib, "pcl_search_release.lib")
+#pragma comment(lib, "pcl_kdtree_release.lib")
+#pragma comment(lib, "pcl_keypoints_release.lib")
+#pragma comment(lib, "pcl_registration_release.lib")
+#pragma comment(lib, "pcl_io_release.lib")
+#pragma comment(lib, "pcl_ml_release.lib")
+#pragma comment(lib, "pcl_recognition_release.lib")
 #pragma comment(lib, "opencv_core249.lib")
 #pragma comment(lib, "opencv_imgproc249.lib")
 #pragma comment(lib, "opencv_highgui249.lib")
@@ -30,6 +53,15 @@
 #pragma comment(lib, "opencv_objdetect249.lib")
 #pragma comment(lib, "opencv_flann249.lib")
 #endif
+
+#pragma comment(lib, "vtkCommonCore-6.1.lib")
+#pragma comment(lib, "vtkCommonDataModel-6.1.lib")
+#pragma comment(lib, "vtkCommonMath-6.1.lib")
+#pragma comment(lib, "vtkCommonColor-6.1.lib")
+#pragma comment(lib, "vtkRenderingCore-6.1.lib")
+#pragma comment(lib, "vtkRenderingLOD-6.1.lib")
+#pragma comment(lib, "vtkFiltersSources-6.1.lib")
+#pragma comment(lib, "vtkCommonExecutionModel-6.1.lib")
 
 
 
@@ -49,9 +81,9 @@ int main()
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
 	//return 0;
 
-	cimg = imread("E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\2_06-41-44.jpg");
+	cimg = imread("E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\1_03-14-01.jpg");
 	string uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\RGBD1\\rgbd-scenes\\rgbd-scenes~\\desk\\desk_3\\desk_3_1_depth.png";
-	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\2_06-41-44_Depth.png";
+	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\1_03-14-01_Depth.png";
 	dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	//resize(dmap, dmap, Size(dmap.cols/2, dmap.rows/2));
@@ -61,7 +93,7 @@ int main()
 	//imshow("seg", img_segmentor.m_segImg);
 	//rgbdtool.SavePointsToOBJ("demo.obj", mat3dpts);
 	//rgbdtool.ComputeNormals(mat3dpts, normals);
-	demo.RunObjSegProposal(cimg, dmap);
+	//demo.RunObjSegProposal(cimg, dmap);
 	waitKey(0);
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
 
