@@ -5,9 +5,3 @@ void ObjectProposalTester::TestRankerLearner() {
 	ranker.PrepareRankTrainData(dataset::DB_SALIENCY_RGBD);
 	ranker.LearnObjectPredictor();
 }
-
-void ObjectProposalTester::ComputeNormals(SuperPixel& sp) {
-
-	// use pcl integral normal
-
-}

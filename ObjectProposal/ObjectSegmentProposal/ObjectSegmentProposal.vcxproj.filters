@@ -93,6 +93,12 @@
     <ClInclude Include="common3d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Feature3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PCLManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -229,6 +235,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.cpp">
       <Filter>Library\segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="Feature3D.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PCLManager.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

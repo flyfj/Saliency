@@ -1,5 +1,6 @@
 // ObjectSegmentProposal.cpp : Defines the entry point for the console application.
 //
+#include "Feature3D.h"
 #include "Tester.h"
 
 #include "ObjSegmentProposal.h"
@@ -81,11 +82,13 @@ int main()
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
 	//return 0;
 
-	cimg = imread("E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\1_03-14-01.jpg");
+	cimg = imread("E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\6_05-03-01.jpg");
 	string uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\RGBD1\\rgbd-scenes\\rgbd-scenes~\\desk\\desk_3\\desk_3_1_depth.png";
-	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\1_03-14-01_Depth.png";
+	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\6_05-03-01_Depth.png";
 	dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
+	Feature3D feat3d;
+	feat3d.ComputeBoundaryMaps(cimg, dmap);
 	//resize(dmap, dmap, Size(dmap.cols/2, dmap.rows/2));
 	//rgbdtool.KinectDepthTo3D(dmap, mat3dpts);
 	//mat3dpts.convertTo(mat3dpts, CV_8U, 255);
