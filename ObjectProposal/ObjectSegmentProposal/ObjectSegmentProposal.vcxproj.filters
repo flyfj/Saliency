@@ -90,14 +90,14 @@
     <ClInclude Include="Tester.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="common3d.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.h">
+      <Filter>Library\segmentation</Filter>
     </ClInclude>
-    <ClInclude Include="Feature3D.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Feature3D.h">
+      <Filter>Library\segmentation</Filter>
     </ClInclude>
-    <ClInclude Include="PCLManager.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\FixationSegmentator.h">
+      <Filter>Library\segmentation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -236,11 +236,14 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.cpp">
       <Filter>Library\segmentation</Filter>
     </ClCompile>
-    <ClCompile Include="Feature3D.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Feature3D.cpp">
+      <Filter>Library\segmentation</Filter>
     </ClCompile>
-    <ClCompile Include="PCLManager.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\PCLManager.cpp">
+      <Filter>Library\segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\FixationSegmentor.cpp">
+      <Filter>Library\segmentation</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

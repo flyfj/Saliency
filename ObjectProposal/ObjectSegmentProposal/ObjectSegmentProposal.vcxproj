@@ -66,7 +66,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <WarningLevel>Level3</WarningLevel>
+      <WarningLevel>Level2</WarningLevel>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <Optimization>MaxSpeed</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -75,6 +75,9 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>E:\Projects\GitHub\VisualSearchEngine\VisualSearchEngine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ForcedIncludeFiles>
+      </ForcedIncludeFiles>
+      <CompileAs>Default</CompileAs>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -90,6 +93,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\common_libs.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.h" />
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Feature3D.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\DataManagerInterface.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\BingObjectness.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\CmFile.h" />
@@ -101,24 +105,25 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\ImgContrastBB.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\Objectness.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\ValStructVec.h" />
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\FixationSegmentator.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\ImageSegmentor.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\IterativeSegmentor.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SegmentProcessor.h" />
-    <ClInclude Include="common3d.h" />
-    <ClInclude Include="Feature3D.h" />
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.h" />
     <ClInclude Include="ObjProposalDemo.h" />
     <ClInclude Include="ObjSegmentProposal.h" />
     <ClInclude Include="ObjectRanker.h" />
-    <ClInclude Include="PCLManager.h" />
     <ClInclude Include="targetver.h" />
     <ClInclude Include="Tester.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\ImgVisualizer.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\PCLManager.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\RGBDTools.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\Tools.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Color\ColorDescriptors.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Feature3D.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Texture\EdgeHistogram.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Camera\KinectDataMan.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Camera\Kinect\OpenCVFrameHelper.cpp" />
@@ -149,17 +154,16 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Geodesic\GeodesicSaliencyDetector.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\GlobalContrastSaliency.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\SaliencyComputer.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\FixationSegmentor.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\ImageSegmentor.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\IterativeSegmentor.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SegmentProcessor.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\ShapeAnalyzer.cpp" />
-    <ClCompile Include="Feature3D.cpp" />
     <ClCompile Include="ObjProposalDemo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjSegmentProposal.cpp" />
     <ClCompile Include="ObjectRanker.cpp" />
-    <ClCompile Include="PCLManager.cpp" />
     <ClCompile Include="Tester.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

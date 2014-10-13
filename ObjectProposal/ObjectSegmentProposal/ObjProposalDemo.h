@@ -2,14 +2,13 @@
 
 #pragma once
 
-
+#include "ObjSegmentProposal.h"
 #include "Common/common_libs.h"
 //#include "IO/Camera/KinectDataMan.h"
 #include "IO/Camera/OpenCVCameraIO.hpp"
 #include "Processors/Attention/BingObjectness.h"
 #include "Common/tools/ImgVisualizer.h"
 #include "Processors/nms.hpp"
-#include "ObjSegmentProposal.h"
 #include "ObjectRanker.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -48,7 +47,7 @@ public:
 
 	ObjProposalDemo(void);
 
-	bool RunObjSegProposal(Mat& cimg, Mat& dmap);
+	bool RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg);
 
 	bool RunObjWinProposal(Mat& cimg, Mat& dmap);
 

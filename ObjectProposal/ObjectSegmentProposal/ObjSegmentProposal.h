@@ -6,8 +6,8 @@
 
 #pragma once
 
-#include "Common\common_libs.h"
 #include "Processors\Segmentation\IterativeSegmentor.h"
+#include "Common\common_libs.h"
 #include "ObjectRanker.h"
 #include "Common/Tools/RGBDTools.h"
 

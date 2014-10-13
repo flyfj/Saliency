@@ -8,6 +8,8 @@
 
 #include <memory>
 
+#include "Processors/Attention/Composition/SalientRGBDRegionDetector.h"
+#include "Processors/Segmentation/SegmentProcessor.h"
 #include "Common/common_libs.h"
 #include "Common/tools/Tools.h"
 #include "Common/tools/ImgVisualizer.h"
@@ -16,10 +18,8 @@
 #include "Features/DepthDescriptors.h"
 #include "IO/Dataset/NYUDepth2DataMan.h"
 #include "IO/Dataset/RGBDECCV14.h"
-#include "Processors/Segmentation/SegmentProcessor.h"
 #include "Processors/Segmentation/ImageSegmentor.h"
 #include "Processors/Attention/SaliencyComputer.h"
-#include "Processors/Attention/Composition/SalientRGBDRegionDetector.h"
 #include "Processors/Attention/CenterSurroundFeatureContraster.h"
 #include "Processors/ShapeAnalyzer.h"
 #include "Learners/LearnerTools.h"

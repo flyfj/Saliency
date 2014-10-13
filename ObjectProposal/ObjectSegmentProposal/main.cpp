@@ -1,7 +1,8 @@
 // ObjectSegmentProposal.cpp : Defines the entry point for the console application.
 //
-#include "Feature3D.h"
+#include "Features/Feature3D.h"
 #include "Tester.h"
+#include "Processors/Segmentation/FixationSegmentator.h"
 
 #include "ObjSegmentProposal.h"
 #include "IO/Dataset/NYUDepth2DataMan.h"
@@ -79,16 +80,27 @@ int main()
 	visualsearch::processors::segmentation::IterativeSegmentor segmentor;
 	visualsearch::processors::segmentation::ImageSegmentor img_segmentor;
 	ObjProposalDemo demo;
+	segmentation::FixationSegmentor fix_seg;
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
 	//return 0;
+	ObjectProposalTester tester;
+	//tester.BatchProposal();
 
-	cimg = imread("E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\6_05-03-01.jpg");
-	string uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\RGBD1\\rgbd-scenes\\rgbd-scenes~\\desk\\desk_3\\desk_3_1_depth.png";
-	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\6_05-03-01_Depth.png";
-	dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	//return 0;
+	string nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211.jpg";
+	string nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211_d.png";
+	string uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-color.png";
+	string uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-depth.png";
+	string eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\8_08-45-51.jpg";
+	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\8_08-45-51_Depth.png";
+	cimg = imread(uw_cfn);
+	dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	Feature3D feat3d;
-	feat3d.ComputeBoundaryMaps(cimg, dmap);
+	Mat feat_map;
+	feat3d.ComputeAllBoundaryMaps(cimg, dmap, feat_map, true);
+	//fix_seg.Init(cimg, dmap, segmentation::SP_COLOR);
+	//fix_seg.ExtractObjects(250, 200, vector<SuperPixel>());
 	//resize(dmap, dmap, Size(dmap.cols/2, dmap.rows/2));
 	//rgbdtool.KinectDepthTo3D(dmap, mat3dpts);
 	//mat3dpts.convertTo(mat3dpts, CV_8U, 255);
@@ -96,7 +108,7 @@ int main()
 	//imshow("seg", img_segmentor.m_segImg);
 	//rgbdtool.SavePointsToOBJ("demo.obj", mat3dpts);
 	//rgbdtool.ComputeNormals(mat3dpts, normals);
-	//demo.RunObjSegProposal(cimg, dmap);
+	demo.RunObjSegProposal(cimg, dmap, Mat());
 	waitKey(0);
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
 
@@ -134,7 +146,6 @@ int main()
 	return 0;
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
 	
-	demo.RunObjSegProposal(cimg, Mat());
 	waitKey(0);
 	//demo.RunObjWinProposal();
 	return 0;

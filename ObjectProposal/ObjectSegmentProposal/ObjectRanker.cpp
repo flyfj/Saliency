@@ -62,17 +62,17 @@ namespace visualsearch
 
 					// compute composition cost for each superpixel
 					ImageSegmentor segmentor;
-					segmentor.m_dThresholdK = 25.f;
+					segmentor.m_dThresholdK = 30.f;
 					segmentor.seg_type_ = OVER_SEG_GRAPH;
 					cout<<"seg num "<<segmentor.DoSegmentation(cimg)<<endl;
 					imshow("baseseg", segmentor.m_segImg);
-					waitKey(0);
+					waitKey(10);
 					for(size_t i=0; i<segmentor.superPixels.size(); i++) 
 						segprocessor.ExtractBasicSegmentFeatures(segmentor.superPixels[i], cimg, dmap);
 
 					sal_comp_.Init(SAL_COLOR, cimg, dmap, segmentor.superPixels);
 					for (size_t i=0; i<sps.size(); i++) {
-						float score = sal_comp_.Compose(sps[i]);
+						float score = sal_comp_.Compose(sps[i]);// * ((float)sps[i].area / contourArea(sps[i].convex_hull));
 						sp_scores[score] = i;
 					}
 				}
@@ -98,7 +98,7 @@ namespace visualsearch
 						}
 
 						float total_diff = fabs(sum_context_score - 3*mean_obj_score) / 3;
-						total_diff = total_diff * mean_obj_score * (sps[i].area / sps[i].box.area());
+						total_diff = total_diff * mean_obj_score;
 						sp_scores[total_diff] = i;
 					}
 				}

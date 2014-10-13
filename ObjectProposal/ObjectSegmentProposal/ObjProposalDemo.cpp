@@ -62,7 +62,7 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 		if(dtype == DEMO_OBJECT_WIN)
 			RunObjWinProposal(cimg, dmap);
 		if(dtype == DEMO_OBJECT_SEG)
-			RunObjSegProposal(cimg, dmap);
+			RunObjSegProposal(cimg, dmap, Mat());
 		if(dtype == DEMO_SAL)
 			RunSaliency(cimg, dmap, visualsearch::processors::attention::SAL_HC);
 
@@ -75,7 +75,7 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 	return true;
 }
 
-bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
+bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg)
 {
 	// resize image
 	Size newsz;
@@ -85,13 +85,13 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap)
 
 	// propose
 	vector<SuperPixel> sps;
-	seg_proposal.Run(cimg, dmap, 5, sps);
+	seg_proposal.Run(cimg, dmap, 10, sps);
 
-	return true;
+	//return true;
 	
 	// display results
-	Mat oimg;
-	imgvis.DrawShapes(cimg, sps);
+	imgvis.DrawShapes(cimg, sps, oimg);
+	resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
 	/*char str[30];
 	sprintf_s(str, "%d_0.jpg", frameid);
 	imwrite(DATADIR + string(str), cimg);
