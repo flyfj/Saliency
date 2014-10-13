@@ -44,3 +44,25 @@ void ObjectProposalTester::BatchProposal() {
 	}
 
 }
+
+void ObjectProposalTester::TestSegmentor3D(const Mat& dmap) {
+
+	ImgVisualizer::DrawFloatImg("", dmap);
+	features::Feature3D feat3d;
+	Mat pts_3d;
+	feat3d.ComputeKinect3DMap(dmap, pts_3d, false);
+	imshow("3d", pts_3d);
+	waitKey(10);
+	vector<vector<FeatPoint>> simg(dmap.rows);
+	for(int r=0; r<dmap.rows; r++) {
+		simg[r].resize(dmap.cols);
+		for(int c=0; c<dmap.cols; c++) {
+			simg[r][c].pts_vec = pts_3d.at<Vec3f>(r, c);
+		}
+	}
+
+	Segmentor3D seg3d;
+	seg3d.DIST_TH = 4;
+	seg3d.Run(simg);
+
+}

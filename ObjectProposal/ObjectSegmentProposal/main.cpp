@@ -14,17 +14,17 @@
 
 // link
 #ifdef _DEBUG
-#pragma comment(lib, "pcl_common_debug.lib")
-#pragma comment(lib, "pcl_features_debug.lib")
-#pragma comment(lib, "pcl_filters_debug.lib")
-#pragma comment(lib, "pcl_visualization_debug.lib")
-#pragma comment(lib, "pcl_search_debug.lib")
-#pragma comment(lib, "pcl_kdtree_debug.lib")
-#pragma comment(lib, "pcl_keypoints_debug.lib")
-#pragma comment(lib, "pcl_registration_debug.lib")
-#pragma comment(lib, "pcl_io_debug.lib")
-#pragma comment(lib, "pcl_ml_debug.lib")
-#pragma comment(lib, "pcl_recognition_debug.lib")
+//#pragma comment(lib, "pcl_common_debug.lib")
+//#pragma comment(lib, "pcl_features_debug.lib")
+//#pragma comment(lib, "pcl_filters_debug.lib")
+//#pragma comment(lib, "pcl_visualization_debug.lib")
+//#pragma comment(lib, "pcl_search_debug.lib")
+//#pragma comment(lib, "pcl_kdtree_debug.lib")
+//#pragma comment(lib, "pcl_keypoints_debug.lib")
+//#pragma comment(lib, "pcl_registration_debug.lib")
+//#pragma comment(lib, "pcl_io_debug.lib")
+//#pragma comment(lib, "pcl_ml_debug.lib")
+//#pragma comment(lib, "pcl_recognition_debug.lib")
 #pragma comment(lib, "opencv_core249d.lib")
 #pragma comment(lib, "opencv_imgproc249d.lib")
 #pragma comment(lib, "opencv_highgui249d.lib")
@@ -56,14 +56,14 @@
 #pragma comment(lib, "opencv_flann249.lib")
 #endif
 
-#pragma comment(lib, "vtkCommonCore-6.1.lib")
-#pragma comment(lib, "vtkCommonDataModel-6.1.lib")
-#pragma comment(lib, "vtkCommonMath-6.1.lib")
-#pragma comment(lib, "vtkCommonColor-6.1.lib")
-#pragma comment(lib, "vtkRenderingCore-6.1.lib")
-#pragma comment(lib, "vtkRenderingLOD-6.1.lib")
-#pragma comment(lib, "vtkFiltersSources-6.1.lib")
-#pragma comment(lib, "vtkCommonExecutionModel-6.1.lib")
+//#pragma comment(lib, "vtkCommonCore-6.1.lib")
+//#pragma comment(lib, "vtkCommonDataModel-6.1.lib")
+//#pragma comment(lib, "vtkCommonMath-6.1.lib")
+//#pragma comment(lib, "vtkCommonColor-6.1.lib")
+//#pragma comment(lib, "vtkRenderingCore-6.1.lib")
+//#pragma comment(lib, "vtkRenderingLOD-6.1.lib")
+//#pragma comment(lib, "vtkFiltersSources-6.1.lib")
+//#pragma comment(lib, "vtkCommonExecutionModel-6.1.lib")
 
 
 
@@ -92,14 +92,19 @@ int main()
 	string uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-color.png";
 	string uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-depth.png";
 	string eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\8_08-45-51.jpg";
-	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\8_08-45-51_Depth.png";
+	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\8_08-34-01_Depth.png";
 	cimg = imread(uw_cfn);
-	dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	imshow("cimg", cimg);
+	dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
+	tester.TestSegmentor3D(dmap);
 	visualsearch::features::Feature3D feat3d;
 	Mat feat_map, normal_mat;
 	feat3d.ComputeKinect3DMap(dmap, feat_map);
 	feat3d.ComputeNormalMap(feat_map, normal_mat);
+	feat3d.ComputeBoundaryMap(normal_mat, features::BMAP_NORMAL, feat_map);
+	ImgVisualizer::DrawFloatImg("nbmap", feat_map);
+	waitKey(0);
 	ImgVisualizer::DrawNormals("normal", normal_mat);
 	//fix_seg.Init(cimg, dmap, segmentation::SP_COLOR);
 	//fix_seg.ExtractObjects(250, 200, vector<SuperPixel>());

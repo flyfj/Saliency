@@ -7,6 +7,7 @@
 #pragma once
 
 #include "ObjectRanker.h"
+#include "Segmentor3D.h"
 #include "ObjProposalDemo.h"
 #include "Common/common_libs.h"
 #include "IO/Dataset/RGBDECCV14.h"
@@ -21,6 +22,8 @@ public:
 	void TestRankerLearner();
 
 	void BatchProposal();
+
+	void TestSegmentor3D(const Mat& dmap);
 
 private:
 
