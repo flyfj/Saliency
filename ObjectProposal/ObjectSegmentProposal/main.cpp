@@ -94,11 +94,13 @@ int main()
 	string eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\8_08-45-51.jpg";
 	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\8_08-45-51_Depth.png";
 	cimg = imread(uw_cfn);
-	dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
-	Feature3D feat3d;
-	Mat feat_map;
-	feat3d.ComputeAllBoundaryMaps(cimg, dmap, feat_map, true);
+	visualsearch::features::Feature3D feat3d;
+	Mat feat_map, normal_mat;
+	feat3d.ComputeKinect3DMap(dmap, feat_map);
+	feat3d.ComputeNormalMap(feat_map, normal_mat);
+	ImgVisualizer::DrawNormals("normal", normal_mat);
 	//fix_seg.Init(cimg, dmap, segmentation::SP_COLOR);
 	//fix_seg.ExtractObjects(250, 200, vector<SuperPixel>());
 	//resize(dmap, dmap, Size(dmap.cols/2, dmap.rows/2));
@@ -108,7 +110,7 @@ int main()
 	//imshow("seg", img_segmentor.m_segImg);
 	//rgbdtool.SavePointsToOBJ("demo.obj", mat3dpts);
 	//rgbdtool.ComputeNormals(mat3dpts, normals);
-	demo.RunObjSegProposal(cimg, dmap, Mat());
+	//demo.RunObjSegProposal(cimg, dmap, Mat());
 	waitKey(0);
 	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
 

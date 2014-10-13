@@ -239,9 +239,6 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Feature3D.cpp">
       <Filter>Library\segmentation</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\PCLManager.cpp">
-      <Filter>Library\segmentation</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\FixationSegmentor.cpp">
       <Filter>Library\segmentation</Filter>
     </ClCompile>

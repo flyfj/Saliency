@@ -74,7 +74,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>E:\Projects\GitHub\VisualSearchEngine\VisualSearchEngine\Engine;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <BufferSecurityCheck>true</BufferSecurityCheck>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <CompileAs>Default</CompileAs>
@@ -118,7 +118,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\ImgVisualizer.cpp" />
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\PCLManager.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\RGBDTools.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\Tools.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Color\ColorDescriptors.cpp" />
