@@ -51,8 +51,8 @@ void ObjectProposalTester::TestSegmentor3D(const Mat& dmap) {
 	features::Feature3D feat3d;
 	Mat pts_3d;
 	feat3d.ComputeKinect3DMap(dmap, pts_3d, false);
-	//Mat pts_bmap;
-	//feat3d.ComputeBoundaryMap(pts_3d, features::BMAP_3DPTS, pts_bmap);
+	Mat pts_bmap;
+	feat3d.ComputeBoundaryMap(pts_3d, features::BMAP_3DPTS, pts_bmap);
 	Mat normal_bmap, normal_map;
 	feat3d.ComputeNormalMap(pts_3d, normal_map);
 	ImgVisualizer::DrawNormals("normal", normal_map);
@@ -63,7 +63,7 @@ void ObjectProposalTester::TestSegmentor3D(const Mat& dmap) {
 	waitKey(0);
 
 	Segmentor3D seg3d;
-	seg3d.DIST_TH = 0.03f;
-	seg3d.RunRegionGrowing(normal_bmap);
+	seg3d.DIST_TH = 0.005f;
+	seg3d.RunRegionGrowing(pts_bmap);
 
 }

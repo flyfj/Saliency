@@ -95,7 +95,7 @@ int main()
 	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\8_08-34-01_Depth.png";
 	cimg = imread(eccv_cfn);
 	imshow("cimg", cimg);
-	dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	tester.TestSegmentor3D(dmap);
 	visualsearch::features::Feature3D feat3d;
