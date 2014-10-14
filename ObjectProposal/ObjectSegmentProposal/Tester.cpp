@@ -47,22 +47,23 @@ void ObjectProposalTester::BatchProposal() {
 
 void ObjectProposalTester::TestSegmentor3D(const Mat& dmap) {
 
-	ImgVisualizer::DrawFloatImg("", dmap);
+	ImgVisualizer::DrawFloatImg("dmap", dmap);
 	features::Feature3D feat3d;
 	Mat pts_3d;
 	feat3d.ComputeKinect3DMap(dmap, pts_3d, false);
+	//Mat pts_bmap;
+	//feat3d.ComputeBoundaryMap(pts_3d, features::BMAP_3DPTS, pts_bmap);
+	Mat normal_bmap, normal_map;
+	feat3d.ComputeNormalMap(pts_3d, normal_map);
+	ImgVisualizer::DrawNormals("normal", normal_map);
+	feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
 	imshow("3d", pts_3d);
-	waitKey(10);
-	vector<vector<FeatPoint>> simg(dmap.rows);
-	for(int r=0; r<dmap.rows; r++) {
-		simg[r].resize(dmap.cols);
-		for(int c=0; c<dmap.cols; c++) {
-			simg[r][c].pts_vec = pts_3d.at<Vec3f>(r, c);
-		}
-	}
+	ImgVisualizer::DrawFloatImg("bmap", normal_bmap);
+	//imwrite("bmap.png", pts_bmap);
+	waitKey(0);
 
 	Segmentor3D seg3d;
-	seg3d.DIST_TH = 4;
-	seg3d.Run(simg);
+	seg3d.DIST_TH = 0.03f;
+	seg3d.RunRegionGrowing(normal_bmap);
 
 }
