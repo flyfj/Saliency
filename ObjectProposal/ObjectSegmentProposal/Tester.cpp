@@ -6,13 +6,21 @@ void ObjectProposalTester::TestRankerLearner() {
 	ranker.LearnObjectPredictor();
 }
 
+void ObjectProposalTester::Random() {
+
+	io::dataset::Berkeley3DDataManager b3d_man;
+	b3d_man.BrowseData(true, true, true);
+
+}
+
+
 void ObjectProposalTester::BatchProposal() {
 
 	ObjProposalDemo demo;
 	visualsearch::io::dataset::NYUDepth2DataMan rgbd;
 	FileInfos imgfiles, dmapfiles;
 	rgbd.GetImageList(imgfiles);
-	rgbd.GetDepthmapList(dmapfiles);
+	rgbd.GetDepthmapList(imgfiles, dmapfiles);
 	imgfiles.erase(imgfiles.begin(), imgfiles.begin()+800);
 	dmapfiles.erase(dmapfiles.begin(), dmapfiles.begin()+800);
 
@@ -66,4 +74,9 @@ void ObjectProposalTester::TestSegmentor3D(const Mat& dmap) {
 	seg3d.DIST_TH = 0.005f;
 	seg3d.RunRegionGrowing(pts_bmap);
 
+}
+
+void ObjectProposalTester::TestBoundaryClf() {
+	Segmentor3D seg_3d;
+	seg_3d.TrainBoundaryDetector(DB_NYU2_RGBD);
 }

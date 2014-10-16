@@ -5,6 +5,16 @@
 #pragma once
 
 #include "Common/common_libs.h"
+#include "Common/Tools/ImgVisualizer.h"
+#include "IO/Dataset/RGBDECCV14.h"
+#include "IO/Dataset/NYUDepth2DataMan.h"
+#include "IO/Dataset/DataManagerInterface.h"
+#include "Features/Feature3D.h"
+#include "Processors/Segmentation/SegmentProcessor.h"
+#include "Learners/RandomTrees/DecisionTree.h"
+using namespace visualsearch;
+using namespace visualsearch::common;
+using namespace visualsearch::io::dataset;
 
 class FeatPoint {
 public:
@@ -30,6 +40,10 @@ public:
 	bool Run(const vector<vector<FeatPoint>>& super_img);
 
 	bool RunBFS(const vector<vector<FeatPoint>>& super_img);
+
+	bool TrainBoundaryDetector(DatasetName db_name);
+	// raw data or bmap?
+	bool RunBoundaryDetection(const Mat& cimg, const Mat& dmap, Mat& bmap);
 
 	Mat labels;
 	float DIST_TH;

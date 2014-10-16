@@ -11,6 +11,7 @@
 #include "ObjProposalDemo.h"
 #include "Common/common_libs.h"
 #include "IO/Dataset/RGBDECCV14.h"
+#include "IO/Dataset/Berkeley3DDataManager.h"
 
 using namespace visualsearch;
 using namespace visualsearch::io;
@@ -24,6 +25,10 @@ public:
 	void BatchProposal();
 
 	void TestSegmentor3D(const Mat& dmap);
+
+	void TestBoundaryClf();
+
+	void Random();
 
 private:
 

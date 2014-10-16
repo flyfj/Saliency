@@ -69,10 +69,6 @@
 
 int main()
 {
-	/*ObjectProposalTester tester;
-	tester.TestRankerLearner();
-	getchar();
-	return 0;*/
 
 	Mat dmap, cimg, mat3dpts, normals;
 	visualsearch::common::tools::RGBDTools rgbdtool;
@@ -85,8 +81,8 @@ int main()
 	//return 0;
 	ObjectProposalTester tester;
 	//tester.BatchProposal();
-
-	//return 0;
+	tester.TestBoundaryClf();
+	return 0;
 	string nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211.jpg";
 	string nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211_d.png";
 	string uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-color.png";
@@ -166,7 +162,7 @@ int main()
 	visualsearch::io::dataset::NYUDepth2DataMan nyuman;
 	FileInfos imgfiles, dmapfiles;
 	nyuman.GetImageList(imgfiles);
-	nyuman.GetDepthmapList(dmapfiles);
+	nyuman.GetDepthmapList(imgfiles, dmapfiles);
 	Mat img = imread(imgfiles[5].filepath);
 	nyuman.LoadDepthData(dmapfiles[5].filepath, dmap);
 	resize(img, img, Size(300,300));

@@ -248,5 +248,8 @@
     <ClCompile Include="Segmentor3D.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\Berkeley3DDataManager.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

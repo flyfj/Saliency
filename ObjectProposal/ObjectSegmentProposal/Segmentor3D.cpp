@@ -129,6 +129,174 @@ bool Segmentor3D::RunRegionGrowing(const Mat& pts3d_bmap) {
 
 //////////////////////////////////////////////////////////////////////////
 
+bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {
+	string temp_dir = "E:\\Results\\objectness\\";	// save intermediate results
+
+	DataManagerInterface* db_man = NULL;
+	map<string, vector<Mat>> objmasks;
+	if( (db_name & DB_NYU2_RGBD) != 0 )
+		db_man = new NYUDepth2DataMan();
+	if( (db_name & DB_SALIENCY_RGBD) != 0 )
+		db_man = new RGBDECCV14();
+
+	FileInfos imgfiles, dmapfiles;
+	db_man->GetImageList(imgfiles);
+	random_shuffle(imgfiles.begin(), imgfiles.end());
+	imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
+	db_man->GetDepthmapList(imgfiles, dmapfiles);
+	db_man->LoadGTMasks(imgfiles, objmasks);
+
+	// processors
+	processors::segmentation::SegmentProcessor seg_processor;
+	features::Feature3D feat3d;
+
+	// collect training samples
+	std::cout<<"Generating training samples..."<<endl;
+	Mat possamps, negsamps;
+	int samp_num_per_img = 200;
+	int kernel_size = 5;
+	for(size_t i=0; i<imgfiles.size(); i++) {
+		// input data
+		Mat cimg = imread(imgfiles[i].filepath);
+		Size newsz;
+		tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+		resize(cimg, cimg, newsz);
+		cimg.convertTo(cimg, CV_32F, 1.f/255);
+		Mat dmap;
+		db_man->LoadDepthData(dmapfiles[i].filepath, dmap);
+		resize(dmap, dmap, newsz);
+
+		// compute feature map
+		Mat pts3d_map, normal_map, color_bmap, pts3d_bmap, normal_bmap;
+		feat3d.ComputeKinect3DMap(dmap, pts3d_map);
+		feat3d.ComputeNormalMap(pts3d_map, normal_map);
+
+		// vis
+		imshow("color", cimg*255);
+		ImgVisualizer::DrawFloatImg("depth", dmap);
+		imshow("3d", pts3d_map*255);
+		imshow("normal", normal_map*255);
+		waitKey(10);
+		//feat3d.ComputeBoundaryMap(pts3d_map, features::BMAP_3DPTS, pts3d_bmap);
+		//feat3d.ComputeBoundaryMap(cimg, features::BMAP_COLOR, color_bmap);
+		//feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
+
+		// randomly sample subset of boundary points as positive ones, others as negative ones
+		// mark all contour points first, then sample
+		vector<Mat>& gt_masks = objmasks[imgfiles[i].filename];
+		Mat contour_mask(cimg.rows, cimg.cols, CV_8U);
+		contour_mask.setTo(0);
+		for (size_t j=0; j<gt_masks.size(); j++) {
+			SuperPixel cur_gt_obj;
+			cur_gt_obj.mask = gt_masks[j];
+			resize(cur_gt_obj.mask, cur_gt_obj.mask, newsz);
+			seg_processor.ExtractBasicSegmentFeatures(cur_gt_obj, cimg, dmap);
+			
+			//vector<SuperPixel> sps;
+			//sps.push_back(cur_gt_obj);
+			//ImgVisualizer::DrawShapes(cimg, sps);
+			//waitKey(0);
+			for(auto pt : cur_gt_obj.original_contour) {
+				contour_mask.at<uchar>(pt) = 255;
+			}
+		}
+
+		vector<Point> pos_pts, neg_pts;
+		for(int r=0; r<cimg.rows; r++) for(int c=0; c<cimg.cols; c++) {
+			if(contour_mask.at<uchar>(r, c) == 255) pos_pts.push_back(Point(c, r));
+			else neg_pts.push_back(Point(c, r));
+		}
+		random_shuffle(pos_pts.begin(), pos_pts.end());
+		random_shuffle(neg_pts.begin(), neg_pts.end());
+
+		int max_samp_sz = MIN(samp_num_per_img, MIN(pos_pts.size(), neg_pts.size()));
+		for(int k=0; k<max_samp_sz; k++) {
+			Point cur_pts[2];
+			cur_pts[0] = pos_pts[k];
+			cur_pts[1] = neg_pts[k];
+			for(int kk=0; kk<2; kk++) {
+				bool pt_valid = true;
+				if(cur_pts[kk].x < kernel_size/2 || cur_pts[kk].y < kernel_size/2 || 
+					cur_pts[kk].x > cimg.cols-1-kernel_size/2 || cur_pts[kk].y > cimg.rows-1-kernel_size/2)
+					continue;
+
+				Rect cur_roi(cur_pts[kk].x-kernel_size/2, cur_pts[kk].y-kernel_size/2, kernel_size, kernel_size);
+				vector<Mat> feat_maps(3);
+				cimg(cur_roi).copyTo(feat_maps[0]);
+				pts3d_map(cur_roi).copyTo(feat_maps[1]);
+				normal_map(cur_roi).copyTo(feat_maps[2]);
+				// construct total feature
+				Mat cur_feat(1, kernel_size*kernel_size*9, CV_32F);
+				int cnt = 0;
+				for(int id=0; id<3; id++) {
+					for(int ch=0; ch<3; ch++) {
+						for(int r=0; r<kernel_size; r++) for(int c=0; c<kernel_size; c++) {
+							cur_feat.at<float>(cnt++) = feat_maps[id].at<Vec3f>(r, c).val[ch];
+						}
+					}
+				}
+				if(kk == 0) possamps.push_back(cur_feat);
+				else negsamps.push_back(cur_feat);
+			}
+
+		}
+
+		cout<<"Sampled image "<<i<<endl;
+	}
+
+	// divide into train and test data
+	Mat rank_train_data, rank_test_data, rank_train_label, rank_test_label;
+	for (int r=0; r<possamps.rows; r++) {
+		if(r<possamps.rows*0.8) {
+			rank_train_data.push_back(possamps.row(r));
+			rank_train_label.push_back(1);
+		}
+		else {
+			rank_test_data.push_back(possamps.row(r));
+			rank_test_label.push_back(1);
+		}
+	}
+	for (int r=0; r<negsamps.rows; r++) {
+		if(r<negsamps.rows*0.8) {
+			rank_train_data.push_back(negsamps.row(r));
+			rank_train_label.push_back(0);
+		}
+		else {
+			rank_test_data.push_back(negsamps.row(r));
+			rank_test_label.push_back(0);
+		}
+	}
+
+	delete db_man;
+	db_man = NULL;
+	cout<<"Rank training data ready."<<endl;
+
+	cout<<"Start to train..."<<endl;
+	learners::trees::DecisionTree dtree;
+	learners::trees::DTreeTrainingParams tparams;
+	tparams.feat_type = learners::trees::DTREE_FEAT_CONV;
+	tparams.feature_num = 400;
+	tparams.th_num = 100;
+	tparams.min_samp_num = 50;
+	dtree.TrainTree(rank_train_data, rank_train_label, tparams);
+	dtree.Save("bound_tree.dat");
+
+	dtree.EvaluateDecisionTree(rank_test_data, rank_test_label, 2);
+
+	return true;
+}
+
+bool Segmentor3D::RunBoundaryDetection(const Mat& cimg, const Mat& dmap, Mat& bmap) {
+	features::Feature3D feat3d;
+	Mat pts3d_map, normal_map, color_bmap, pts3d_bmap, normal_bmap;
+	feat3d.ComputeKinect3DMap(dmap, pts3d_map);
+	feat3d.ComputeNormalMap(pts3d_map, normal_map);
+
+	return true;
+}
+
+//////////////////////////////////////////////////////////////////////////
+
 // use up too much memory
 void Segmentor3D::BFS(int x, int y, int label, const vector<vector<FeatPoint>>& super_img) {
 	int imgw = super_img[0].size();

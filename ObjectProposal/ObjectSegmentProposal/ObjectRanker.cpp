@@ -289,7 +289,7 @@ namespace visualsearch
 				NYUDepth2DataMan nyuman;
 				FileInfos imgfiles, dmapfiles;
 				nyuman.GetImageList(imgfiles);
-				nyuman.GetDepthmapList(dmapfiles);
+				nyuman.GetDepthmapList(imgfiles, dmapfiles);
 				map<string, vector<Mat>> objmasks;
 				imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
 				nyuman.LoadGTMasks(imgfiles, objmasks);
@@ -419,7 +419,7 @@ namespace visualsearch
 					db_man = new RGBDECCV14();
 
 				db_man->GetImageList(imgfiles);
-				db_man->GetDepthmapList(dmapfiles);
+				db_man->GetDepthmapList(imgfiles, dmapfiles);
 				imgfiles.erase(imgfiles.begin()+400, imgfiles.end());
 				db_man->LoadGTMasks(imgfiles, objmasks);
 
