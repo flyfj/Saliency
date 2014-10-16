@@ -76,7 +76,24 @@ void ObjectProposalTester::TestSegmentor3D(const Mat& dmap) {
 
 }
 
-void ObjectProposalTester::TestBoundaryClf() {
+void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {
 	Segmentor3D seg_3d;
-	seg_3d.TrainBoundaryDetector(DB_NYU2_RGBD);
+	if(ifTrain)
+		seg_3d.TrainBoundaryDetector(DB_NYU2_RGBD);
+	else {
+		string nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211.jpg";
+		string nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211_d.png";
+		string uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-color.png";
+		string uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-depth.png";
+		string eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\8_08-34-01.jpg";
+		string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\8_08-34-01_Depth.png";
+		Mat cimg = imread(uw_cfn);
+		Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
+		dmap.convertTo(dmap, CV_32F);
+
+		imshow("cimg", cimg);
+		ImgVisualizer::DrawFloatImg("dmap", dmap);
+
+		seg_3d.RunBoundaryDetection(cimg, dmap, Mat());
+	}
 }

@@ -253,7 +253,8 @@ namespace visualsearch
 				rfparams.tree_params.th_num = 50;
 
 				rforest.Train(rank_train_data, rank_train_label, rfparams);
-				rforest.Save("forest_ranker.dat");
+				ofstream out("forest_ranker.dat");
+				rforest.Save(out);
 				//rforest.EvaluateRandomForest(rank_test_data, rank_test_label, 2);
 
 				// evaluate performance

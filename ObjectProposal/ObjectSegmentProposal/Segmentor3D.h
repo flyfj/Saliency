@@ -12,6 +12,7 @@
 #include "Features/Feature3D.h"
 #include "Processors/Segmentation/SegmentProcessor.h"
 #include "Learners/RandomTrees/DecisionTree.h"
+#include "Learners/RandomTrees/RandomForest.h"
 using namespace visualsearch;
 using namespace visualsearch::common;
 using namespace visualsearch::io::dataset;

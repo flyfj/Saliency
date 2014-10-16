@@ -26,7 +26,7 @@ public:
 
 	void TestSegmentor3D(const Mat& dmap);
 
-	void TestBoundaryClf();
+	void TestBoundaryClf(bool ifTrain);
 
 	void Random();
 

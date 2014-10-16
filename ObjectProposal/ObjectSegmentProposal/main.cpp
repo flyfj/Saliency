@@ -81,7 +81,8 @@ int main()
 	//return 0;
 	ObjectProposalTester tester;
 	//tester.BatchProposal();
-	tester.TestBoundaryClf();
+	tester.TestBoundaryClf(false);
+	waitKey(0);
 	return 0;
 	string nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211.jpg";
 	string nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211_d.png";

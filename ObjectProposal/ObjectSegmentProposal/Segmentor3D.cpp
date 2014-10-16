@@ -142,7 +142,7 @@ bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {
 	FileInfos imgfiles, dmapfiles;
 	db_man->GetImageList(imgfiles);
 	random_shuffle(imgfiles.begin(), imgfiles.end());
-	imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
+	imgfiles.erase(imgfiles.begin()+15, imgfiles.end());
 	db_man->GetDepthmapList(imgfiles, dmapfiles);
 	db_man->LoadGTMasks(imgfiles, objmasks);
 
@@ -272,26 +272,88 @@ bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {
 	cout<<"Rank training data ready."<<endl;
 
 	cout<<"Start to train..."<<endl;
+	ofstream out("bound_forest.dat");
 	learners::trees::DecisionTree dtree;
 	learners::trees::DTreeTrainingParams tparams;
 	tparams.feat_type = learners::trees::DTREE_FEAT_CONV;
 	tparams.feature_num = 400;
 	tparams.th_num = 100;
 	tparams.min_samp_num = 50;
-	dtree.TrainTree(rank_train_data, rank_train_label, tparams);
-	dtree.Save("bound_tree.dat");
+	learners::trees::RandomForest rforest;
+	learners::trees::RForestTrainingParams rfparams;
+	rfparams.num_trees = 4;
+	rfparams.split_disjoint = false;
+	rfparams.tree_params = tparams;
+	rforest.Train(rank_train_data, rank_train_label, rfparams);
+	rforest.Save(out);
+	//dtree.TrainTree(rank_train_data, rank_train_label, tparams);
+	//dtree.Save("bound_tree.dat");
 
-	dtree.EvaluateDecisionTree(rank_test_data, rank_test_label, 2);
+	rforest.EvaluateRandomForest(rank_test_data, rank_test_label, 2);
+	//dtree.EvaluateDecisionTree(rank_test_data, rank_test_label, 2);
 
 	return true;
 }
 
 bool Segmentor3D::RunBoundaryDetection(const Mat& cimg, const Mat& dmap, Mat& bmap) {
+	// load classifier
+	learners::trees::DecisionTree dtree;
+	learners::trees::DTreeTrainingParams tparams;
+	tparams.feat_type = learners::trees::DTREE_FEAT_CONV;
+	tparams.feature_num = 400;
+	tparams.th_num = 100;
+	tparams.min_samp_num = 50;
+	dtree.defaultParams = tparams;
+	learners::trees::RandomForest rforest;
+	learners::trees::RForestTrainingParams rfparams;
+	rfparams.num_trees = 4;
+	rfparams.split_disjoint = false;
+	rfparams.tree_params = tparams;
+	rforest.defaultParams = rfparams;
+	ifstream in("bound_forest.dat");
+	if( !rforest.Load(in) )
+		return false;
+	
+	// compute feature maps
+	Size newsz;
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 	features::Feature3D feat3d;
-	Mat pts3d_map, normal_map, color_bmap, pts3d_bmap, normal_bmap;
-	feat3d.ComputeKinect3DMap(dmap, pts3d_map);
-	feat3d.ComputeNormalMap(pts3d_map, normal_map);
+	vector<Mat> feat_maps(3);
+	cimg.convertTo(feat_maps[0], CV_32F, 1.f/255);
+	resize(feat_maps[0], feat_maps[0], newsz);
+	Mat new_dmap;
+	resize(dmap, new_dmap, newsz);
+	feat3d.ComputeKinect3DMap(new_dmap, feat_maps[1]);
+	feat3d.ComputeNormalMap(feat_maps[1], feat_maps[2]);
 
+	bmap.create(newsz.height, newsz.width, CV_32F);
+	bmap.setTo(0);
+	//Mat extend_cmap;
+	//copyMakeBorder(color_map, extend_cmap, 2, 2, 2, 2, BORDER_REFLECT);
+	for(int r=2; r<newsz.height-2; r++) for(int c=2; c<newsz.width-2; c++) {
+		Mat cur_feat(1, 5*5*9, CV_32F);
+		int cnt = 0;
+		int minx = c-2;
+		int miny = r-2;
+		for(int i=0; i<3; i++) {
+			for(int ch=0; ch<3; ch++) {
+				for(int rr=miny; rr<miny+5; rr++) for(int cc=minx; cc<minx+5; cc++) {
+					cur_feat.at<float>(cnt++) = feat_maps[i].at<Vec3f>(rr, cc).val[ch];
+				}
+			}
+		}
+
+		vector<double> allscores;
+		int pred_cls = rforest.ForestPredict(cur_feat, allscores);
+		bmap.at<float>(r, c) = (float)allscores[1];
+	}
+	
+	double minv, maxv;
+	minMaxLoc(bmap, &minv, &maxv);
+	cout<<minv<<" "<<maxv<<endl;
+	//medianBlur(bmap, bmap, 3);
+	ImgVisualizer::DrawFloatImg("bmap", bmap);
+	
 	return true;
 }
 
