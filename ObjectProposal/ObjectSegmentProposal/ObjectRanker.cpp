@@ -20,7 +20,7 @@ namespace visualsearch
 
 			//////////////////////////////////////////////////////////////////////////
 
-			bool ObjectRanker::RankSegments(const Mat& cimg, const Mat& dmap, const vector<SuperPixel>& sps, SegmentRankType rtype, vector<int>& orded_sp_ids)
+			bool ObjectRanker::RankSegments(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps, SegmentRankType rtype, vector<int>& orded_sp_ids)
 			{
 				if(rtype == SEG_RANK_CC)
 					return RankSegmentsByCC(cimg, sps, orded_sp_ids);
@@ -54,12 +54,11 @@ namespace visualsearch
 
 			// use saliency map to find the best salient segments
 			// multi-scale contrast is used to filter  
-			bool ObjectRanker::RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids)
+			bool ObjectRanker::RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps, vector<int>& orded_sp_ids)
 			{
 				bool use_comp = true;
 				map<float, int, greater<float>> sp_scores;
 				if(use_comp) {
-
 					// compute composition cost for each superpixel
 					ImageSegmentor segmentor;
 					segmentor.m_dThresholdK = 30.f;

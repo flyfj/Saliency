@@ -53,13 +53,13 @@ namespace visualsearch {
 
 				bool RankWindowsBySaliency(const Mat& cimg, vector<ImgWin>& wins, vector<int>& ordered_win_ids);
 
-				bool RankSegments(const Mat& cimg, const Mat& dmap, const vector<SuperPixel>& sps, SegmentRankType rtype, vector<int>& orded_sp_ids);
+				bool RankSegments(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps, SegmentRankType rtype, vector<int>& orded_sp_ids);
 
 				bool RankWindows(const Mat& cimg, const Mat& dmap, const vector<ImgWin>& wins, vector<int>& orded_win_ids);
 
 			private:
 				// hand-craft rank methods
-				bool RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids);
+				bool RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps, vector<int>& orded_sp_ids);
 
 				bool RankSegmentsByCC(const Mat& cimg, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids);
 

@@ -92,10 +92,11 @@ bool Segmentor3D::RunRegionGrowing(const Mat& pts3d_bmap, vector<SuperPixel>& re
 
 	Mat bmap_th;
 	threshold(pts3d_bmap, bmap_th, DIST_TH, 255, CV_THRESH_BINARY_INV);
-	imshow("", bmap_th);
+	imshow("bmap_th", bmap_th);
 	waitKey(10);
 
 	res_sps.clear();
+	res_sps.reserve(100);
 	labels.create(pts3d_bmap.rows, pts3d_bmap.cols, CV_32S);
 	labels.setTo(-1);
 	int label_cnt = 0;
@@ -110,13 +111,11 @@ bool Segmentor3D::RunRegionGrowing(const Mat& pts3d_bmap, vector<SuperPixel>& re
 			int area = floodFill(bmap, cur_mask, Point(c, r), 255, &ccomp, Scalar(DIST_TH, DIST_TH, DIST_TH), Scalar(DIST_TH, DIST_TH, DIST_TH), flags);
 			SuperPixel new_sp;
 			cur_mask(valid_roi).copyTo(new_sp.mask);
+			res_sps.push_back(new_sp);
 			labels.setTo(label_cnt++, new_sp.mask);
 		}
 	}
-	cout<<label_cnt<<endl;
-
-	// extract candidates
-
+	cout<<"proposal num: "<<label_cnt<<endl;
 
 	// draw
 	cv::RNG rng_gen(NULL);

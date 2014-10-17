@@ -115,7 +115,7 @@
     <ClInclude Include="ObjectRanker.h" />
     <ClInclude Include="Segmentor3D.h" />
     <ClInclude Include="targetver.h" />
-    <ClInclude Include="Tester.h" />
+    <ClInclude Include="ObjectProposalTester.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\ImgVisualizer.cpp" />
@@ -166,7 +166,7 @@
     <ClCompile Include="ObjSegmentProposal.cpp" />
     <ClCompile Include="ObjectRanker.cpp" />
     <ClCompile Include="Segmentor3D.cpp" />
-    <ClCompile Include="Tester.cpp" />
+    <ClCompile Include="ObjectProposalTester.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

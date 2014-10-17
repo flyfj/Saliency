@@ -87,9 +87,6 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.h">
       <Filter>Library\segmentation</Filter>
     </ClInclude>
-    <ClInclude Include="Tester.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.h">
       <Filter>Library\segmentation</Filter>
     </ClInclude>
@@ -100,6 +97,9 @@
       <Filter>Library\segmentation</Filter>
     </ClInclude>
     <ClInclude Include="Segmentor3D.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ObjectProposalTester.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -230,9 +230,6 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Composition\SalientRGBDRegionDetector.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
-    <ClCompile Include="Tester.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Composition\SegmentBasedWindowComposer.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
@@ -250,6 +247,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\Berkeley3DDataManager.cpp">
       <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectProposalTester.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -55,35 +55,26 @@ void ObjectProposalTester::BatchProposal() {
 
 void ObjectProposalTester::TestSegmentor3D() {
 
+	Mat cimg = imread(uw_cfn);
 	Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	Size newsz;
 	ToolFactory::compute_downsample_ratio(Size(dmap.cols, dmap.rows), 400, newsz);
+	resize(cimg, cimg, newsz);
 	resize(dmap, dmap, newsz);
+	imshow("color", cimg);
 	ImgVisualizer::DrawFloatImg("dmap", dmap);
-	features::Feature3D feat3d;
-	Mat pts_3d;
-	feat3d.ComputeKinect3DMap(dmap, pts_3d, false);
-	Mat pts_bmap;
-	feat3d.ComputeBoundaryMap(pts_3d, features::BMAP_3DPTS, pts_bmap);
-	Mat normal_bmap, normal_map;
-	feat3d.ComputeNormalMap(pts_3d, normal_map);
-	ImgVisualizer::DrawNormals("normal", normal_map);
-	feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
-	imshow("3d", pts_3d);
-	ImgVisualizer::DrawFloatImg("bmap", normal_bmap);
-	//imwrite("bmap.png", pts_bmap);
+	
+	objectproposal::ObjSegmentProposal seg_prop;
+	vector<SuperPixel> sps;
+	seg_prop.Run(cimg, dmap, 20, sps);
+
+	// display results
+	Mat oimg;
+	ImgVisualizer::DrawShapes(cimg, sps, oimg);
+	resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
+	imshow("results", oimg);
 	waitKey(0);
-
-	ofstream out("ptsbmap.txt");
-	for(int r=0; r<pts_bmap.rows; r++) for(int c=0; c<pts_bmap.cols; c++)
-		out<<pts_bmap.at<float>(r, c)<<endl;
-
-	double start_t = getTickCount();
-	Segmentor3D seg3d;
-	seg3d.DIST_TH = 0.005f;
-	seg3d.RunRegionGrowing(pts_bmap);
-	cout<<"Time cost: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
 }
 
 void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {
