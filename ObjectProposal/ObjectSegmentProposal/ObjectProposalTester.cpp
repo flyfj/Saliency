@@ -57,30 +57,70 @@ void ObjectProposalTester::TestSegmentor3D() {
 
 	char str[100];
 	for(int id=1; id<180; id++) {
-		sprintf_s(str, "kitchen_small_1_%d.png", id);
+		sprintf_s(str, "meeting_small_1_%d.png", id);
 		string cfn = uw_cfn + string(str);
-		sprintf_s(str, "kitchen_small_1_%d_depth.png", id);
+		sprintf_s(str, "meeting_small_1_%d_depth.png", id);
 		string dfn = uw_dfn + string(str);
+		sprintf_s(str, "%d.txt", id);
+		string gtfn = uw_gt_dir + string(str);
 
+		// process
 		Mat cimg = imread(cfn);
 		Mat dmap = imread(dfn, CV_LOAD_IMAGE_UNCHANGED);
 		dmap.convertTo(dmap, CV_32F);
 		Size newsz;
-		ToolFactory::compute_downsample_ratio(Size(dmap.cols, dmap.rows), 400, newsz);
+		float ratio = ToolFactory::compute_downsample_ratio(Size(dmap.cols, dmap.rows), 400, newsz);
 		resize(cimg, cimg, newsz);
 		resize(dmap, dmap, newsz);
+		// load gt boxes
+		ifstream in(gtfn.c_str());
+		int win_num;
+		in>>win_num;
+		vector<ImgWin> gt_wins(win_num);
+		for(int i=0; i<win_num; i++) {
+			int xmin, ymin, xmax, ymax;
+			in>>xmin>>ymin>>xmax>>ymax;
+			xmin = (int)(xmin*ratio);
+			ymin = (int)(ymin*ratio);
+			xmax = (int)(xmax*ratio);
+			ymax = (int)(ymax*ratio);
+			gt_wins[i] = ImgWin(xmin, ymin, xmax-xmin, ymax-ymin);
+		}
+		ImgVisualizer::DrawWinsOnImg("gt", cimg, gt_wins);
+		waitKey(10);
+
 		imshow("color", cimg);
 		ImgVisualizer::DrawFloatImg("dmap", dmap);
 
 		objectproposal::ObjSegmentProposal seg_prop;
 		vector<SuperPixel> sps;
-		seg_prop.Run(cimg, dmap, 20, sps);
+		seg_prop.Run(cimg, dmap, 50, sps);
+
+		// only show gt covered objects
+		vector<SuperPixel> vis_sps;
+		vis_sps.reserve(50);
+		vector<SuperPixel> correct_sps;
+		for(auto cursp : sps) {
+			if(vis_sps.size() < 15)
+				vis_sps.push_back(cursp);
+
+			for(size_t i=0; i<gt_wins.size(); i++) {
+				Rect intersect_rect = cursp.box & gt_wins[i];
+				Rect union_rect = cursp.box | gt_wins[i];
+				if( intersect_rect.area()*1.f / union_rect.area() > 0.5f )
+					correct_sps.push_back(cursp);
+			}
+		}
 
 		// display results
 		sprintf_s(str, "res_%d.jpg", id);
+		mkdir(save_dir.c_str());
 		string savefn = save_dir + string(str);
 		Mat oimg;
-		ImgVisualizer::DrawShapes(cimg, sps, oimg, false);
+		ImgVisualizer::tmp_draw_gt = false;
+		ImgVisualizer::DrawShapes(cimg, vis_sps, oimg, false);
+		ImgVisualizer::tmp_draw_gt = true;
+		ImgVisualizer::DrawShapes(oimg, correct_sps, oimg, false);
 		resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
 		imwrite(savefn, oimg);
 		imshow("results", oimg);
