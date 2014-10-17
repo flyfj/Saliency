@@ -88,12 +88,14 @@ bool Segmentor3D::Run(const vector<vector<FeatPoint>>& super_img) {
 	return true;
 }
 
-bool Segmentor3D::RunRegionGrowing(const Mat& pts3d_bmap) {
+bool Segmentor3D::RunRegionGrowing(const Mat& pts3d_bmap, vector<SuperPixel>& res_sps) {
 
 	Mat bmap_th;
 	threshold(pts3d_bmap, bmap_th, DIST_TH, 255, CV_THRESH_BINARY_INV);
 	imshow("", bmap_th);
 	waitKey(10);
+
+	res_sps.clear();
 	labels.create(pts3d_bmap.rows, pts3d_bmap.cols, CV_32S);
 	labels.setTo(-1);
 	int label_cnt = 0;
@@ -106,10 +108,15 @@ bool Segmentor3D::RunRegionGrowing(const Mat& pts3d_bmap) {
 			int flags = 8 + (255 << 8) + CV_FLOODFILL_MASK_ONLY;
 			Rect ccomp;
 			int area = floodFill(bmap, cur_mask, Point(c, r), 255, &ccomp, Scalar(DIST_TH, DIST_TH, DIST_TH), Scalar(DIST_TH, DIST_TH, DIST_TH), flags);
-			labels.setTo(label_cnt++, cur_mask(valid_roi));
+			SuperPixel new_sp;
+			cur_mask(valid_roi).copyTo(new_sp.mask);
+			labels.setTo(label_cnt++, new_sp.mask);
 		}
 	}
 	cout<<label_cnt<<endl;
+
+	// extract candidates
+
 
 	// draw
 	cv::RNG rng_gen(NULL);
@@ -122,7 +129,7 @@ bool Segmentor3D::RunRegionGrowing(const Mat& pts3d_bmap) {
 		seg_img.at<Vec3b>(r, c) = (label == -1? Vec3b(0,0,0):seg_colors[label]);
 	}
 	imshow("segimg", seg_img);
-	cv::waitKey(0);
+	//cv::waitKey(0);
 
 	return true;
 }

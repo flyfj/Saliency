@@ -1,7 +1,7 @@
 // ObjectSegmentProposal.cpp : Defines the entry point for the console application.
 //
 #include "Features/Feature3D.h"
-#include "Tester.h"
+#include "ObjectProposalTester.h"
 #include "Processors/Segmentation/FixationSegmentator.h"
 
 #include "ObjSegmentProposal.h"
@@ -69,115 +69,10 @@
 
 int main()
 {
-
-	Mat dmap, cimg, mat3dpts, normals;
-	visualsearch::common::tools::RGBDTools rgbdtool;
-	objectproposal::ObjSegmentProposal prop;
-	visualsearch::processors::segmentation::IterativeSegmentor segmentor;
-	visualsearch::processors::segmentation::ImageSegmentor img_segmentor;
-	ObjProposalDemo demo;
-	segmentation::FixationSegmentor fix_seg;
-	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
-	//return 0;
 	ObjectProposalTester tester;
+	tester.TestSegmentor3D();
 	//tester.BatchProposal();
-	tester.TestBoundaryClf(false);
-	waitKey(0);
-	return 0;
-	string nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211.jpg";
-	string nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211_d.png";
-	string uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-color.png";
-	string uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-depth.png";
-	string eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\8_08-34-01.jpg";
-	string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\8_08-34-01_Depth.png";
-	cimg = imread(eccv_cfn);
-	imshow("cimg", cimg);
-	dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
-	dmap.convertTo(dmap, CV_32F);
-	tester.TestSegmentor3D(dmap);
-	visualsearch::features::Feature3D feat3d;
-	Mat feat_map, normal_mat;
-	feat3d.ComputeKinect3DMap(dmap, feat_map);
-	feat3d.ComputeNormalMap(feat_map, normal_mat);
-	feat3d.ComputeBoundaryMap(feat_map, features::BMAP_3DPTS, normal_mat);
-	ImgVisualizer::DrawFloatImg("bmap", feat_map);
-	waitKey(0);
-	ImgVisualizer::DrawNormals("normal", normal_mat);
-	//fix_seg.Init(cimg, dmap, segmentation::SP_COLOR);
-	//fix_seg.ExtractObjects(250, 200, vector<SuperPixel>());
-	//resize(dmap, dmap, Size(dmap.cols/2, dmap.rows/2));
-	//rgbdtool.KinectDepthTo3D(dmap, mat3dpts);
-	//mat3dpts.convertTo(mat3dpts, CV_8U, 255);
-	//img_segmentor.DoSegmentation(mat3dpts);
-	//imshow("seg", img_segmentor.m_segImg);
-	//rgbdtool.SavePointsToOBJ("demo.obj", mat3dpts);
-	//rgbdtool.ComputeNormals(mat3dpts, normals);
-	//demo.RunObjSegProposal(cimg, dmap, Mat());
-	waitKey(0);
-	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
-
-	return 0;
-	
-	/*visualsearch::common::tools::RGBDTools rgbdtool;
-	dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
-	dmap.convertTo(dmap, CV_32F);
-	Mat pts;
-	rgbdtool.KinectDepthTo3D(dmap, pts);
-	rgbdtool.SavePointsToOBJ("d:\\test.obj", pts);
-	return 0;*/
-
-
-	segmentor.PrepareMergerTrainingSamples();
-	getchar();
-	return 0;
-
-	
-	cimg = imread("d:\\imgs\\img_0263.png");
-	dmap = imread("D:\\imgs\\depth.png", CV_LOAD_IMAGE_UNCHANGED);
-	dmap.convertTo(dmap, CV_32F);
-	Mat pts;
-	vector<SuperPixel> sps;
-	segmentor.verbose = true;
-	segmentor.Init(cimg, dmap);
-	segmentor.Run();
-	segmentor.SaveResults("E:\\res\\seg_prop\\", cimg, sps);
-	//rgbdtool.KinectDepthTo3D(dmap, pts);
-	//prop.Compute3DDistMap(dmap, Mat());
-	//rgbdtool.SavePointsToOBJ("d:\\test.obj", pts);
-	//return 0;
-
-	demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
-	return 0;
-	//demo.RunVideoDemo(SENSOR_KINECT, DEMO_OBJECT_SEG);
-	
-	waitKey(0);
-	//demo.RunObjWinProposal();
-	return 0;
-
-	visualsearch::processors::attention::ObjectRanker ranker;
-	ranker.LearnObjectWindowPredictor();
-	getchar();
-	return 0;
-
-	// get input
-	visualsearch::io::dataset::NYUDepth2DataMan nyuman;
-	FileInfos imgfiles, dmapfiles;
-	nyuman.GetImageList(imgfiles);
-	nyuman.GetDepthmapList(imgfiles, dmapfiles);
-	Mat img = imread(imgfiles[5].filepath);
-	nyuman.LoadDepthData(dmapfiles[5].filepath, dmap);
-	resize(img, img, Size(300,300));
-	resize(dmap, dmap, Size(300,300));
-	normalize(dmap, dmap, 1, 0, NORM_MINMAX);
-
-	
-
-	// process
-	objectproposal::ObjSegmentProposal processor;
-	vector<SuperPixel> res;
-	processor.Run(img, dmap, 10, res);
-	processor.VisProposals(img, res);
-	
+	//tester.TestBoundaryClf(false);
 	waitKey(0);
 	return 0;
 }

@@ -37,7 +37,7 @@ class Segmentor3D
 public:
 	Segmentor3D(void);
 
-	bool RunRegionGrowing(const Mat& pts3d_bmap);
+	bool RunRegionGrowing(const Mat& pts3d_bmap, vector<SuperPixel>& res_sps);
 	bool Run(const vector<vector<FeatPoint>>& super_img);
 
 	bool RunBFS(const vector<vector<FeatPoint>>& super_img);

@@ -1,4 +1,4 @@
-#include "Tester.h"
+#include "ObjectProposalTester.h"
 
 void ObjectProposalTester::TestRankerLearner() {
 	processors::attention::ObjectRanker ranker;
@@ -53,8 +53,13 @@ void ObjectProposalTester::BatchProposal() {
 
 }
 
-void ObjectProposalTester::TestSegmentor3D(const Mat& dmap) {
+void ObjectProposalTester::TestSegmentor3D() {
 
+	Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	dmap.convertTo(dmap, CV_32F);
+	Size newsz;
+	ToolFactory::compute_downsample_ratio(Size(dmap.cols, dmap.rows), 400, newsz);
+	resize(dmap, dmap, newsz);
 	ImgVisualizer::DrawFloatImg("dmap", dmap);
 	features::Feature3D feat3d;
 	Mat pts_3d;
@@ -70,10 +75,15 @@ void ObjectProposalTester::TestSegmentor3D(const Mat& dmap) {
 	//imwrite("bmap.png", pts_bmap);
 	waitKey(0);
 
+	ofstream out("ptsbmap.txt");
+	for(int r=0; r<pts_bmap.rows; r++) for(int c=0; c<pts_bmap.cols; c++)
+		out<<pts_bmap.at<float>(r, c)<<endl;
+
+	double start_t = getTickCount();
 	Segmentor3D seg3d;
 	seg3d.DIST_TH = 0.005f;
 	seg3d.RunRegionGrowing(pts_bmap);
-
+	cout<<"Time cost: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
 }
 
 void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {
@@ -81,12 +91,6 @@ void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {
 	if(ifTrain)
 		seg_3d.TrainBoundaryDetector(DB_NYU2_RGBD);
 	else {
-		string nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211.jpg";
-		string nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211_d.png";
-		string uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-color.png";
-		string uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scenes-v2_imgs\\imgs\\scene_02\\00001-depth.png";
-		string eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\8_08-34-01.jpg";
-		string eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\8_08-34-01_Depth.png";
 		Mat cimg = imread(uw_cfn);
 		Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
 		dmap.convertTo(dmap, CV_32F);
