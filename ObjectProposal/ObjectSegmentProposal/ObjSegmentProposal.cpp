@@ -93,7 +93,7 @@ namespace objectproposal
 				cout<<"Time cost: "<<(double)(getTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
 
 				sps.insert(sps.end(), res_objs.begin(), res_objs.end());
-				waitKey(0);
+				waitKey(10);
 			}
 		}
 		
@@ -113,8 +113,10 @@ namespace objectproposal
 		SegmentProcessor seg_proc;
 		for(auto& sp : res_sps) seg_proc.ExtractBasicSegmentFeatures(sp, cimg, dmap);
 		cout<<"object candidates: "<<res_sps.size()<<endl;
-		ImgVisualizer::DrawShapes(cimg, res_sps);
-		waitKey(0);
+		Mat shapes;
+		ImgVisualizer::DrawShapes(cimg, res_sps, shapes, false);
+		imshow("shapes", shapes);
+		waitKey(10);
 
 		// rank
 		cout<<"Ranking segments..."<<endl;

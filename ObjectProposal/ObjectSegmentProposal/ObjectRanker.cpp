@@ -26,6 +26,8 @@ namespace visualsearch
 					return RankSegmentsByCC(cimg, sps, orded_sp_ids);
 				if(rtype == SEG_RANK_SALIENCY)
 					return RankSegmentsBySaliency(cimg, dmap, sps, orded_sp_ids);
+				if(rtype == SEG_RANK_SHAPE)
+					return RankSegmentsByShape(sps, orded_sp_ids);
 
 				return true;
 			}
@@ -57,6 +59,10 @@ namespace visualsearch
 			bool ObjectRanker::RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps, vector<int>& orded_sp_ids)
 			{
 				bool use_comp = true;
+				// rank by shape first
+				vector<int> shape_rank_ids;
+				RankSegmentsByShape(sps, shape_rank_ids);
+
 				map<float, int, greater<float>> sp_scores;
 				if(use_comp) {
 					// compute composition cost for each superpixel
@@ -70,9 +76,10 @@ namespace visualsearch
 						segprocessor.ExtractBasicSegmentFeatures(segmentor.superPixels[i], cimg, dmap);
 
 					sal_comp_.Init(SAL_COLOR, cimg, dmap, segmentor.superPixels);
-					for (size_t i=0; i<sps.size(); i++) {
-						float score = sal_comp_.Compose(sps[i]);// * ((float)sps[i].area / contourArea(sps[i].convex_hull));
-						sp_scores[score] = i;
+					for (size_t i=0; i<shape_rank_ids.size(); i++) {
+						int cur_id = shape_rank_ids[i];
+						float score = sal_comp_.Compose(sps[cur_id]);// * ((float)sps[i].area / contourArea(sps[i].convex_hull));
+						sp_scores[score] = cur_id;
 					}
 				}
 				else {
@@ -130,6 +137,30 @@ namespace visualsearch
 
 				return true;
 			}
+
+			bool ObjectRanker::RankSegmentsByShape(const vector<SuperPixel>& sps, vector<int>& ordered_sp_ids) {
+				int topK = MIN(200, sps.size());
+				vector<Point2f> order_pairs;
+				order_pairs.reserve(topK);
+
+				for(size_t i=0; i<sps.size(); i++) {
+					float conv_val = sps[i].area*1.f / sps[i].convex_hull_area;
+					order_pairs.push_back(Point2f(i, conv_val));
+				}
+
+				sort(order_pairs.begin(), order_pairs.end(), [](Point2f a, Point2f b) {
+					return a.y > b.y;
+				});
+
+				ordered_sp_ids.clear();
+				for(size_t i=0; i<topK; i++) {
+					ordered_sp_ids.push_back((int)order_pairs[i].x);
+				}
+
+				return true;
+			}
+
+			//////////////////////////////////////////////////////////////////////////
 
 			bool ObjectRanker::ComputeSegmentRankFeature(const Mat& cimg, const Mat& dmap, SuperPixel& sp, Mat& feat)
 			{

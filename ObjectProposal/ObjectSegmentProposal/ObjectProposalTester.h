@@ -25,10 +25,12 @@ public:
 	ObjectProposalTester() {
 		nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211.jpg";
 		nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211_d.png";
-		uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\desk\\desk_1\\desk_1_30.png";
-		uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\desk\\desk_1\\desk_1_30_depth.png";
+		uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\kitchen_small\\kitchen_small_1\\";
+		uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\kitchen_small\\kitchen_small_1\\";
 		eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\8_08-34-01.jpg";
 		eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\8_08-34-01_Depth.png";
+
+		save_dir = "E:\\res\\segments\\";
 	}
 
 	void TestRankerLearner();
@@ -49,6 +51,7 @@ private:
 	string uw_dfn;
 	string eccv_cfn;
 	string eccv_dfn;
+	string save_dir;
 
 };
 

@@ -37,7 +37,8 @@ namespace visualsearch {
 			{
 				SEG_RANK_CC,
 				SEG_RANK_SALIENCY,
-				SEG_RANK_LEARN
+				SEG_RANK_LEARN,
+				SEG_RANK_SHAPE
 			};
 
 			// rank segment based on objectness
@@ -62,6 +63,8 @@ namespace visualsearch {
 				bool RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps, vector<int>& orded_sp_ids);
 
 				bool RankSegmentsByCC(const Mat& cimg, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids);
+
+				bool RankSegmentsByShape(const vector<SuperPixel>& sps, vector<int>& ordered_sp_ids);
 
 				//////////////////////////////////////////////////////////////////////////
 

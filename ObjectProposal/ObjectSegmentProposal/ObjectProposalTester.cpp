@@ -55,26 +55,38 @@ void ObjectProposalTester::BatchProposal() {
 
 void ObjectProposalTester::TestSegmentor3D() {
 
-	Mat cimg = imread(uw_cfn);
-	Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
-	dmap.convertTo(dmap, CV_32F);
-	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(dmap.cols, dmap.rows), 400, newsz);
-	resize(cimg, cimg, newsz);
-	resize(dmap, dmap, newsz);
-	imshow("color", cimg);
-	ImgVisualizer::DrawFloatImg("dmap", dmap);
-	
-	objectproposal::ObjSegmentProposal seg_prop;
-	vector<SuperPixel> sps;
-	seg_prop.Run(cimg, dmap, 20, sps);
+	char str[100];
+	for(int id=1; id<180; id++) {
+		sprintf_s(str, "kitchen_small_1_%d.png", id);
+		string cfn = uw_cfn + string(str);
+		sprintf_s(str, "kitchen_small_1_%d_depth.png", id);
+		string dfn = uw_dfn + string(str);
 
-	// display results
-	Mat oimg;
-	ImgVisualizer::DrawShapes(cimg, sps, oimg);
-	resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
-	imshow("results", oimg);
-	waitKey(0);
+		Mat cimg = imread(cfn);
+		Mat dmap = imread(dfn, CV_LOAD_IMAGE_UNCHANGED);
+		dmap.convertTo(dmap, CV_32F);
+		Size newsz;
+		ToolFactory::compute_downsample_ratio(Size(dmap.cols, dmap.rows), 400, newsz);
+		resize(cimg, cimg, newsz);
+		resize(dmap, dmap, newsz);
+		imshow("color", cimg);
+		ImgVisualizer::DrawFloatImg("dmap", dmap);
+
+		objectproposal::ObjSegmentProposal seg_prop;
+		vector<SuperPixel> sps;
+		seg_prop.Run(cimg, dmap, 20, sps);
+
+		// display results
+		sprintf_s(str, "res_%d.jpg", id);
+		string savefn = save_dir + string(str);
+		Mat oimg;
+		ImgVisualizer::DrawShapes(cimg, sps, oimg, false);
+		resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
+		imwrite(savefn, oimg);
+		imshow("results", oimg);
+		waitKey(10);
+	}
+	
 }
 
 void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {

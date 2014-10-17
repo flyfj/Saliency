@@ -90,31 +90,36 @@ bool Segmentor3D::Run(const vector<vector<FeatPoint>>& super_img) {
 
 bool Segmentor3D::RunRegionGrowing(const Mat& pts3d_bmap, vector<SuperPixel>& res_sps) {
 
-	Mat bmap_th;
-	threshold(pts3d_bmap, bmap_th, DIST_TH, 255, CV_THRESH_BINARY_INV);
-	imshow("bmap_th", bmap_th);
-	waitKey(10);
+	int imgsz = pts3d_bmap.rows*pts3d_bmap.cols;
+	vector<Mat> bmap_ths(2);
+	threshold(pts3d_bmap, bmap_ths[0], DIST_TH, 255, CV_THRESH_BINARY_INV);
+	threshold(pts3d_bmap, bmap_ths[1], DIST_TH, 255, CV_THRESH_BINARY);
+	/*imshow("bmap_th", bmap_ths[0]);
+	waitKey(10);*/
 
 	res_sps.clear();
 	res_sps.reserve(100);
 	labels.create(pts3d_bmap.rows, pts3d_bmap.cols, CV_32S);
 	labels.setTo(-1);
 	int label_cnt = 0;
-	for(int r=0; r<pts3d_bmap.rows; r++) for(int c=0; c<pts3d_bmap.cols; c++) {
-		if(labels.at<int>(r, c) == -1 && bmap_th.at<float>(r,c) > 0) {
-			Mat cur_mask(pts3d_bmap.rows+2, pts3d_bmap.cols+2, CV_8U);
-			cur_mask.setTo(0);
-			Mat bmap = bmap_th.clone();
-			Rect valid_roi = Rect(1, 1, cur_mask.cols-2, cur_mask.rows-2);
-			int flags = 8 + (255 << 8) + CV_FLOODFILL_MASK_ONLY;
-			Rect ccomp;
-			int area = floodFill(bmap, cur_mask, Point(c, r), 255, &ccomp, Scalar(DIST_TH, DIST_TH, DIST_TH), Scalar(DIST_TH, DIST_TH, DIST_TH), flags);
-			SuperPixel new_sp;
-			cur_mask(valid_roi).copyTo(new_sp.mask);
-			res_sps.push_back(new_sp);
-			labels.setTo(label_cnt++, new_sp.mask);
+	for(int id=0; id<2; id++) {
+		for(int r=0; r<pts3d_bmap.rows; r++) for(int c=0; c<pts3d_bmap.cols; c++) {
+			if(labels.at<int>(r, c) == -1 && bmap_ths[id].at<float>(r,c) > 0) {
+				Mat cur_mask(pts3d_bmap.rows+2, pts3d_bmap.cols+2, CV_8U);
+				cur_mask.setTo(0);
+				Mat bmap = bmap_ths[id].clone();
+				Rect valid_roi = Rect(1, 1, cur_mask.cols-2, cur_mask.rows-2);
+				int flags = 8 + (255 << 8) + CV_FLOODFILL_MASK_ONLY;
+				Rect ccomp;
+				int area = floodFill(bmap, cur_mask, Point(c, r), 255, &ccomp, Scalar(DIST_TH, DIST_TH, DIST_TH), Scalar(DIST_TH, DIST_TH, DIST_TH), flags);
+				SuperPixel new_sp;
+				cur_mask(valid_roi).copyTo(new_sp.mask);
+				if(area > imgsz*0.01f) res_sps.push_back(new_sp);
+				labels.setTo(label_cnt++, new_sp.mask);
+			}
 		}
 	}
+
 	cout<<"proposal num: "<<label_cnt<<endl;
 
 	// draw
