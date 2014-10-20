@@ -29,6 +29,10 @@ namespace objectproposal
 
 		bool VisProposals(const Mat& cimg, const vector<SuperPixel>& res);
 
+		//////////////////////////////////////////////////////////////////////////
+		// evaluation
+		void ComputePRCurves(const vector<SuperPixel>& ranked_objs, const vector<Mat>& gt_masks, float cover_th, vector<Point2f>& pr_vals, bool seg_or_win = true);
+
 	private:
 		bool GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps);
 		bool GetCandidatesFromSegment3D(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps);

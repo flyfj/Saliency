@@ -176,6 +176,46 @@ namespace objectproposal
 
 		return true;
 	}
+
+	//////////////////////////////////////////////////////////////////////////
+
+	void ObjSegmentProposal::ComputePRCurves(const vector<SuperPixel>& ranked_objs, const vector<Mat>& gt_masks, float cover_th, 
+		vector<Point2f>& pr_vals, bool seg_or_win /* = true */) {
+		SegmentProcessor seg_proc;
+		vector<SuperPixel> gt_objs(gt_masks.size());
+		for (size_t i=0; i<gt_masks.size(); i++) {
+			gt_masks[i].copyTo(gt_objs[i].mask);
+			seg_proc.ExtractBasicSegmentFeatures(gt_objs[i], Mat(), Mat());
+		}
+
+		vector<bool> detect_gt(gt_masks.size(), false);
+		vector<Point2f> tmp_vals(ranked_objs.size());
+		for(size_t i=0; i<ranked_objs.size(); i++) {
+			tmp_vals[i] = (i==0? Point2f(0,0): tmp_vals[i-1]);
+			// try each gt object
+			for(size_t j=0; j<gt_objs.size(); j++) {
+				float cover_rate = 0;
+				if(seg_or_win) {
+					cover_rate = countNonZero(ranked_objs[i].mask & gt_objs[j].mask)*1.f / countNonZero(ranked_objs[i].mask | gt_objs[j].mask);
+				}
+				else
+					cover_rate = (ranked_objs[i].box & gt_objs[j].box).area()*1.f / (ranked_objs[i].box | gt_objs[j].box).area();
+
+				if(cover_rate >= cover_th) {
+					tmp_vals[i].x++;
+					if( !detect_gt[j] ) { detect_gt[j] = true; tmp_vals[i].y++; }
+				}
+			}
+		}
+
+		pr_vals.resize(ranked_objs.size());
+		// normalize
+		for(size_t i=0; i<tmp_vals.size(); i++) {
+			pr_vals[i].x = tmp_vals[i].x / gt_masks.size();
+			pr_vals[i].y = tmp_vals[i].y / (i+1);
+		}
+
+	}
 }
 
 
