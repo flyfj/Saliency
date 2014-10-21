@@ -202,8 +202,8 @@ namespace objectproposal
 					cover_rate = (ranked_objs[i].box & gt_objs[j].box).area()*1.f / (ranked_objs[i].box | gt_objs[j].box).area();
 
 				if(cover_rate >= cover_th) {
-					tmp_vals[i].x++;
-					if( !detect_gt[j] ) { detect_gt[j] = true; tmp_vals[i].y++; }
+					tmp_vals[i].y++;
+					if( !detect_gt[j] ) { detect_gt[j] = true; tmp_vals[i].x++; }
 				}
 			}
 		}

@@ -70,7 +70,7 @@
 int main()
 {
 	ObjectProposalTester tester;
-	tester.TestSegmentor3D();
+	tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
 	//tester.BatchProposal();
 	//tester.TestBoundaryClf(false);
 	waitKey(0);

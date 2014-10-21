@@ -144,3 +144,51 @@ void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {
 		seg_3d.RunBoundaryDetection(cimg, dmap, Mat());
 	}
 }
+
+void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
+
+	RGBDECCV14 rgbd_man;
+	FileInfos imgfns, dmapfns;
+	rgbd_man.GetImageList(imgfns);
+	imgfns.erase(imgfns.begin()+100, imgfns.end());
+	rgbd_man.GetDepthmapList(imgfns, dmapfns);
+	map<string, vector<Mat>> gt_masks;
+	rgbd_man.LoadGTMasks(imgfns, gt_masks);
+
+	vector<Point2f> all_pr;
+	for (size_t i=0; i<imgfns.size(); i++) {
+		Mat cimg = imread(imgfns[i].filepath);
+		Size newsz;
+		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+		resize(cimg, cimg, newsz);
+		Mat dmap;
+		rgbd_man.LoadDepthData(dmapfns[i].filepath, dmap);
+		dmap.convertTo(dmap, CV_32F);
+		resize(dmap, dmap, newsz);
+		vector<Mat>& cur_gt = gt_masks[imgfns[i].filename];
+		for(auto& obj : cur_gt) {
+			resize(obj, obj, newsz);
+		}
+
+		imshow("color", cimg);
+		ImgVisualizer::DrawFloatImg("dmap", dmap);
+		ImgVisualizer::DrawFloatImg("mask", cur_gt[0]);
+
+		objectproposal::ObjSegmentProposal seg_prop;
+		vector<SuperPixel> sps;
+		seg_prop.Run(cimg, dmap, 500, sps);
+
+		vector<Point2f> cur_pr;
+		seg_prop.ComputePRCurves(sps, cur_gt, 0.7f, cur_pr, true);
+		for(auto val : cur_pr) {
+			cout<<val.x<<" "<<val.y<<endl;
+		}
+		//cur_pr.push_back(Point2f(1, 0));
+		vector<vector<Point2f>> curves;
+		curves.push_back(cur_pr);
+		ImgVisualizer::DrawCurves("pr", curves);
+		waitKey(0);
+
+	}
+
+}

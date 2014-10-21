@@ -42,6 +42,8 @@ public:
 
 	void TestBoundaryClf(bool ifTrain);
 
+	void EvaluateOnDataset(DatasetName db_name);
+
 	void Random();
 
 private:
