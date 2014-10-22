@@ -70,7 +70,8 @@
 int main()
 {
 	ObjectProposalTester tester;
-	tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
+	tester.Random();
+	//tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
 	//tester.BatchProposal();
 	//tester.TestBoundaryClf(false);
 	waitKey(0);

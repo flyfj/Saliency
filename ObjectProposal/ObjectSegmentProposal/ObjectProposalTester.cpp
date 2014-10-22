@@ -8,8 +8,15 @@ void ObjectProposalTester::TestRankerLearner() {
 
 void ObjectProposalTester::Random() {
 
-	io::dataset::Berkeley3DDataManager b3d_man;
-	b3d_man.BrowseData(true, true, true);
+	features::Feature3D feat3d;
+	Mat dmap = imread("E:\\DepthImgs_longsleeveshirt_2_l_shoulder_0\\18.jpg", CV_LOAD_IMAGE_UNCHANGED);
+	dmap.convertTo(dmap, CV_32F);
+	Mat res;
+	feat3d.ComputeKinect3DMap(dmap, res, false);
+	RGBDTools rgbd;
+	rgbd.SavePointsToOBJ("clothes.obj", res);
+	//io::dataset::Berkeley3DDataManager b3d_man;
+	//b3d_man.BrowseData(true, true, true);
 
 }
 
