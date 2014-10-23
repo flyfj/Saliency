@@ -9,17 +9,37 @@ void ObjectProposalTester::TestRankerLearner() {
 void ObjectProposalTester::Random() {
 
 	features::Feature3D feat3d;
-	Mat dmap = imread("E:\\DepthImgs_longsleeveshirt_2_l_shoulder_0\\18.jpg", CV_LOAD_IMAGE_UNCHANGED);
+	Mat cimg = imread(uw_obj_cfn);
+	Size newsz;
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 50, newsz);
+	Mat dmap = imread(uw_obj_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
+	resize(cimg, cimg, newsz);
+	resize(dmap, dmap, newsz);
+	double minv, maxv;
+	minMaxLoc(dmap, &minv, &maxv);
+	cout<<minv<<" "<<maxv<<endl;
+	imshow("cimg", cimg);
+	ImgVisualizer::DrawFloatImg("dmap", dmap);
+
 	Mat res;
-	feat3d.ComputeKinect3DMap(dmap, res, false);
+	feat3d.ComputeKinect3DMap(dmap, res, true);
+	Mat pts_bmap, normal_map, normal_bmap, color_bmap;
+	cimg.convertTo(cimg, CV_32F);
+	feat3d.ComputeBoundaryMap(cimg, features::BMAP_COLOR, color_bmap);
+	feat3d.ComputeBoundaryMap(res, features::BMAP_3DPTS, pts_bmap);
+	feat3d.ComputeNormalMap(res, normal_map);
+	feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
+	ImgVisualizer::DrawFloatImg("color bmap", color_bmap);
+	ImgVisualizer::DrawFloatImg("ptsbmap", pts_bmap);
+	ImgVisualizer::DrawNormals("normal", normal_map);
+	ImgVisualizer::DrawFloatImg("normalb", normal_bmap);
 	RGBDTools rgbd;
-	rgbd.SavePointsToOBJ("clothes.obj", res);
+	//rgbd.SavePointsToOBJ("clothes.obj", res);
 	//io::dataset::Berkeley3DDataManager b3d_man;
 	//b3d_man.BrowseData(true, true, true);
 
 }
-
 
 void ObjectProposalTester::BatchProposal() {
 
@@ -163,6 +183,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	rgbd_man.LoadGTMasks(imgfns, gt_masks);
 
 	vector<Point2f> all_pr;
+	float avg_recall = 0;
 	for (size_t i=0; i<imgfns.size(); i++) {
 		Mat cimg = imread(imgfns[i].filepath);
 		Size newsz;
@@ -187,15 +208,12 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 		vector<Point2f> cur_pr;
 		seg_prop.ComputePRCurves(sps, cur_gt, 0.7f, cur_pr, true);
-		for(auto val : cur_pr) {
-			cout<<val.x<<" "<<val.y<<endl;
-		}
-		//cur_pr.push_back(Point2f(1, 0));
-		vector<vector<Point2f>> curves;
-		curves.push_back(cur_pr);
-		ImgVisualizer::DrawCurves("pr", curves);
-		waitKey(0);
+		
+		// accumulate and compute mean recall
+		avg_recall += cur_pr[cur_pr.size()-1].x;
 
 	}
+
+	cout<<"total mean recall top 500: "<<avg_recall / imgfns.size()<<endl;
 
 }

@@ -75,6 +75,7 @@ int main()
 	//tester.BatchProposal();
 	//tester.TestBoundaryClf(false);
 	waitKey(0);
+	getchar();
 	return 0;
 }
 
