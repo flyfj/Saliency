@@ -12,8 +12,10 @@
 #include "Common/common_libs.h"
 #include "IO/Dataset/RGBDECCV14.h"
 #include "IO/Dataset/Berkeley3DDataManager.h"
+#include "Processors/Segmentation/ImageSegmentor.h"
 #include "Processors/Segmentation/SegmentProcessor.h"
 #include "ObjSegmentProposal.h"
+#include <Eigen/Eigen>
 
 using namespace visualsearch;
 using namespace visualsearch::io;
@@ -46,6 +48,7 @@ public:
 
 	void EvaluateOnDataset(DatasetName db_name);
 
+	void TestSegment();
 	void Random();
 
 private:

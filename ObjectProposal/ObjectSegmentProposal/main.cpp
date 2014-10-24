@@ -70,6 +70,7 @@
 int main()
 {
 	ObjectProposalTester tester;
+	//tester.TestSegment();
 	tester.Random();
 	//tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
 	//tester.BatchProposal();

@@ -431,7 +431,7 @@ namespace visualsearch
 			bool ObjectRanker::PrepareRankTrainData(DatasetName dbs)
 			{
 				test_ = false;
-				string temp_dir = "E:\\Results\\objectness\\";	// save intermediate results
+				string temp_dir = "E:\\Results\\objectness\\rgbd\\";	// save intermediate results
 				char str[50];
 
 				ImageSegmentor imgsegmentor;
@@ -451,7 +451,7 @@ namespace visualsearch
 
 				db_man->GetImageList(imgfiles);
 				db_man->GetDepthmapList(imgfiles, dmapfiles);
-				imgfiles.erase(imgfiles.begin()+400, imgfiles.end());
+				//imgfiles.erase(imgfiles.begin(), imgfiles.end());
 				db_man->LoadGTMasks(imgfiles, objmasks);
 
 				cout<<"Generating training samples..."<<endl;
@@ -461,18 +461,18 @@ namespace visualsearch
 					Mat cimg = imread(imgfiles[i].filepath);
 					Size newsz;
 					tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
-					resize(cimg, cimg, newsz);
+					//resize(cimg, cimg, newsz);
 					Mat dmap;
-					db_man->LoadDepthData(dmapfiles[i].filepath, dmap);
-					resize(dmap, dmap, newsz);
+					//db_man->LoadDepthData(dmapfiles[i].filepath, dmap);
+					//resize(dmap, dmap, newsz);
 
 					imshow("color", cimg);
-					img_vis_.DrawFloatImg("dmap", dmap, Mat());
+					//ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
 					
 					vector<Mat> masks = objmasks[imgfiles[i].filename];
 					// positive sample: object segments
 					for (size_t k=0; k<masks.size(); k++) {
-						resize(masks[k], masks[k], newsz);
+						//resize(masks[k], masks[k], newsz);
 						SuperPixel cursegment;
 						cursegment.mask = masks[k];
 						//resize(cursegment.mask, cursegment.mask, newsz);
@@ -486,47 +486,56 @@ namespace visualsearch
 						}
 
 						Mat curposfeat;
-						ComputeSegmentRankFeature(cimg, dmap, cursegment, curposfeat);
-						possamps.push_back(curposfeat);
+						//ComputeSegmentRankFeature(cimg, dmap, cursegment, curposfeat);
+						//possamps.push_back(curposfeat);
 					}
 
 					// negative samples: random segments don't overlap with objects
-					for (size_t k=0; k<seg_ths.size(); k++) {
+					int sumnum = 0;
+					bool finish = false;
+					for (size_t k=0; k<seg_ths.size() && !finish; k++) {
 						imgsegmentor.m_dThresholdK = seg_ths[k];
+						imgsegmentor.seg_type_ = OVER_SEG_GRAPH;
 						imgsegmentor.DoSegmentation(cimg);
 						vector<SuperPixel>& tsps = imgsegmentor.superPixels;
 
 						// randomly select samples from every segment level
 						random_shuffle(tsps.begin(), tsps.end());
-						int sumnum = 0;
-						for (size_t i=0; i<tsps.size(); i++) {
-							if(tsps[i].area < cimg.rows*cimg.cols*0.05) continue;
+						for (size_t id=0; id<tsps.size(); id++) {
+							if(tsps[id].area < cimg.rows*cimg.cols*0.05) continue;
 							// check if have large overlap with one of the objects
 							bool isvalid = true;
 							for (size_t j=0; j<masks.size(); j++) {
-								Mat curmask = masks[j];
+								Mat& curmask = masks[j];
 								//resize(masks[j], curmask, newsz);
-								Mat intersectMask = curmask & tsps[i].mask;
-								if( countNonZero(intersectMask) / countNonZero(curmask) > 0.5 ) {
+								Mat intersectMask = curmask & tsps[id].mask;
+								if( countNonZero(intersectMask) / countNonZero(curmask | tsps[id].mask) > 0.5 ) {
 									isvalid = false;
 									break;
 								}
 							}
 							// pass all tests
-							sprintf_s(str, "%d_negseg_%d.jpg", i, sumnum);
-							//imwrite(temp_dir + string(str), tsps[sel_id].mask*255);
-							if(test_) {
-								debug_img_.release();
-								cimg.copyTo(debug_img_, tsps[i].mask);
-								imshow("neg", debug_img_);
-								waitKey(0);
-							}
+							sprintf_s(str, "%d.png", sumnum);
+							if(isvalid) {
+								imwrite(temp_dir + imgfiles[i].filename + "_" + string(str), tsps[id].mask*255);
+								if(test_) {
+									debug_img_.release();
+									cimg.copyTo(debug_img_, tsps[id].mask);
+									imshow("neg", debug_img_);
+									waitKey(0);
+								}
 
-							Mat curnegfeat;
-							ComputeSegmentRankFeature(cimg, dmap, tsps[i], curnegfeat);
-							negsamps.push_back(curnegfeat);
-							sumnum++;
-							if(sumnum == masks.size()*2) break;
+								Mat curnegfeat;
+								//ComputeSegmentRankFeature(cimg, dmap, tsps[i], curnegfeat);
+								//negsamps.push_back(curnegfeat);
+								
+								sumnum++;
+								cout<<sumnum<<endl;
+								if(sumnum == 5) { 
+									finish = true;
+									break;
+								}
+							}
 						}
 					}
 

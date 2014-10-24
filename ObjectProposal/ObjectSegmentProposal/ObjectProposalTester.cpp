@@ -8,6 +8,39 @@ void ObjectProposalTester::TestRankerLearner() {
 
 void ObjectProposalTester::Random() {
 
+	visualsearch::processors::attention::ObjectRanker ranker;
+	ranker.PrepareRankTrainData(DB_SALIENCY_RGBD);
+	return;
+
+	Mat cov_mat, samp_mean;
+	Mat feats(2, 3, CV_32F);
+	feats.at<float>(0, 0) = 0.9198;
+	feats.at<float>(0, 1) = 0.3073;
+	feats.at<float>(0, 2) = 0.2049;
+	feats.at<float>(1, 0) = 0.6880;
+	feats.at<float>(1, 1) = 0.0669;
+	feats.at<float>(1, 2) = 0.6891;
+	calcCovarMatrix(feats, cov_mat, samp_mean, CV_COVAR_NORMAL | CV_COVAR_ROWS, CV_32F);
+	cout<<cov_mat<<endl;
+
+	Eigen::MatrixXd m(cov_mat.rows, cov_mat.cols);
+	for(int r=0; r<cov_mat.rows; r++) for(int c=0; c<cov_mat.cols; c++)
+		m(r, c) = cov_mat.at<float>(r, c);
+	cout<<m<<endl;
+
+	Eigen::EigenSolver<Eigen::MatrixXd> es(m);
+	cout<<es.eigenvalues()<<endl;
+	cout<<es.eigenvectors()<<endl;
+
+	Mat eigen_values, eigen_vectors;
+	eigen(cov_mat, eigen_values, eigen_vectors);	// descending order
+	cout<<eigen_vectors<<endl;
+	cout<<eigen_values<<endl;
+	Mat proj_samps = feats * eigen_vectors.t();
+	cout<<proj_samps<<endl;
+
+	return;
+
 	features::Feature3D feat3d;
 	Mat cimg = imread(uw_obj_cfn);
 	Size newsz;
@@ -215,5 +248,16 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	}
 
 	cout<<"total mean recall top 500: "<<avg_recall / imgfns.size()<<endl;
+
+}
+
+void ObjectProposalTester::TestSegment() {
+	visualsearch::processors::segmentation::ImageSegmentor segmentor;
+	segmentor.m_dThresholdK = 200;
+	Mat cimg = imread(eccv_cfn);
+	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	segmentor.DoSegmentation(cimg);
+	imshow("seg", segmentor.m_segImg);
+	waitKey(0);
 
 }
