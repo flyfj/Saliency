@@ -16,6 +16,7 @@
 #include "Processors/Segmentation/SegmentProcessor.h"
 #include "ObjSegmentProposal.h"
 #include <Eigen/Eigen>
+#include "ObjViewMatcher.h"
 
 using namespace visualsearch;
 using namespace visualsearch::io;
@@ -50,6 +51,8 @@ public:
 
 	void TestSegment();
 	void Random();
+
+	void TestViewMatch();
 
 private:
 

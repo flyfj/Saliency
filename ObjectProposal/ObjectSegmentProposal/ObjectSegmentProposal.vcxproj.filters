@@ -102,6 +102,9 @@
     <ClInclude Include="ObjectProposalTester.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="ObjViewMatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -249,6 +252,9 @@
       <Filter>Library\others</Filter>
     </ClCompile>
     <ClCompile Include="ObjectProposalTester.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjViewMatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

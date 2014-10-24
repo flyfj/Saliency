@@ -261,3 +261,12 @@ void ObjectProposalTester::TestSegment() {
 	waitKey(0);
 
 }
+
+void ObjectProposalTester::TestViewMatch() {
+	ObjViewMatcher matcher;
+	matcher.PrepareDatabase();
+
+	string queryfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\orange\\orange_1\\orange_1_1_1_crop.png";
+	Mat view = imread(queryfn);
+	matcher.MatchView(view);
+}
