@@ -34,14 +34,16 @@ bool ObjViewMatcher::PrepareDatabase() {
 	lsh_coder.GenerateHashFunctions(25*25, 128, true);
 
 	// get features
+	cout<<"Extracting view features..."<<endl;
 	for(auto& cur_obj : obj_db.objects) {
 		Mat vimg = imread(cur_obj.imgpath);
 		resize(vimg, vimg, Size(25, 25));
 		ExtractViewFeat(vimg, cur_obj.visual_desc.img_desc);
 		// compress
 		lsh_coder.ComputeCodes(cur_obj.visual_desc.img_desc, cur_obj.visual_desc.binary_code);
-		HashingTools<double>::CodesToKey(cur_obj.visual_desc.binary_code, cur_obj.visual_desc.key_value);
+		HashingTools<HashKeyType>::CodesToKey(cur_obj.visual_desc.binary_code, cur_obj.visual_desc.key_value);
 	}
+	cout<<"Feature extraction done."<<endl;
 
 	cout<<"Database ready."<<endl;
 
@@ -70,12 +72,12 @@ bool ObjViewMatcher::MatchView(const Mat& color_view) {
 	BinaryCodes codes;
 	HashKey key_value;
 	lsh_coder.ComputeCodes(view_feat, codes);
-	HashingTools<double>::CodesToKey(codes, key_value);
+	HashingTools<int>::CodesToKey(codes, key_value);
 
 	// search
-	vector<DMatch> matches;
+	vector<DMatch> matches(obj_db.objects.size());
 	for (size_t i=0; i<obj_db.objects.size(); i++) {
-		matches[i].distance = norm(view_feat, obj_db.objects[i].visual_desc.img_desc, NORM_L2);
+		matches[i].distance = (float)norm(view_feat, obj_db.objects[i].visual_desc.img_desc, NORM_L2);	//HashingTools<HashKeyType>::HammingDist(key_value, obj_db.objects[i].visual_desc.key_value);	
 		matches[i].trainIdx = i;
 	}
 	sort(matches.begin(), matches.end(), [](const DMatch& a, const DMatch& b) { return a.distance < b.distance; });
@@ -83,7 +85,7 @@ bool ObjViewMatcher::MatchView(const Mat& color_view) {
 	// visualize
 	char str[100];
 	for(size_t i=0; i<10; i++) {
-		Mat img = imread(obj_db.objects[matches[i].trainIdx].imgfile);
+		Mat img = imread(obj_db.objects[matches[i].trainIdx].imgpath);
 		sprintf_s(str, "%d", i);
 		imshow(str, img);
 		waitKey(10);

@@ -71,8 +71,8 @@ int main()
 {
 	ObjectProposalTester tester;
 	//tester.TestSegment();
-	tester.TestViewMatch();
-	//tester.Random();
+	//tester.TestViewMatch();
+	tester.Random();
 	//tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
 	//tester.BatchProposal();
 	//tester.TestBoundaryClf(false);
