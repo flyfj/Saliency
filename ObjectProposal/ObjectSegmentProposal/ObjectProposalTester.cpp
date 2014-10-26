@@ -74,6 +74,14 @@ void ObjectProposalTester::Random() {
 
 }
 
+void ObjectProposalTester::ShowBoundary() {
+
+	Mat cimg = imread(eccv_cfn);
+	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+
+
+}
+
 void ObjectProposalTester::BatchProposal() {
 
 	ObjProposalDemo demo;

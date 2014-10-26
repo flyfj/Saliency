@@ -43,6 +43,8 @@ public:
 
 	void BatchProposal();
 
+	void ShowBoundary();
+
 	void TestSegmentor3D();
 
 	void TestBoundaryClf(bool ifTrain);
