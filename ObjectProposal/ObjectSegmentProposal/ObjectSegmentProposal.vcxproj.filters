@@ -257,5 +257,8 @@
     <ClCompile Include="ObjViewMatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Search\Hashing\LSHCoder.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>
