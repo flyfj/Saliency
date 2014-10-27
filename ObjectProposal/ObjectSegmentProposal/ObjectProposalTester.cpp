@@ -76,10 +76,51 @@ void ObjectProposalTester::Random() {
 
 void ObjectProposalTester::ShowBoundary() {
 
-	Mat cimg = imread(eccv_cfn);
-	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat cimg = imread(uw_cfn);
+	imshow("color", cimg);
+	cvtColor(cimg, cimg, CV_BGR2Lab);
+	visualsearch::processors::segmentation::ImageSegmentor segmentor;
+	segmentor.m_dThresholdK = 30;
+	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	segmentor.DoSegmentation(cimg);
+	segmentation::SegmentProcessor seg_proc;
+	for(size_t i=0; i<segmentor.superPixels.size(); i++) {
+		seg_proc.ExtractBasicSegmentFeatures(segmentor.superPixels[i], Mat(), Mat());
+	}
+	imshow("segimg", segmentor.m_segImg);
+	Mat lab_cimg;
+	//cvtColor(cimg, lab_cimg, CV_BGR2Lab);
+	cimg.convertTo(lab_cimg, CV_32F);
+	Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	dmap.convertTo(dmap, CV_32F);
+	visualsearch::features::Feature3D feat3d;
+	Mat color_bmap, pts3d, pts_bmap, normal_map, normal_bmap;
+	feat3d.ComputeBoundaryMap(lab_cimg, features::BMAP_COLOR, color_bmap);
+	feat3d.ComputeKinect3DMap(dmap, pts3d, true);
+	feat3d.ComputeBoundaryMap(pts3d, features::BMAP_3DPTS, pts_bmap);
+	feat3d.ComputeNormalMap(pts3d, normal_map);
+	feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
+	
+	Mat color_bmap2, pts_bmap2, normal_bmap2;
+	Mat adj_mat;
+	segmentor.ComputeAdjacencyMat(segmentor.superPixels, adj_mat);
+	feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, BMAP_COLOR, segmentor.superPixels, adj_mat, color_bmap2);
+	feat3d.ComputeBoundaryMapWithSuperpixels(pts3d, BMAP_3DPTS, segmentor.superPixels, adj_mat, pts_bmap2);
+	feat3d.ComputeBoundaryMapWithSuperpixels(normal_map, BMAP_NORMAL, segmentor.superPixels, adj_mat, normal_bmap2);
 
+	// show
+	ImgVisualizer::DrawFloatImg("depth", dmap);
+	ImgVisualizer::DrawFloatImg("cbmap", color_bmap);
+	ImgVisualizer::DrawFloatImg("cbmap2", color_bmap2);
+	ImgVisualizer::DrawFloatImg("pts3d", pts3d);
+	ImgVisualizer::DrawFloatImg("3d bmap", pts_bmap);
+	ImgVisualizer::DrawFloatImg("3d bmap2", pts_bmap2);
+	ImgVisualizer::DrawNormals("normal", normal_map);
+	ImgVisualizer::DrawFloatImg("normal bmap", normal_bmap);
+	ImgVisualizer::DrawFloatImg("normal bmap2", normal_bmap2);
+	ImgVisualizer::DrawFloatImg("normal+3d", (normal_bmap2+pts_bmap2)/2);
 
+	waitKey(10);
 }
 
 void ObjectProposalTester::BatchProposal() {
@@ -202,8 +243,8 @@ void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {
 	if(ifTrain)
 		seg_3d.TrainBoundaryDetector(DB_NYU2_RGBD);
 	else {
-		Mat cimg = imread(uw_cfn);
-		Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
+		Mat cimg = imread(nyu_cfn);
+		Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
 		dmap.convertTo(dmap, CV_32F);
 
 		imshow("cimg", cimg);
@@ -215,15 +256,18 @@ void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {
 
 void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
+	Berkeley3DDataManager b3d_man;
 	RGBDECCV14 rgbd_man;
 	FileInfos imgfns, dmapfns;
 	rgbd_man.GetImageList(imgfns);
-	imgfns.erase(imgfns.begin()+100, imgfns.end());
+	imgfns.erase(imgfns.begin()+50, imgfns.end());
 	rgbd_man.GetDepthmapList(imgfns, dmapfns);
 	map<string, vector<Mat>> gt_masks;
 	rgbd_man.LoadGTMasks(imgfns, gt_masks);
+	
 
-	vector<Point2f> all_pr;
+	vector<vector<Point2f>> all_pr;
+	int common_num = 0;
 	float avg_recall = 0;
 	for (size_t i=0; i<imgfns.size(); i++) {
 		Mat cimg = imread(imgfns[i].filepath);
@@ -245,24 +289,54 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 		objectproposal::ObjSegmentProposal seg_prop;
 		vector<SuperPixel> sps;
-		seg_prop.Run(cimg, dmap, 500, sps);
+		seg_prop.Run(cimg, dmap, -1, sps);
+		//seg_prop.GetCandidatesFromIterativeSeg(cimg, dmap, sps);
 
 		vector<Point2f> cur_pr;
-		seg_prop.ComputePRCurves(sps, cur_gt, 0.7f, cur_pr, true);
-		
+		seg_prop.ComputePRCurves(sps, cur_gt, 0.6f, cur_pr, false);
 		// accumulate and compute mean recall
 		avg_recall += cur_pr[cur_pr.size()-1].x;
 
+		all_pr.push_back(cur_pr);
+		if(cur_pr.size() > common_num) common_num = cur_pr.size();
+
+		cout<<"finish image "<<i<<"/"<<imgfns.size()<<endl;
 	}
 
-	cout<<"total mean recall top 500: "<<avg_recall / imgfns.size()<<endl;
+	// get mean pr
+	vector<Point2f> mean_pr(common_num);
+	for(size_t j=0; j<common_num; j++) {
+		for(size_t i=0; i<all_pr.size(); i++) {
+			if(j > all_pr[i].size()) mean_pr[j] += all_pr[i][all_pr[i].size()-1];
+			else mean_pr[j] += all_pr[i][j];
+		}
+		mean_pr[j].x /= all_pr.size();
+		mean_pr[j].y /= all_pr.size();
+	}
+	
+	ofstream out("uw_all_pr.txt");
+	for(size_t i=0; i<mean_pr.size(); i++) {
+		out<<mean_pr[i].x<<" "<<mean_pr[i].y<<endl;
+	}
+	cout<<"total mean recall: "<<avg_recall / imgfns.size()<<endl;
 
 }
 
 void ObjectProposalTester::TestSegment() {
-	visualsearch::processors::segmentation::ImageSegmentor segmentor;
-	segmentor.m_dThresholdK = 200;
 	Mat cimg = imread(eccv_cfn);
+	Size newsz;
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+	resize(cimg, cimg, newsz);
+	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	resize(dmap, dmap, newsz);
+	segmentation::IterativeSegmentor iter_segmentor;
+	iter_segmentor.Init(cimg, dmap);
+	iter_segmentor.Run2();
+	return;
+
+	visualsearch::processors::segmentation::ImageSegmentor segmentor;
+	segmentor.m_dThresholdK = 25;
+	imshow("color", cimg);
 	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
 	segmentor.DoSegmentation(cimg);
 	imshow("seg", segmentor.m_segImg);

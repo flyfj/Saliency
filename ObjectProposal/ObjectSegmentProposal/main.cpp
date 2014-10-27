@@ -72,12 +72,13 @@ int main()
 	ObjectProposalTester tester;
 	//tester.TestSegment();
 	//tester.TestViewMatch();
-	tester.Random();
-	//tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
+	//tester.ShowBoundary();
+	//tester.Random();
+	tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
 	//tester.BatchProposal();
 	//tester.TestBoundaryClf(false);
 	waitKey(0);
-	getchar();
+	//getchar();
 	return 0;
 }
 

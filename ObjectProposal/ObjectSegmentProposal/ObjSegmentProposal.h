@@ -25,6 +25,9 @@ namespace objectproposal
 
 		bool Run(const Mat& cimg, const Mat& dmap, int topK, vector<SuperPixel>& res);
 
+		bool GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps);
+		bool GetCandidatesFromSegment3D(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps);
+
 		//////////////////////////////////////////////////////////////////////////
 
 		bool VisProposals(const Mat& cimg, const vector<SuperPixel>& res);
@@ -34,9 +37,6 @@ namespace objectproposal
 		void ComputePRCurves(const vector<SuperPixel>& ranked_objs, const vector<Mat>& gt_masks, float cover_th, vector<Point2f>& pr_vals, bool seg_or_win = true);
 
 	private:
-		bool GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps);
-		bool GetCandidatesFromSegment3D(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps);
-
 		visualsearch::processors::segmentation::IterativeSegmentor iter_segmentor;
 		visualsearch::processors::attention::ObjectRanker seg_ranker;
 		Segmentor3D seg3d;

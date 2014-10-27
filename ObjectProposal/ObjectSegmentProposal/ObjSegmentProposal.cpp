@@ -14,7 +14,7 @@ namespace objectproposal
 		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.75f);
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.verbose = false;
-		iter_segmentor.Run();
+		iter_segmentor.Run2();
 		sps = iter_segmentor.sps;
 
 		return true;
@@ -113,10 +113,10 @@ namespace objectproposal
 		SegmentProcessor seg_proc;
 		for(auto& sp : res_sps) seg_proc.ExtractBasicSegmentFeatures(sp, cimg, dmap);
 		cout<<"object candidates: "<<res_sps.size()<<endl;
-		Mat shapes;
+		/*Mat shapes;
 		ImgVisualizer::DrawShapes(cimg, res_sps, shapes, false);
 		imshow("shapes", shapes);
-		waitKey(10);
+		waitKey(10);*/
 
 		// rank
 		cout<<"Ranking segments..."<<endl;
@@ -131,27 +131,28 @@ namespace objectproposal
 		for (size_t i=0; i<rank_ids.size(); i++) {
 			if( !valid_seg[i] ) continue;
 			// too big segments
-			if( res_sps[rank_ids[i]].area > cimg.rows*cimg.cols*0.5f || res_sps[rank_ids[i]].area < cimg.rows*cimg.cols*0.01f ) {
+			if( res_sps[rank_ids[i]].area > cimg.rows*cimg.cols*0.8f || res_sps[rank_ids[i]].area < cimg.rows*cimg.cols*0.01f ) {
 				valid_seg[i] = false;
 				valid_num++;
 				continue;
 			}
 			// overlapping
-			for(size_t j=i+1; j<rank_ids.size(); j++) {
-				if( valid_seg[j] && 
-					(float)countNonZero(
-					res_sps[rank_ids[i]].mask & res_sps[rank_ids[j]].mask) / 
-					countNonZero(res_sps[rank_ids[i]].mask | res_sps[rank_ids[j]].mask) > 0.5) {
-					valid_seg[j] = false;
-					valid_num++;
-				}
+			/*for(size_t j=i+1; j<rank_ids.size(); j++) {
+			if( valid_seg[j] && 
+			(float)countNonZero(
+			res_sps[rank_ids[i]].mask & res_sps[rank_ids[j]].mask) / 
+			countNonZero(res_sps[rank_ids[i]].mask | res_sps[rank_ids[j]].mask) > 0.5) {
+			valid_seg[j] = false;
+			valid_num++;
 			}
+			}*/
 		}
 		valid_num = valid_seg.size() - valid_num;
 		cout<<"final proposal num: "<<valid_num<<endl;
 
 		res.clear();
-		res.reserve(topK);
+		if(topK == -1) res.reserve(valid_seg.size());
+		else res.reserve(topK);
 		for (int i=0; i<valid_seg.size(); i++) {
 			if(valid_seg[i]) res.push_back(res_sps[rank_ids[i]]);
 			if(res.size() == topK) break;

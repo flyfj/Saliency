@@ -1,9 +1,10 @@
-gt = load('table_small/table_small_1.mat');
+root_dir = 'E:\Datasets\RGBD_Dataset\UW\rgbd-scene-dataset1\';
+gt = load([root_dir 'kitchen_small/kitchen_small_1.mat']);
 % each image, generate a ground truth
 gt = gt.bboxes;
 
 for i=1:length(gt)
-    curfn = ['table_small/gt/' num2str(i) '.txt'];
+    curfn = [root_dir 'kitchen_small/gt1/' num2str(i) '.txt'];
     fid = fopen(curfn, 'w');
     data = gt(i);
     if(isempty(data{1}))

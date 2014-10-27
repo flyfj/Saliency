@@ -153,7 +153,7 @@ bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {
 	FileInfos imgfiles, dmapfiles;
 	db_man->GetImageList(imgfiles);
 	random_shuffle(imgfiles.begin(), imgfiles.end());
-	imgfiles.erase(imgfiles.begin()+15, imgfiles.end());
+	imgfiles.erase(imgfiles.begin()+100, imgfiles.end());
 	db_man->GetDepthmapList(imgfiles, dmapfiles);
 	db_man->LoadGTMasks(imgfiles, objmasks);
 
@@ -164,7 +164,7 @@ bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {
 	// collect training samples
 	std::cout<<"Generating training samples..."<<endl;
 	Mat possamps, negsamps;
-	int samp_num_per_img = 200;
+	int samp_num_per_img = 400;
 	int kernel_size = 5;
 	for(size_t i=0; i<imgfiles.size(); i++) {
 		// input data
@@ -172,6 +172,7 @@ bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {
 		Size newsz;
 		tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 		resize(cimg, cimg, newsz);
+		cvtColor(cimg, cimg, CV_BGR2Lab);
 		cimg.convertTo(cimg, CV_32F, 1.f/255);
 		Mat dmap;
 		db_man->LoadDepthData(dmapfiles[i].filepath, dmap);
@@ -188,9 +189,9 @@ bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {
 		imshow("3d", pts3d_map*255);
 		imshow("normal", normal_map*255);
 		waitKey(10);
-		//feat3d.ComputeBoundaryMap(pts3d_map, features::BMAP_3DPTS, pts3d_bmap);
-		//feat3d.ComputeBoundaryMap(cimg, features::BMAP_COLOR, color_bmap);
-		//feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
+		feat3d.ComputeBoundaryMap(pts3d_map, features::BMAP_3DPTS, pts3d_bmap);
+		feat3d.ComputeBoundaryMap(cimg, features::BMAP_COLOR, color_bmap);
+		feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
 
 		// randomly sample subset of boundary points as positive ones, others as negative ones
 		// mark all contour points first, then sample
@@ -225,30 +226,40 @@ bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {
 			Point cur_pts[2];
 			cur_pts[0] = pos_pts[k];
 			cur_pts[1] = neg_pts[k];
+			// use boundary value as features
 			for(int kk=0; kk<2; kk++) {
-				bool pt_valid = true;
-				if(cur_pts[kk].x < kernel_size/2 || cur_pts[kk].y < kernel_size/2 || 
-					cur_pts[kk].x > cimg.cols-1-kernel_size/2 || cur_pts[kk].y > cimg.rows-1-kernel_size/2)
-					continue;
-
-				Rect cur_roi(cur_pts[kk].x-kernel_size/2, cur_pts[kk].y-kernel_size/2, kernel_size, kernel_size);
-				vector<Mat> feat_maps(3);
-				cimg(cur_roi).copyTo(feat_maps[0]);
-				pts3d_map(cur_roi).copyTo(feat_maps[1]);
-				normal_map(cur_roi).copyTo(feat_maps[2]);
-				// construct total feature
-				Mat cur_feat(1, kernel_size*kernel_size*9, CV_32F);
-				int cnt = 0;
-				for(int id=0; id<3; id++) {
-					for(int ch=0; ch<3; ch++) {
-						for(int r=0; r<kernel_size; r++) for(int c=0; c<kernel_size; c++) {
-							cur_feat.at<float>(cnt++) = feat_maps[id].at<Vec3f>(r, c).val[ch];
-						}
-					}
-				}
-				if(kk == 0) possamps.push_back(cur_feat);
+				Mat cur_feat(1, 3, CV_32F);
+				cur_feat.at<float>(0) = color_bmap.at<float>(cur_pts[kk]);
+				cur_feat.at<float>(1) = pts3d_bmap.at<float>(cur_pts[kk]);
+				cur_feat.at<float>(2) = normal_bmap.at<float>(cur_pts[kk]);
+				if(kk==0) possamps.push_back(cur_feat);
 				else negsamps.push_back(cur_feat);
 			}
+
+			//for(int kk=0; kk<2; kk++) {
+			//	bool pt_valid = true;
+			//	if(cur_pts[kk].x < kernel_size/2 || cur_pts[kk].y < kernel_size/2 || 
+			//		cur_pts[kk].x > cimg.cols-1-kernel_size/2 || cur_pts[kk].y > cimg.rows-1-kernel_size/2)
+			//		continue;
+
+			//	Rect cur_roi(cur_pts[kk].x-kernel_size/2, cur_pts[kk].y-kernel_size/2, kernel_size, kernel_size);
+			//	vector<Mat> feat_maps(3);
+			//	cimg(cur_roi).copyTo(feat_maps[0]);
+			//	pts3d_map(cur_roi).copyTo(feat_maps[1]);
+			//	normal_map(cur_roi).copyTo(feat_maps[2]);
+			//	// construct total feature
+			//	Mat cur_feat(1, kernel_size*kernel_size*9, CV_32F);
+			//	int cnt = 0;
+			//	for(int id=0; id<3; id++) {
+			//		for(int ch=0; ch<3; ch++) {
+			//			for(int r=0; r<kernel_size; r++) for(int c=0; c<kernel_size; c++) {
+			//				cur_feat.at<float>(cnt++) = feat_maps[id].at<Vec3f>(r, c).val[ch];
+			//			}
+			//		}
+			//	}
+			//	if(kk == 0) possamps.push_back(cur_feat);
+			//	else negsamps.push_back(cur_feat);
+			//}
 
 		}
 
@@ -286,7 +297,7 @@ bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {
 	ofstream out("bound_forest.dat");
 	learners::trees::DecisionTree dtree;
 	learners::trees::DTreeTrainingParams tparams;
-	tparams.feat_type = learners::trees::DTREE_FEAT_CONV;
+	tparams.feat_type = learners::trees::DTREE_FEAT_AXIS;
 	tparams.feature_num = 400;
 	tparams.th_num = 100;
 	tparams.min_samp_num = 50;
@@ -310,7 +321,7 @@ bool Segmentor3D::RunBoundaryDetection(const Mat& cimg, const Mat& dmap, Mat& bm
 	// load classifier
 	learners::trees::DecisionTree dtree;
 	learners::trees::DTreeTrainingParams tparams;
-	tparams.feat_type = learners::trees::DTREE_FEAT_CONV;
+	tparams.feat_type = learners::trees::DTREE_FEAT_AXIS;
 	tparams.feature_num = 400;
 	tparams.th_num = 100;
 	tparams.min_samp_num = 50;
@@ -330,30 +341,38 @@ bool Segmentor3D::RunBoundaryDetection(const Mat& cimg, const Mat& dmap, Mat& bm
 	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 	features::Feature3D feat3d;
 	vector<Mat> feat_maps(3);
+	cvtColor(cimg, cimg, CV_BGR2Lab);
 	cimg.convertTo(feat_maps[0], CV_32F, 1.f/255);
 	resize(feat_maps[0], feat_maps[0], newsz);
 	Mat new_dmap;
 	resize(dmap, new_dmap, newsz);
-	feat3d.ComputeKinect3DMap(new_dmap, feat_maps[1]);
+	Mat pts3d_map, normal_map, color_bmap, pts3d_bmap, normal_bmap;
+	feat3d.ComputeKinect3DMap(new_dmap, feat_maps[1], true);
 	feat3d.ComputeNormalMap(feat_maps[1], feat_maps[2]);
+	feat3d.ComputeBoundaryMap(feat_maps[1], features::BMAP_3DPTS, pts3d_bmap);
+	feat3d.ComputeBoundaryMap(feat_maps[0], features::BMAP_COLOR, color_bmap);
+	feat3d.ComputeBoundaryMap(feat_maps[2], features::BMAP_NORMAL, normal_bmap);
 
 	bmap.create(newsz.height, newsz.width, CV_32F);
 	bmap.setTo(0);
 	//Mat extend_cmap;
 	//copyMakeBorder(color_map, extend_cmap, 2, 2, 2, 2, BORDER_REFLECT);
-	for(int r=2; r<newsz.height-2; r++) for(int c=2; c<newsz.width-2; c++) {
-		Mat cur_feat(1, 5*5*9, CV_32F);
+	for(int r=0; r<newsz.height; r++) for(int c=0; c<newsz.width; c++) {
+		/*Mat cur_feat(1, 5*5*9, CV_32F);
 		int cnt = 0;
 		int minx = c-2;
 		int miny = r-2;
 		for(int i=0; i<3; i++) {
-			for(int ch=0; ch<3; ch++) {
-				for(int rr=miny; rr<miny+5; rr++) for(int cc=minx; cc<minx+5; cc++) {
-					cur_feat.at<float>(cnt++) = feat_maps[i].at<Vec3f>(rr, cc).val[ch];
-				}
-			}
+		for(int ch=0; ch<3; ch++) {
+		for(int rr=miny; rr<miny+5; rr++) for(int cc=minx; cc<minx+5; cc++) {
+		cur_feat.at<float>(cnt++) = feat_maps[i].at<Vec3f>(rr, cc).val[ch];
 		}
-
+		}
+		}*/
+		Mat cur_feat(1, 3, CV_32F);
+		cur_feat.at<float>(0) = color_bmap.at<float>(r, c);
+		cur_feat.at<float>(1) = pts3d_bmap.at<float>(r, c);
+		cur_feat.at<float>(2) = normal_bmap.at<float>(r, c);
 		vector<double> allscores;
 		int pred_cls = rforest.ForestPredict(cur_feat, allscores);
 		bmap.at<float>(r, c) = (float)allscores[1];
@@ -362,6 +381,7 @@ bool Segmentor3D::RunBoundaryDetection(const Mat& cimg, const Mat& dmap, Mat& bm
 	double minv, maxv;
 	minMaxLoc(bmap, &minv, &maxv);
 	cout<<minv<<" "<<maxv<<endl;
+
 	//medianBlur(bmap, bmap, 3);
 	ImgVisualizer::DrawFloatImg("bmap", bmap);
 	
