@@ -5,11 +5,11 @@
 savepath = 'E:\Datasets\RGBD_Dataset\NYU\Depth2\';
 
 % parse nyu data
-%nyudata = load('E:\Datasets\RGBD_Dataset\NYU\nyu_depth_v2_labeled.mat');
-% nyuimgs = nyudata.images;
-% nyudepth = nyudata.depths;
-% nyulabels = nyudata.labels;
-% clearvars nyudata
+nyudata = load('E:\Datasets\RGBD_Dataset\NYU\nyu_depth_v2_labeled.mat');
+nyuimgs = nyudata.images;
+nyudepth = nyudata.depths;
+nyulabels = nyudata.labels;
+clearvars nyudata
 
 % get boundary points for each image
 [imgh, imgw, imgnum] = size(nyudepth);

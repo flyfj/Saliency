@@ -76,7 +76,10 @@ void ObjectProposalTester::Random() {
 
 void ObjectProposalTester::ShowBoundary() {
 
-	Mat cimg = imread(uw_cfn);
+	Mat cimg = imread(nyu_cfn);
+	Size newsz;
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+	resize(cimg, cimg, newsz);
 	imshow("color", cimg);
 	cvtColor(cimg, cimg, CV_BGR2Lab);
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
@@ -91,12 +94,13 @@ void ObjectProposalTester::ShowBoundary() {
 	Mat lab_cimg;
 	//cvtColor(cimg, lab_cimg, CV_BGR2Lab);
 	cimg.convertTo(lab_cimg, CV_32F);
-	Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
+	resize(dmap, dmap, newsz);
 	visualsearch::features::Feature3D feat3d;
 	Mat color_bmap, pts3d, pts_bmap, normal_map, normal_bmap;
 	feat3d.ComputeBoundaryMap(lab_cimg, features::BMAP_COLOR, color_bmap);
-	feat3d.ComputeKinect3DMap(dmap, pts3d, true);
+	feat3d.ComputeKinect3DMap(dmap, pts3d, false);
 	feat3d.ComputeBoundaryMap(pts3d, features::BMAP_3DPTS, pts_bmap);
 	feat3d.ComputeNormalMap(pts3d, normal_map);
 	feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
@@ -104,21 +108,21 @@ void ObjectProposalTester::ShowBoundary() {
 	Mat color_bmap2, pts_bmap2, normal_bmap2;
 	Mat adj_mat;
 	segmentor.ComputeAdjacencyMat(segmentor.superPixels, adj_mat);
-	feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, BMAP_COLOR, segmentor.superPixels, adj_mat, color_bmap2);
-	feat3d.ComputeBoundaryMapWithSuperpixels(pts3d, BMAP_3DPTS, segmentor.superPixels, adj_mat, pts_bmap2);
-	feat3d.ComputeBoundaryMapWithSuperpixels(normal_map, BMAP_NORMAL, segmentor.superPixels, adj_mat, normal_bmap2);
+	//feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, BMAP_COLOR, segmentor.superPixels, adj_mat, color_bmap2);
+	//feat3d.ComputeBoundaryMapWithSuperpixels(pts3d, BMAP_3DPTS, segmentor.superPixels, adj_mat, pts_bmap2);
+	//feat3d.ComputeBoundaryMapWithSuperpixels(normal_map, BMAP_NORMAL, segmentor.superPixels, adj_mat, normal_bmap2);
 
 	// show
 	ImgVisualizer::DrawFloatImg("depth", dmap);
 	ImgVisualizer::DrawFloatImg("cbmap", color_bmap);
-	ImgVisualizer::DrawFloatImg("cbmap2", color_bmap2);
+	//ImgVisualizer::DrawFloatImg("cbmap2", color_bmap2);
 	ImgVisualizer::DrawFloatImg("pts3d", pts3d);
 	ImgVisualizer::DrawFloatImg("3d bmap", pts_bmap);
-	ImgVisualizer::DrawFloatImg("3d bmap2", pts_bmap2);
+	//ImgVisualizer::DrawFloatImg("3d bmap2", pts_bmap2);
 	ImgVisualizer::DrawNormals("normal", normal_map);
 	ImgVisualizer::DrawFloatImg("normal bmap", normal_bmap);
-	ImgVisualizer::DrawFloatImg("normal bmap2", normal_bmap2);
-	ImgVisualizer::DrawFloatImg("normal+3d", (normal_bmap2+pts_bmap2)/2);
+	//ImgVisualizer::DrawFloatImg("normal bmap2", normal_bmap2);
+	//ImgVisualizer::DrawFloatImg("normal+3d", (normal_bmap2+pts_bmap2)/2);
 
 	waitKey(10);
 }

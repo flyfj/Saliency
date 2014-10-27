@@ -72,8 +72,8 @@ int main()
 	ObjectProposalTester tester;
 	//tester.TestSegment();
 	//tester.TestViewMatch();
-	//tester.ShowBoundary();
-	tester.TestSegmentor3D();
+	tester.ShowBoundary();
+	//tester.TestSegmentor3D();
 	//tester.Random();
 	//tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
 	//tester.BatchProposal();
