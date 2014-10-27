@@ -165,10 +165,13 @@ void ObjectProposalTester::BatchProposal() {
 void ObjectProposalTester::TestSegmentor3D() {
 
 	char str[100];
-	for(int id=1; id<180; id++) {
-		sprintf_s(str, "meeting_small_1_%d.png", id);
+	vector<vector<Point2f>> all_pr;
+	int common_num = 0;
+	float avg_recall = 0;
+	for(int id=50; id<100; id++) {
+		sprintf_s(str, "table_small_1_%d.png", id);
 		string cfn = uw_cfn + string(str);
-		sprintf_s(str, "meeting_small_1_%d_depth.png", id);
+		sprintf_s(str, "table_small_1_%d_depth.png", id);
 		string dfn = uw_dfn + string(str);
 		sprintf_s(str, "%d.txt", id);
 		string gtfn = uw_gt_dir + string(str);
@@ -185,6 +188,7 @@ void ObjectProposalTester::TestSegmentor3D() {
 		ifstream in(gtfn.c_str());
 		int win_num;
 		in>>win_num;
+		if(win_num == 0) continue;
 		vector<ImgWin> gt_wins(win_num);
 		for(int i=0; i<win_num; i++) {
 			int xmin, ymin, xmax, ymax;
@@ -195,6 +199,12 @@ void ObjectProposalTester::TestSegmentor3D() {
 			ymax = (int)(ymax*ratio);
 			gt_wins[i] = ImgWin(xmin, ymin, xmax-xmin, ymax-ymin);
 		}
+		vector<Mat> gt_masks(win_num);
+		for(size_t i=0; i<gt_wins.size(); i++) {
+			gt_masks[i].create(cimg.rows, cimg.cols, CV_8U);
+			gt_masks[i].setTo(0);
+			gt_masks[i](gt_wins[i]).setTo(1);
+		}
 		ImgVisualizer::DrawWinsOnImg("gt", cimg, gt_wins);
 		waitKey(10);
 
@@ -203,26 +213,36 @@ void ObjectProposalTester::TestSegmentor3D() {
 
 		objectproposal::ObjSegmentProposal seg_prop;
 		vector<SuperPixel> sps;
-		seg_prop.Run(cimg, dmap, 50, sps);
+		seg_prop.Run(cimg, dmap, -1, sps);
 
-		// only show gt covered objects
-		vector<SuperPixel> vis_sps;
-		vis_sps.reserve(50);
-		vector<SuperPixel> correct_sps;
-		for(auto cursp : sps) {
-			if(vis_sps.size() < 15)
-				vis_sps.push_back(cursp);
+		vector<Point2f> cur_pr;
+		seg_prop.ComputePRCurves(sps, gt_masks, 0.6f, cur_pr, false);
+		// accumulate and compute mean recall
+		avg_recall += cur_pr[cur_pr.size()-1].x;
 
-			for(size_t i=0; i<gt_wins.size(); i++) {
-				Rect intersect_rect = cursp.box & gt_wins[i];
-				Rect union_rect = cursp.box | gt_wins[i];
-				if( intersect_rect.area()*1.f / union_rect.area() > 0.5f )
-					correct_sps.push_back(cursp);
-			}
-		}
+		all_pr.push_back(cur_pr);
+		if(cur_pr.size() > common_num) common_num = cur_pr.size();
+
+		cout<<"finish image "<<id<<"/"<<cfn<<endl;
+
+		//// only show gt covered objects
+		//vector<SuperPixel> vis_sps;
+		//vis_sps.reserve(50);
+		//vector<SuperPixel> correct_sps;
+		//for(auto cursp : sps) {
+		//	if(vis_sps.size() < 15)
+		//		vis_sps.push_back(cursp);
+
+		//	for(size_t i=0; i<gt_wins.size(); i++) {
+		//		Rect intersect_rect = cursp.box & gt_wins[i];
+		//		Rect union_rect = cursp.box | gt_wins[i];
+		//		if( intersect_rect.area()*1.f / union_rect.area() > 0.5f )
+		//			correct_sps.push_back(cursp);
+		//	}
+		//}
 
 		// display results
-		sprintf_s(str, "res_%d.jpg", id);
+		/*sprintf_s(str, "res_%d.jpg", id);
 		mkdir(save_dir.c_str());
 		string savefn = save_dir + string(str);
 		Mat oimg;
@@ -233,8 +253,24 @@ void ObjectProposalTester::TestSegmentor3D() {
 		resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
 		imwrite(savefn, oimg);
 		imshow("results", oimg);
-		waitKey(10);
+		waitKey(10);*/
 	}
+	// get mean pr
+	vector<Point2f> mean_pr(common_num);
+	for(size_t j=0; j<common_num; j++) {
+		for(size_t i=0; i<all_pr.size(); i++) {
+			if(j > all_pr[i].size()) mean_pr[j] += all_pr[i][all_pr[i].size()-1];
+			else mean_pr[j] += all_pr[i][j];
+		}
+		mean_pr[j].x /= all_pr.size();
+		mean_pr[j].y /= all_pr.size();
+	}
+
+	ofstream out("uw_all_pr.txt");
+	for(size_t i=0; i<mean_pr.size(); i++) {
+		out<<mean_pr[i].x<<" "<<mean_pr[i].y<<endl;
+	}
+	cout<<"total mean recall: "<<avg_recall / 50<<endl;
 	
 }
 
@@ -259,12 +295,26 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	Berkeley3DDataManager b3d_man;
 	RGBDECCV14 rgbd_man;
 	FileInfos imgfns, dmapfns;
-	rgbd_man.GetImageList(imgfns);
-	imgfns.erase(imgfns.begin()+50, imgfns.end());
-	rgbd_man.GetDepthmapList(imgfns, dmapfns);
+	//rgbd_man.GetImageList(imgfns);
+	b3d_man.GetImageList(imgfns);
+	imgfns.erase(imgfns.begin(), imgfns.begin()+50);
+	imgfns.erase(imgfns.begin()+10, imgfns.end());
+	b3d_man.GetDepthmapList(imgfns, dmapfns);
+	//rgbd_man.GetDepthmapList(imgfns, dmapfns);
 	map<string, vector<Mat>> gt_masks;
-	rgbd_man.LoadGTMasks(imgfns, gt_masks);
-	
+	//rgbd_man.LoadGTMasks(imgfns, gt_masks);
+	map<string, vector<ImgWin>> gt_boxes;
+	b3d_man.LoadGTWins(imgfns, gt_boxes);
+
+	Mat cimg = imread(imgfns[0].filepath);
+	for(auto pi=gt_boxes.begin(); pi!=gt_boxes.end(); pi++) {
+		gt_masks[pi->first].resize(pi->second.size());
+		for(size_t i=0; i<pi->second.size(); i++) {
+			gt_masks[pi->first][i].create(cimg.rows, cimg.cols, CV_8U);
+			gt_masks[pi->first][i].setTo(0);
+			gt_masks[pi->first][i](pi->second[i]).setTo(1);
+		}
+	}
 
 	vector<vector<Point2f>> all_pr;
 	int common_num = 0;
@@ -314,7 +364,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		mean_pr[j].y /= all_pr.size();
 	}
 	
-	ofstream out("uw_all_pr.txt");
+	ofstream out("b3d_all_pr.txt");
 	for(size_t i=0; i<mean_pr.size(); i++) {
 		out<<mean_pr[i].x<<" "<<mean_pr[i].y<<endl;
 	}

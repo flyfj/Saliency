@@ -29,11 +29,11 @@ public:
 	ObjectProposalTester() {
 		nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211.jpg";
 		nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\211_d.png";
-		uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\meeting_small\\meeting_small_1\\meeting_small_1_121.png";
-		uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\meeting_small\\meeting_small_1\\meeting_small_1_121_depth.png";
+		uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\table_small\\table_small_1\\";
+		uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\table_small\\table_small_1\\";
 		uw_obj_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\stapler\\stapler_1\\stapler_1_1_1_crop.png";
 		uw_obj_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\stapler\\stapler_1\\stapler_1_1_1_depthcrop.png";
-		uw_gt_dir = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\meeting_small\\gt\\";
+		uw_gt_dir = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\table_small\\gt1\\";
 		eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\9_12-50-08.jpg";
 		eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\9_12-50-08_Depth.png";
 
