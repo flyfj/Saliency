@@ -47,7 +47,7 @@ public:
 
 	void BatchProposal();
 
-	void ShowBoundary();
+	void BoundaryPlayground();
 
 	void TestSegmentor3D();
 

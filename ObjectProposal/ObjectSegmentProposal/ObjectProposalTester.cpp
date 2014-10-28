@@ -74,21 +74,22 @@ void ObjectProposalTester::Random() {
 
 }
 
-void ObjectProposalTester::ShowBoundary() {
-
-	Mat cimg = imread(eccv_cfn);
+void ObjectProposalTester::BoundaryPlayground() {
+	
+	vector<Mat> all_imgs(10);
+	Mat cimg = imread(nyu_cfn);
 	Size newsz;
 	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
-	imshow("color", cimg);
+	cimg.copyTo(all_imgs[0]);
 	cvtColor(cimg, cimg, CV_BGR2Lab);
-	
 	Mat lab_cimg;
-	//cvtColor(cimg, lab_cimg, CV_BGR2Lab);
 	cimg.convertTo(lab_cimg, CV_32F, 1.f/255);
-	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	resize(dmap, dmap, newsz);
+	
 	visualsearch::features::Feature3D feat3d;
 	Mat color_bmap, pts3d, pts_bmap, normal_map, normal_bmap, tbmap;
 	feat3d.ComputeBoundaryMap(lab_cimg, Mat(), Mat(), features::BMAP_COLOR, color_bmap);
@@ -98,9 +99,9 @@ void ObjectProposalTester::ShowBoundary() {
 	feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
 	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, normal_map, BMAP_COLOR | BMAP_3DPTS | BMAP_NORMAL, tbmap);
 	double minv, maxv;
-	minMaxLoc(tbmap, &minv, &maxv);
+	minMaxLoc(color_bmap, &minv, &maxv);
 	cout<<minv<<" "<<maxv<<endl;
-	ImgVisualizer::DrawFloatImg("combined bmap", tbmap);
+	ImgVisualizer::DrawFloatImg("combined bmap", tbmap, all_imgs[7], false);
 
 	tbmap.convertTo(tbmap, CV_8U, 255);
 	cvtColor(tbmap, tbmap, CV_GRAY2BGR);
@@ -115,23 +116,24 @@ void ObjectProposalTester::ShowBoundary() {
 	for(size_t i=0; i<segmentor.superPixels.size(); i++) {
 		seg_proc.ExtractBasicSegmentFeatures(segmentor.superPixels[i], Mat(), Mat());
 	}
-	imshow("segimg", segmentor.m_segImg);
+	all_imgs[8] = segmentor.m_segImg;
 
 	Mat combine_bmap;
 	Mat adj_mat;
 	segmentor.ComputeAdjacencyMat(segmentor.superPixels, adj_mat);
-	feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, pts3d, normal_map, BMAP_3DPTS, segmentor.superPixels, adj_mat, combine_bmap);
+	feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, pts3d, normal_map, BMAP_3DPTS | BMAP_NORMAL, segmentor.superPixels, adj_mat, combine_bmap);
 
 	// show
-	ImgVisualizer::DrawFloatImg("depth", dmap);
-	ImgVisualizer::DrawFloatImg("cbmap", color_bmap);
-	ImgVisualizer::DrawFloatImg("pts3d", pts3d);
-	ImgVisualizer::DrawFloatImg("3d bmap", pts_bmap);
-	ImgVisualizer::DrawNormals("normal", normal_map);
-	ImgVisualizer::DrawFloatImg("normal bmap", normal_bmap);
-	ImgVisualizer::DrawFloatImg("combine sp bmap", combine_bmap);
-	threshold(tbmap, tbmap, 0.05, 255, CV_THRESH_BINARY);
-	imshow("th", tbmap);
+	ImgVisualizer::DrawFloatImg("depth", dmap, all_imgs[1], false);
+	ImgVisualizer::DrawFloatImg("color bmap", color_bmap, all_imgs[4], false);
+	ImgVisualizer::DrawFloatImg("pts3d", pts3d, all_imgs[2], false);
+	ImgVisualizer::DrawFloatImg("3d bmap", pts_bmap, all_imgs[5], false);
+	ImgVisualizer::DrawNormals("normal", normal_map, all_imgs[3]);
+	ImgVisualizer::DrawFloatImg("normal bmap", normal_bmap, all_imgs[6], false);
+	ImgVisualizer::DrawFloatImg("combine sp bmap", combine_bmap, all_imgs[9], false);
+	// combine
+	ImgVisualizer::DrawImgCollection("all", all_imgs, 5, Mat());
+
 
 	waitKey(10);
 }
