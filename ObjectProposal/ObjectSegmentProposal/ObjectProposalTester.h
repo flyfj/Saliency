@@ -61,7 +61,6 @@ public:
 	void TestViewMatch();
 
 private:
-
 	string nyu_cfn;
 	string nyu_dfn;
 	string uw_cfn;

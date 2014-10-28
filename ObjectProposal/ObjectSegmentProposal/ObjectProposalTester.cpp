@@ -82,15 +82,7 @@ void ObjectProposalTester::ShowBoundary() {
 	resize(cimg, cimg, newsz);
 	imshow("color", cimg);
 	cvtColor(cimg, cimg, CV_BGR2Lab);
-	visualsearch::processors::segmentation::ImageSegmentor segmentor;
-	segmentor.m_dThresholdK = 30;
-	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
-	segmentor.DoSegmentation(cimg);
-	segmentation::SegmentProcessor seg_proc;
-	for(size_t i=0; i<segmentor.superPixels.size(); i++) {
-		seg_proc.ExtractBasicSegmentFeatures(segmentor.superPixels[i], Mat(), Mat());
-	}
-	imshow("segimg", segmentor.m_segImg);
+	
 	Mat lab_cimg;
 	//cvtColor(cimg, lab_cimg, CV_BGR2Lab);
 	cimg.convertTo(lab_cimg, CV_32F, 1.f/255);
@@ -105,26 +97,46 @@ void ObjectProposalTester::ShowBoundary() {
 	feat3d.ComputeNormalMap(pts3d, normal_map);
 	feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
 	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, normal_map, tbmap);
+	double minv, maxv;
+	minMaxLoc(tbmap, &minv, &maxv);
+	cout<<minv<<" "<<maxv<<endl;
+	ImgVisualizer::DrawFloatImg("combined bmap", tbmap);
+
+	tbmap.convertTo(tbmap, CV_8U, 255);
+	cvtColor(tbmap, tbmap, CV_GRAY2BGR);
+	
+	visualsearch::processors::segmentation::ImageSegmentor segmentor;
+	segmentor.m_dThresholdK = 30;
+	segmentor.m_dMinArea = 50;
+	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	int num = segmentor.DoSegmentation(tbmap);
+	cout<<"segment number: "<<num<<endl;
+	segmentation::SegmentProcessor seg_proc;
+	for(size_t i=0; i<segmentor.superPixels.size(); i++) {
+		seg_proc.ExtractBasicSegmentFeatures(segmentor.superPixels[i], Mat(), Mat());
+	}
+	imshow("segimg", segmentor.m_segImg);
 
 	Mat color_bmap2, pts_bmap2, normal_bmap2;
 	Mat adj_mat;
 	segmentor.ComputeAdjacencyMat(segmentor.superPixels, adj_mat);
-	//feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, BMAP_COLOR, segmentor.superPixels, adj_mat, color_bmap2);
-	//feat3d.ComputeBoundaryMapWithSuperpixels(pts3d, BMAP_3DPTS, segmentor.superPixels, adj_mat, pts_bmap2);
-	//feat3d.ComputeBoundaryMapWithSuperpixels(normal_map, BMAP_NORMAL, segmentor.superPixels, adj_mat, normal_bmap2);
+	feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, BMAP_COLOR, segmentor.superPixels, adj_mat, color_bmap2);
+	feat3d.ComputeBoundaryMapWithSuperpixels(pts3d, BMAP_3DPTS, segmentor.superPixels, adj_mat, pts_bmap2);
+	feat3d.ComputeBoundaryMapWithSuperpixels(normal_map, BMAP_NORMAL, segmentor.superPixels, adj_mat, normal_bmap2);
 
 	// show
 	ImgVisualizer::DrawFloatImg("depth", dmap);
 	ImgVisualizer::DrawFloatImg("cbmap", color_bmap);
-	//ImgVisualizer::DrawFloatImg("cbmap2", color_bmap2);
+	ImgVisualizer::DrawFloatImg("cbmap2", color_bmap2);
 	ImgVisualizer::DrawFloatImg("pts3d", pts3d);
 	ImgVisualizer::DrawFloatImg("3d bmap", pts_bmap);
-	//ImgVisualizer::DrawFloatImg("3d bmap2", pts_bmap2);
+	ImgVisualizer::DrawFloatImg("3d bmap2", pts_bmap2);
 	ImgVisualizer::DrawNormals("normal", normal_map);
 	ImgVisualizer::DrawFloatImg("normal bmap", normal_bmap);
-	//ImgVisualizer::DrawFloatImg("normal bmap2", normal_bmap2);
-	//ImgVisualizer::DrawFloatImg("normal+3d", (normal_bmap2+pts_bmap2)/2);
-	ImgVisualizer::DrawFloatImg("combined bmap", tbmap);
+	ImgVisualizer::DrawFloatImg("normal bmap2", normal_bmap2);
+	ImgVisualizer::DrawFloatImg("normal+3d+color", (color_bmap2+normal_bmap2+pts_bmap2)/3);
+	threshold(tbmap, tbmap, 0.05, 255, CV_THRESH_BINARY);
+	imshow("th", tbmap);
 
 	waitKey(10);
 }
