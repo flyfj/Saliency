@@ -29,12 +29,12 @@ namespace objectproposal
 		Mat color_bmap, color_float;
 		cvtColor(cimg, color_float, CV_BGR2Lab);
 		color_float.convertTo(color_float, CV_32F, 1.f/255);
-		feat3d.ComputeBoundaryMap(color_float, features::BMAP_COLOR, color_bmap);
+		feat3d.ComputeBoundaryMap(color_float, Mat(), Mat(), features::BMAP_COLOR, color_bmap);
 		Mat pts_bmap;
-		feat3d.ComputeBoundaryMap(pts_3d, features::BMAP_3DPTS, pts_bmap);
+		feat3d.ComputeBoundaryMap(Mat(), pts_3d, Mat(), features::BMAP_3DPTS, pts_bmap);
 		Mat normal_bmap, normal_map;
 		feat3d.ComputeNormalMap(pts_3d, normal_map);
-		feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
+		feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
 		
 		//imshow("3d", pts_3d);
 		ImgVisualizer::DrawNormals("normal", normal_map);

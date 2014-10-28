@@ -59,10 +59,10 @@ void ObjectProposalTester::Random() {
 	feat3d.ComputeKinect3DMap(dmap, res, true);
 	Mat pts_bmap, normal_map, normal_bmap, color_bmap;
 	cimg.convertTo(cimg, CV_32F);
-	feat3d.ComputeBoundaryMap(cimg, features::BMAP_COLOR, color_bmap);
-	feat3d.ComputeBoundaryMap(res, features::BMAP_3DPTS, pts_bmap);
+	feat3d.ComputeBoundaryMap(cimg, Mat(), Mat(), features::BMAP_COLOR, color_bmap);
+	feat3d.ComputeBoundaryMap(Mat(), res, Mat(), features::BMAP_3DPTS, pts_bmap);
 	feat3d.ComputeNormalMap(res, normal_map);
-	feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
+	feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
 	ImgVisualizer::DrawFloatImg("color bmap", color_bmap);
 	ImgVisualizer::DrawFloatImg("ptsbmap", pts_bmap);
 	ImgVisualizer::DrawNormals("normal", normal_map);
@@ -76,7 +76,7 @@ void ObjectProposalTester::Random() {
 
 void ObjectProposalTester::ShowBoundary() {
 
-	Mat cimg = imread(nyu_cfn);
+	Mat cimg = imread(eccv_cfn);
 	Size newsz;
 	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
@@ -86,17 +86,17 @@ void ObjectProposalTester::ShowBoundary() {
 	Mat lab_cimg;
 	//cvtColor(cimg, lab_cimg, CV_BGR2Lab);
 	cimg.convertTo(lab_cimg, CV_32F, 1.f/255);
-	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	resize(dmap, dmap, newsz);
 	visualsearch::features::Feature3D feat3d;
 	Mat color_bmap, pts3d, pts_bmap, normal_map, normal_bmap, tbmap;
-	feat3d.ComputeBoundaryMap(lab_cimg, features::BMAP_COLOR, color_bmap);
+	feat3d.ComputeBoundaryMap(lab_cimg, Mat(), Mat(), features::BMAP_COLOR, color_bmap);
 	feat3d.ComputeKinect3DMap(dmap, pts3d, true);
-	feat3d.ComputeBoundaryMap(pts3d, features::BMAP_3DPTS, pts_bmap);
+	feat3d.ComputeBoundaryMap(Mat(), pts3d, Mat(), features::BMAP_3DPTS, pts_bmap);
 	feat3d.ComputeNormalMap(pts3d, normal_map);
-	feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
-	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, normal_map, tbmap);
+	feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
+	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, normal_map, BMAP_COLOR | BMAP_3DPTS | BMAP_NORMAL, tbmap);
 	double minv, maxv;
 	minMaxLoc(tbmap, &minv, &maxv);
 	cout<<minv<<" "<<maxv<<endl;
@@ -106,7 +106,7 @@ void ObjectProposalTester::ShowBoundary() {
 	cvtColor(tbmap, tbmap, CV_GRAY2BGR);
 	
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
-	segmentor.m_dThresholdK = 30;
+	segmentor.m_dThresholdK = 10;
 	segmentor.m_dMinArea = 50;
 	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
 	int num = segmentor.DoSegmentation(tbmap);
@@ -117,24 +117,19 @@ void ObjectProposalTester::ShowBoundary() {
 	}
 	imshow("segimg", segmentor.m_segImg);
 
-	Mat color_bmap2, pts_bmap2, normal_bmap2;
+	Mat combine_bmap;
 	Mat adj_mat;
 	segmentor.ComputeAdjacencyMat(segmentor.superPixels, adj_mat);
-	feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, BMAP_COLOR, segmentor.superPixels, adj_mat, color_bmap2);
-	feat3d.ComputeBoundaryMapWithSuperpixels(pts3d, BMAP_3DPTS, segmentor.superPixels, adj_mat, pts_bmap2);
-	feat3d.ComputeBoundaryMapWithSuperpixels(normal_map, BMAP_NORMAL, segmentor.superPixels, adj_mat, normal_bmap2);
+	feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, pts3d, normal_map, BMAP_3DPTS, segmentor.superPixels, adj_mat, combine_bmap);
 
 	// show
 	ImgVisualizer::DrawFloatImg("depth", dmap);
 	ImgVisualizer::DrawFloatImg("cbmap", color_bmap);
-	ImgVisualizer::DrawFloatImg("cbmap2", color_bmap2);
 	ImgVisualizer::DrawFloatImg("pts3d", pts3d);
 	ImgVisualizer::DrawFloatImg("3d bmap", pts_bmap);
-	ImgVisualizer::DrawFloatImg("3d bmap2", pts_bmap2);
 	ImgVisualizer::DrawNormals("normal", normal_map);
 	ImgVisualizer::DrawFloatImg("normal bmap", normal_bmap);
-	ImgVisualizer::DrawFloatImg("normal bmap2", normal_bmap2);
-	ImgVisualizer::DrawFloatImg("normal+3d+color", (color_bmap2+normal_bmap2+pts_bmap2)/3);
+	ImgVisualizer::DrawFloatImg("combine sp bmap", combine_bmap);
 	threshold(tbmap, tbmap, 0.05, 255, CV_THRESH_BINARY);
 	imshow("th", tbmap);
 

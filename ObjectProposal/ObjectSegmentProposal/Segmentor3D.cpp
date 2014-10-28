@@ -189,9 +189,9 @@ bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {
 		imshow("3d", pts3d_map*255);
 		imshow("normal", normal_map*255);
 		waitKey(10);
-		feat3d.ComputeBoundaryMap(pts3d_map, features::BMAP_3DPTS, pts3d_bmap);
-		feat3d.ComputeBoundaryMap(cimg, features::BMAP_COLOR, color_bmap);
-		feat3d.ComputeBoundaryMap(normal_map, features::BMAP_NORMAL, normal_bmap);
+		feat3d.ComputeBoundaryMap(Mat(), pts3d_map, Mat(), features::BMAP_3DPTS, pts3d_bmap);
+		feat3d.ComputeBoundaryMap(cimg, Mat(), Mat(), features::BMAP_COLOR, color_bmap);
+		feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
 
 		// randomly sample subset of boundary points as positive ones, others as negative ones
 		// mark all contour points first, then sample
@@ -349,9 +349,9 @@ bool Segmentor3D::RunBoundaryDetection(const Mat& cimg, const Mat& dmap, Mat& bm
 	Mat pts3d_map, normal_map, color_bmap, pts3d_bmap, normal_bmap;
 	feat3d.ComputeKinect3DMap(new_dmap, feat_maps[1], true);
 	feat3d.ComputeNormalMap(feat_maps[1], feat_maps[2]);
-	feat3d.ComputeBoundaryMap(feat_maps[1], features::BMAP_3DPTS, pts3d_bmap);
-	feat3d.ComputeBoundaryMap(feat_maps[0], features::BMAP_COLOR, color_bmap);
-	feat3d.ComputeBoundaryMap(feat_maps[2], features::BMAP_NORMAL, normal_bmap);
+	feat3d.ComputeBoundaryMap(Mat(), feat_maps[1], Mat(), features::BMAP_3DPTS, pts3d_bmap);
+	feat3d.ComputeBoundaryMap(feat_maps[0], Mat(), Mat(), features::BMAP_COLOR, color_bmap);
+	feat3d.ComputeBoundaryMap(Mat(), Mat(), feat_maps[2], features::BMAP_NORMAL, normal_bmap);
 
 	bmap.create(newsz.height, newsz.width, CV_32F);
 	bmap.setTo(0);
