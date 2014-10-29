@@ -77,7 +77,7 @@ void ObjectProposalTester::Random() {
 void ObjectProposalTester::BoundaryPlayground() {
 	
 	vector<Mat> all_imgs(10);
-	Mat cimg = imread(eccv_cfn);
+	Mat cimg = imread(nyu_cfn);
 	Size newsz;
 	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
@@ -86,7 +86,7 @@ void ObjectProposalTester::BoundaryPlayground() {
 	Mat lab_cimg;
 	cimg.convertTo(lab_cimg, CV_32F, 1.f/255);
 
-	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	resize(dmap, dmap, newsz);
 	
@@ -99,7 +99,7 @@ void ObjectProposalTester::BoundaryPlayground() {
 	feat3d.ComputeBoundaryMap(Mat(), pts3d, Mat(), features::BMAP_3DPTS, pts_bmap);
 	feat3d.ComputeNormalMap(pts3d, normal_map);
 	feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
-	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, normal_map, BMAP_COLOR | BMAP_3DPTS | BMAP_NORMAL, tbmap);
+	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, normal_map, BMAP_3DPTS, tbmap);
 	double minv, maxv;
 	minMaxLoc(color_bmap, &minv, &maxv);
 	cout<<minv<<" "<<maxv<<endl;
@@ -109,9 +109,10 @@ void ObjectProposalTester::BoundaryPlayground() {
 	cvtColor(tbmap, tbmap, CV_GRAY2BGR);
 	
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
-	segmentor.m_dThresholdK = 300;
+	segmentor.m_dThresholdK = 400;
 	segmentor.m_dMinArea = 50;
 	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	segmentor.slic_seg_num_ = 20;
 	int num = segmentor.DoSegmentation(tbmap);
 	cout<<"segment number: "<<num<<endl;
 	segmentation::SegmentProcessor seg_proc;
@@ -390,11 +391,11 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 }
 
 void ObjectProposalTester::TestSegment() {
-	Mat cimg = imread(eccv_cfn);
+	Mat cimg = imread(nyu_cfn);
 	Size newsz;
 	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 	resize(cimg, cimg, newsz);
-	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	resize(dmap, dmap, newsz);
 	segmentation::IterativeSegmentor iter_segmentor;
 	iter_segmentor.Init(cimg, dmap);

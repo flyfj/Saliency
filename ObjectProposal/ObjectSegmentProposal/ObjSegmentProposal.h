@@ -8,9 +8,9 @@
 
 #include "Processors\Segmentation\IterativeSegmentor.h"
 #include "Processors\Segmentation\SegmentProcessor.h"
+#include "Processors\Segmentation\Segmentor3D.h"
 #include "Common\common_libs.h"
 #include "ObjectRanker.h"
-#include "Segmentor3D.h"
 #include "Common/Tools/RGBDTools.h"
 
 namespace objectproposal

@@ -7,7 +7,6 @@
 #pragma once
 
 #include "ObjectRanker.h"
-#include "Segmentor3D.h"
 #include "ObjProposalDemo.h"
 #include "Common/common_libs.h"
 #include "IO/Dataset/RGBDECCV14.h"
@@ -15,6 +14,7 @@
 #include "IO/Dataset/Berkeley3DDataManager.h"
 #include "Processors/Segmentation/ImageSegmentor.h"
 #include "Processors/Segmentation/SegmentProcessor.h"
+#include "Processors\Segmentation\Segmentor3D.h"
 #include "ObjSegmentProposal.h"
 #include <Eigen/Eigen>
 #include "ObjViewMatcher.h"
