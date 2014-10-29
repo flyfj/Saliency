@@ -10,10 +10,12 @@
 #include "IO/Dataset/NYUDepth2DataMan.h"
 #include "IO/Dataset/DataManagerInterface.h"
 #include "Features/Feature3D.h"
+#include "Processors/Segmentation/ImageSegmentor.h"
 #include "Processors/Segmentation/SegmentProcessor.h"
 #include "Learners/RandomTrees/DecisionTree.h"
 #include "Learners/RandomTrees/RandomForest.h"
 using namespace visualsearch;
+using namespace visualsearch::features;
 using namespace visualsearch::common;
 using namespace visualsearch::io::dataset;
 
@@ -40,6 +42,8 @@ public:
 	bool RunRegionGrowing(const Mat& pts3d_bmap, vector<SuperPixel>& res_sps);
 	bool Run(const vector<vector<FeatPoint>>& super_img);
 
+	bool Oversegment(const Mat& cimg, const Mat& dmap);
+
 	bool RunBFS(const vector<vector<FeatPoint>>& super_img);
 
 	bool TrainBoundaryDetector(DatasetName db_name);
@@ -48,6 +52,7 @@ public:
 
 	Mat labels;
 	float DIST_TH;
+	vector<SuperPixel> sps;
 
 private:
 	

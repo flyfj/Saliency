@@ -77,7 +77,7 @@ void ObjectProposalTester::Random() {
 void ObjectProposalTester::BoundaryPlayground() {
 	
 	vector<Mat> all_imgs(10);
-	Mat cimg = imread(nyu_cfn);
+	Mat cimg = imread(eccv_cfn);
 	Size newsz;
 	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
@@ -86,7 +86,7 @@ void ObjectProposalTester::BoundaryPlayground() {
 	Mat lab_cimg;
 	cimg.convertTo(lab_cimg, CV_32F, 1.f/255);
 
-	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	resize(dmap, dmap, newsz);
 	
@@ -94,6 +94,8 @@ void ObjectProposalTester::BoundaryPlayground() {
 	Mat color_bmap, pts3d, pts_bmap, normal_map, normal_bmap, tbmap;
 	feat3d.ComputeBoundaryMap(lab_cimg, Mat(), Mat(), features::BMAP_COLOR, color_bmap);
 	feat3d.ComputeKinect3DMap(dmap, pts3d, true);
+	RGBDTools tool;
+	//tool.SavePointsToOBJ("scene.obj", pts3d);
 	feat3d.ComputeBoundaryMap(Mat(), pts3d, Mat(), features::BMAP_3DPTS, pts_bmap);
 	feat3d.ComputeNormalMap(pts3d, normal_map);
 	feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
@@ -107,7 +109,7 @@ void ObjectProposalTester::BoundaryPlayground() {
 	cvtColor(tbmap, tbmap, CV_GRAY2BGR);
 	
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
-	segmentor.m_dThresholdK = 10;
+	segmentor.m_dThresholdK = 300;
 	segmentor.m_dMinArea = 50;
 	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
 	int num = segmentor.DoSegmentation(tbmap);
@@ -121,7 +123,7 @@ void ObjectProposalTester::BoundaryPlayground() {
 	Mat combine_bmap;
 	Mat adj_mat;
 	segmentor.ComputeAdjacencyMat(segmentor.superPixels, adj_mat);
-	feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, pts3d, normal_map, BMAP_3DPTS | BMAP_NORMAL, segmentor.superPixels, adj_mat, combine_bmap);
+	feat3d.ComputeBoundaryMapWithSuperpixels(lab_cimg, pts3d, normal_map, BMAP_3DPTS | BMAP_COLOR, segmentor.superPixels, adj_mat, combine_bmap);
 
 	// show
 	ImgVisualizer::DrawFloatImg("depth", dmap, all_imgs[1], false);

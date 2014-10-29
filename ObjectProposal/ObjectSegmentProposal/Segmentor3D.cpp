@@ -138,6 +138,34 @@ bool Segmentor3D::RunRegionGrowing(const Mat& pts3d_bmap, vector<SuperPixel>& re
 	return true;
 }
 
+bool Segmentor3D::Oversegment(const Mat& cimg, const Mat& dmap) {
+	// input data
+	Mat lab_cimg;
+	cvtColor(cimg, lab_cimg, CV_BGR2Lab);
+	lab_cimg.convertTo(lab_cimg, CV_32F, 1.f/255);
+	Mat dmap_float;
+	if(dmap.depth() != CV_32F) dmap.convertTo(dmap_float, CV_32F);
+	else dmap.copyTo(dmap_float);
+
+	// compute feature map
+	Feature3D feat3d;
+	Mat pts3d_map, normal_map, total_bmap;
+	feat3d.ComputeKinect3DMap(dmap_float, pts3d_map, true);
+	feat3d.ComputeNormalMap(pts3d_map, normal_map);
+	feat3d.ComputeBoundaryMap(lab_cimg, pts3d_map, normal_map, BMAP_COLOR | BMAP_3DPTS | BMAP_NORMAL, total_bmap);
+
+	// oversegmentation
+	total_bmap.convertTo(total_bmap, CV_8U, 255);
+	cvtColor(total_bmap, total_bmap, CV_GRAY2BGR);
+	processors::segmentation::ImageSegmentor segmentor;
+	segmentor.m_dThresholdK = 30;
+	segmentor.m_dMinArea = 50;
+	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	int num = segmentor.DoSegmentation(total_bmap);
+
+	return true;
+}
+
 //////////////////////////////////////////////////////////////////////////
 
 bool Segmentor3D::TrainBoundaryDetector(DatasetName db_name) {

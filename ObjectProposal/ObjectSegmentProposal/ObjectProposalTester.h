@@ -11,6 +11,7 @@
 #include "ObjProposalDemo.h"
 #include "Common/common_libs.h"
 #include "IO/Dataset/RGBDECCV14.h"
+#include "Common/Tools/RGBDTools.h"
 #include "IO/Dataset/Berkeley3DDataManager.h"
 #include "Processors/Segmentation/ImageSegmentor.h"
 #include "Processors/Segmentation/SegmentProcessor.h"
@@ -37,8 +38,8 @@ public:
 		uw_obj_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\stapler\\stapler_1\\stapler_1_1_1_crop.png";
 		uw_obj_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\stapler\\stapler_1\\stapler_1_1_1_depthcrop.png";
 		
-		eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\10_12-38-38.jpg";
-		eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\10_12-38-38_Depth.png";
+		eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\9_12-50-08.jpg";
+		eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\9_12-50-08_Depth.png";
 
 		save_dir = "E:\\res\\segments\\meeting\\";
 	}
