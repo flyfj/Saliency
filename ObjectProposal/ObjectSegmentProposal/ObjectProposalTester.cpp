@@ -41,43 +41,16 @@ void ObjectProposalTester::Random() {
 
 	//return;
 
-	features::Feature3D feat3d;
-	Mat cimg = imread(uw_obj_cfn);
-	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 50, newsz);
-	Mat dmap = imread(uw_obj_dfn, CV_LOAD_IMAGE_UNCHANGED);
-	dmap.convertTo(dmap, CV_32F);
-	resize(cimg, cimg, newsz);
-	resize(dmap, dmap, newsz);
-	double minv, maxv;
-	minMaxLoc(dmap, &minv, &maxv);
-	cout<<minv<<" "<<maxv<<endl;
-	imshow("cimg", cimg);
-	ImgVisualizer::DrawFloatImg("dmap", dmap);
-
-	Mat res;
-	feat3d.ComputeKinect3DMap(dmap, res, true);
-	Mat pts_bmap, normal_map, normal_bmap, color_bmap;
-	cimg.convertTo(cimg, CV_32F);
-	feat3d.ComputeBoundaryMap(cimg, Mat(), Mat(), features::BMAP_COLOR, color_bmap);
-	feat3d.ComputeBoundaryMap(Mat(), res, Mat(), features::BMAP_3DPTS, pts_bmap);
-	feat3d.ComputeNormalMap(res, normal_map);
-	feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
-	ImgVisualizer::DrawFloatImg("color bmap", color_bmap);
-	ImgVisualizer::DrawFloatImg("ptsbmap", pts_bmap);
-	ImgVisualizer::DrawNormals("normal", normal_map);
-	ImgVisualizer::DrawFloatImg("normalb", normal_bmap);
-	RGBDTools rgbd;
-	//rgbd.SavePointsToOBJ("clothes.obj", res);
-	//io::dataset::Berkeley3DDataManager b3d_man;
-	//b3d_man.BrowseData(true, true, true);
+	attention::ObjectRanker ranker;
+	ranker.PrepareRankTrainData(DB_NYU2_RGBD);
+	
 
 }
 
 void ObjectProposalTester::BoundaryPlayground() {
 	
 	vector<Mat> all_imgs(10);
-	Mat cimg = imread(nyu_cfn);
+	Mat cimg = imread(eccv_cfn);
 	Size newsz;
 	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
@@ -86,20 +59,21 @@ void ObjectProposalTester::BoundaryPlayground() {
 	Mat lab_cimg;
 	cimg.convertTo(lab_cimg, CV_32F, 1.f/255);
 
-	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	resize(dmap, dmap, newsz);
 	
 	visualsearch::features::Feature3D feat3d;
 	Mat color_bmap, pts3d, pts_bmap, normal_map, normal_bmap, tbmap;
 	feat3d.ComputeBoundaryMap(lab_cimg, Mat(), Mat(), features::BMAP_COLOR, color_bmap);
-	feat3d.ComputeKinect3DMap(dmap, pts3d, true);
+	feat3d.ComputeKinect3DMap(dmap, pts3d, false);
 	RGBDTools tool;
 	//tool.SavePointsToOBJ("scene.obj", pts3d);
+	//return;
 	feat3d.ComputeBoundaryMap(Mat(), pts3d, Mat(), features::BMAP_3DPTS, pts_bmap);
 	feat3d.ComputeNormalMap(pts3d, normal_map);
 	feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
-	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, normal_map, BMAP_3DPTS, tbmap);
+	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, normal_map, BMAP_3DPTS | BMAP_COLOR, tbmap);
 	double minv, maxv;
 	minMaxLoc(color_bmap, &minv, &maxv);
 	cout<<minv<<" "<<maxv<<endl;
@@ -109,7 +83,7 @@ void ObjectProposalTester::BoundaryPlayground() {
 	cvtColor(tbmap, tbmap, CV_GRAY2BGR);
 	
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
-	segmentor.m_dThresholdK = 400;
+	segmentor.m_dThresholdK = 100;
 	segmentor.m_dMinArea = 50;
 	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
 	segmentor.slic_seg_num_ = 20;
@@ -308,52 +282,97 @@ void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {
 	}
 }
 
+bool ObjectProposalTester::LoadNYU20Masks(FileInfo imgfn, vector<Mat>& gt_masks) {
+
+	string img_fn_no_ext = imgfn.filename.substr(0, 5);
+	char str[50];
+	sprintf_s(str, "%s-mask*.png", img_fn_no_ext.c_str());
+	FileInfos maskfns;
+	ToolFactory::GetFilesFromDir(nyu20_gtdir, str, maskfns);
+	gt_masks.resize(maskfns.size());
+	for(size_t i=0; i<gt_masks.size(); i++) {
+		gt_masks[i] = imread(maskfns[i].filepath, CV_LOAD_IMAGE_GRAYSCALE);
+	}
+
+	return true;
+}
+
+#define NYU20
 void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 	Berkeley3DDataManager b3d_man;
 	RGBDECCV14 rgbd_man;
 	FileInfos imgfns, dmapfns;
-	//rgbd_man.GetImageList(imgfns);
-	b3d_man.GetImageList(imgfns);
-	imgfns.erase(imgfns.begin(), imgfns.begin()+50);
+	rgbd_man.GetImageList(imgfns);
+	random_shuffle(imgfns.begin(), imgfns.end());
+	//b3d_man.GetImageList(imgfns);
 	imgfns.erase(imgfns.begin()+10, imgfns.end());
-	b3d_man.GetDepthmapList(imgfns, dmapfns);
-	//rgbd_man.GetDepthmapList(imgfns, dmapfns);
+	//imgfns[0].filepath = eccv_cfn + "11_03-46-20.jpg";
+	//imgfns[0].filename = "11_03-46-20.jpg";
+	//imgfns.erase(imgfns.begin()+10, imgfns.end());
+	//b3d_man.GetDepthmapList(imgfns, dmapfns);
+	rgbd_man.GetDepthmapList(imgfns, dmapfns);
 	map<string, vector<Mat>> gt_masks;
-	//rgbd_man.LoadGTMasks(imgfns, gt_masks);
 	map<string, vector<ImgWin>> gt_boxes;
-	b3d_man.LoadGTWins(imgfns, gt_boxes);
+	//b3d_man.LoadGTWins(imgfns, gt_boxes);
 
-	Mat cimg = imread(imgfns[0].filepath);
-	for(auto pi=gt_boxes.begin(); pi!=gt_boxes.end(); pi++) {
-		gt_masks[pi->first].resize(pi->second.size());
-		for(size_t i=0; i<pi->second.size(); i++) {
-			gt_masks[pi->first][i].create(cimg.rows, cimg.cols, CV_8U);
-			gt_masks[pi->first][i].setTo(0);
-			gt_masks[pi->first][i](pi->second[i]).setTo(1);
-		}
+#ifdef NYU20
+
+	ToolFactory::GetFilesFromDir(nyu20_cdir, "*.png", imgfns);
+	imgfns.erase(imgfns.begin()+10, imgfns.end());
+	dmapfns.resize(imgfns.size());
+	for(size_t i=0; i<imgfns.size(); i++) {
+		string img_fn_no_ext = imgfns[i].filename.substr(0, 5);
+		dmapfns[i].filename = img_fn_no_ext + "-depth.png";
+		dmapfns[i].filepath = nyu20_ddir + dmapfns[i].filename;
 	}
+
+#endif
+
+	/*Mat cimg = imread(imgfns[0].filepath);
+	for(auto pi=gt_boxes.begin(); pi!=gt_boxes.end(); pi++) {
+	gt_masks[pi->first].resize(pi->second.size());
+	for(size_t i=0; i<pi->second.size(); i++) {
+	gt_masks[pi->first][i].create(cimg.rows, cimg.cols, CV_8U);
+	gt_masks[pi->first][i].setTo(0);
+	gt_masks[pi->first][i](pi->second[i]).setTo(1);
+	}
+	}*/
 
 	vector<vector<Point2f>> all_pr;
 	int common_num = 0;
 	float avg_recall = 0;
 	for (size_t i=0; i<imgfns.size(); i++) {
+
 		Mat cimg = imread(imgfns[i].filepath);
 		Size newsz;
-		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 		resize(cimg, cimg, newsz);
+		
 		Mat dmap;
+#ifdef NYU20
+		dmap = imread(dmapfns[i].filepath, CV_LOAD_IMAGE_UNCHANGED);
+#else
 		rgbd_man.LoadDepthData(dmapfns[i].filepath, dmap);
+#endif
 		dmap.convertTo(dmap, CV_32F);
 		resize(dmap, dmap, newsz);
-		vector<Mat>& cur_gt = gt_masks[imgfns[i].filename];
-		for(auto& obj : cur_gt) {
+
+#ifdef NYU20
+		LoadNYU20Masks(imgfns[i], gt_masks[imgfns[i].filename]);
+#else
+		FileInfos cur_fns;
+		cur_fns.push_back(imgfns[i]);
+		rgbd_man.LoadGTMasks(cur_fns, gt_masks);
+#endif
+		vector<Mat>& cur_gts = gt_masks[imgfns[i].filename];
+		for(auto& obj : cur_gts) {
 			resize(obj, obj, newsz);
 		}
 
 		imshow("color", cimg);
 		ImgVisualizer::DrawFloatImg("dmap", dmap);
-		ImgVisualizer::DrawFloatImg("mask", cur_gt[0]);
+		ImgVisualizer::DrawFloatImg("mask", cur_gts[0]);
 
 		objectproposal::ObjSegmentProposal seg_prop;
 		vector<SuperPixel> sps;
@@ -361,7 +380,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		//seg_prop.GetCandidatesFromIterativeSeg(cimg, dmap, sps);
 
 		vector<Point2f> cur_pr;
-		seg_prop.ComputePRCurves(sps, cur_gt, 0.6f, cur_pr, false);
+		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, true);
 		// accumulate and compute mean recall
 		avg_recall += cur_pr[cur_pr.size()-1].x;
 
@@ -374,15 +393,20 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	// get mean pr
 	vector<Point2f> mean_pr(common_num);
 	for(size_t j=0; j<common_num; j++) {
+		mean_pr[j] = Point2f(0, 0);
 		for(size_t i=0; i<all_pr.size(); i++) {
-			if(j > all_pr[i].size()) mean_pr[j] += all_pr[i][all_pr[i].size()-1];
-			else mean_pr[j] += all_pr[i][j];
+			if(j >= all_pr[i].size()) 
+				mean_pr[j] += all_pr[i][all_pr[i].size()-1];
+			else 
+				mean_pr[j] += all_pr[i][j];
 		}
 		mean_pr[j].x /= all_pr.size();
 		mean_pr[j].y /= all_pr.size();
+		if(mean_pr[j].x < 0)
+			cout<<"error"<<endl;
 	}
 	
-	ofstream out("b3d_all_pr.txt");
+	ofstream out("eccv_all_pr.txt");
 	for(size_t i=0; i<mean_pr.size(); i++) {
 		out<<mean_pr[i].x<<" "<<mean_pr[i].y<<endl;
 	}
@@ -391,11 +415,12 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 }
 
 void ObjectProposalTester::TestSegment() {
-	Mat cimg = imread(nyu_cfn);
+	Mat cimg = imread(eccv_cfn);
 	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+	cout<<newsz.width<<" "<<newsz.height<<endl;
 	resize(cimg, cimg, newsz);
-	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	resize(dmap, dmap, newsz);
 	segmentation::IterativeSegmentor iter_segmentor;
 	iter_segmentor.Init(cimg, dmap);

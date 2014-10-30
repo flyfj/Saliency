@@ -38,8 +38,12 @@ public:
 		uw_obj_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\stapler\\stapler_1\\stapler_1_1_1_crop.png";
 		uw_obj_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\stapler\\stapler_1\\stapler_1_1_1_depthcrop.png";
 		
-		eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\9_12-50-08.jpg";
-		eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\9_12-50-08_Depth.png";
+		eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\";
+		eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\11_03-46-20_Depth.png";
+
+		nyu20_cdir = "E:\\Datasets\\RGBD_Dataset\\nyu_20\\rgb\\";
+		nyu20_ddir = "E:\\Datasets\\RGBD_Dataset\\nyu_20\\depth\\";
+		nyu20_gtdir = "E:\\Datasets\\RGBD_Dataset\\nyu_20\\mask\\";
 
 		save_dir = "E:\\res\\segments\\meeting\\";
 	}
@@ -62,8 +66,13 @@ public:
 	void TestViewMatch();
 
 private:
+	bool LoadNYU20Masks(FileInfo imgfn, vector<Mat>& gt_masks);
+
 	string nyu_cfn;
 	string nyu_dfn;
+	string nyu20_cdir;
+	string nyu20_ddir;
+	string nyu20_gtdir;
 	string uw_cfn;
 	string uw_dfn;
 	string uw_obj_cfn;

@@ -11,7 +11,7 @@ namespace objectproposal
 	bool ObjSegmentProposal::GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps) {
 
 		iter_segmentor.merge_feat_types = SP_COLOR;
-		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.75f);
+		iter_segmentor.seg_size_bound_ = Point2f(0.001f, 0.9f);
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.verbose = false;
 		iter_segmentor.Run2();
@@ -107,16 +107,18 @@ namespace objectproposal
 	{
 		// get candidates
 		vector<SuperPixel> res_sps;
-		GetCandidatesFromSegment3D(cimg, dmap, res_sps);
-		//GetCandidatesFromIterativeSeg(cimg, dmap, res_sps);
+		//GetCandidatesFromSegment3D(cimg, dmap, res_sps);
+		GetCandidatesFromIterativeSeg(cimg, dmap, res_sps);
 		// extract basic features
 		SegmentProcessor seg_proc;
-		for(auto& sp : res_sps) seg_proc.ExtractBasicSegmentFeatures(sp, cimg, dmap);
+		//for(auto& sp : res_sps) seg_proc.ExtractBasicSegmentFeatures(sp, cimg, dmap);
 		cout<<"object candidates: "<<res_sps.size()<<endl;
 		/*Mat shapes;
 		ImgVisualizer::DrawShapes(cimg, res_sps, shapes, false);
 		imshow("shapes", shapes);
 		waitKey(10);*/
+		res = res_sps;
+		return true;
 
 		// rank
 		cout<<"Ranking segments..."<<endl;
@@ -128,25 +130,25 @@ namespace objectproposal
 		cout<<"Filter overlap segments..."<<endl;
 		int valid_num = 0;
 		vector<bool> valid_seg(rank_ids.size(), true);
-		for (size_t i=0; i<rank_ids.size(); i++) {
-			if( !valid_seg[i] ) continue;
-			// too big segments
-			if( res_sps[rank_ids[i]].area > cimg.rows*cimg.cols*0.8f || res_sps[rank_ids[i]].area < cimg.rows*cimg.cols*0.01f ) {
-				valid_seg[i] = false;
-				valid_num++;
-				continue;
-			}
-			// overlapping
-			/*for(size_t j=i+1; j<rank_ids.size(); j++) {
-			if( valid_seg[j] && 
-			(float)countNonZero(
-			res_sps[rank_ids[i]].mask & res_sps[rank_ids[j]].mask) / 
-			countNonZero(res_sps[rank_ids[i]].mask | res_sps[rank_ids[j]].mask) > 0.5) {
-			valid_seg[j] = false;
-			valid_num++;
-			}
-			}*/
-		}
+		//for (size_t i=0; i<rank_ids.size(); i++) {
+		//	if( !valid_seg[i] ) continue;
+		//	// too big segments
+		//	if( res_sps[rank_ids[i]].area > cimg.rows*cimg.cols*0.8f || res_sps[rank_ids[i]].area < cimg.rows*cimg.cols*0.01f ) {
+		//		valid_seg[i] = false;
+		//		valid_num++;
+		//		continue;
+		//	}
+		//	// overlapping
+		//	/*for(size_t j=i+1; j<rank_ids.size(); j++) {
+		//	if( valid_seg[j] && 
+		//	(float)countNonZero(
+		//	res_sps[rank_ids[i]].mask & res_sps[rank_ids[j]].mask) / 
+		//	countNonZero(res_sps[rank_ids[i]].mask | res_sps[rank_ids[j]].mask) > 0.5) {
+		//	valid_seg[j] = false;
+		//	valid_num++;
+		//	}
+		//	}*/
+		//}
 		valid_num = valid_seg.size() - valid_num;
 		cout<<"final proposal num: "<<valid_num<<endl;
 
@@ -192,6 +194,7 @@ namespace objectproposal
 		vector<bool> detect_gt(gt_masks.size(), false);
 		vector<Point2f> tmp_vals(ranked_objs.size());
 		for(size_t i=0; i<ranked_objs.size(); i++) {
+
 			tmp_vals[i] = (i==0? Point2f(0,0): tmp_vals[i-1]);
 			// try each gt object
 			for(size_t j=0; j<gt_objs.size(); j++) {
@@ -209,7 +212,7 @@ namespace objectproposal
 			}
 		}
 
-		pr_vals.resize(ranked_objs.size());
+		pr_vals.resize(tmp_vals.size());
 		// normalize
 		for(size_t i=0; i<tmp_vals.size(); i++) {
 			pr_vals[i].x = tmp_vals[i].x / gt_masks.size();

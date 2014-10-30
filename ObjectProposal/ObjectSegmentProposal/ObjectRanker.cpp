@@ -431,7 +431,7 @@ namespace visualsearch
 			bool ObjectRanker::PrepareRankTrainData(DatasetName dbs)
 			{
 				test_ = false;
-				string temp_dir = "E:\\Results\\objectness\\rgbd\\";	// save intermediate results
+				string temp_dir = "E:\\Results\\objectness\\nyu\\";	// save intermediate results
 				char str[50];
 
 				ImageSegmentor imgsegmentor;
@@ -450,14 +450,17 @@ namespace visualsearch
 					db_man = new RGBDECCV14();
 
 				db_man->GetImageList(imgfiles);
+				imgfiles.erase(imgfiles.begin(), imgfiles.begin()+101);
 				db_man->GetDepthmapList(imgfiles, dmapfiles);
-				//imgfiles.erase(imgfiles.begin(), imgfiles.end());
-				db_man->LoadGTMasks(imgfiles, objmasks);
 
 				cout<<"Generating training samples..."<<endl;
 				Mat possamps, negsamps;
 				for(size_t i=0; i<imgfiles.size(); i++)
 				{
+					FileInfos tmp_files;
+					tmp_files.push_back(imgfiles[i]);
+					db_man->LoadGTMasks(tmp_files, objmasks);
+
 					Mat cimg = imread(imgfiles[i].filepath);
 					Size newsz;
 					tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
@@ -502,14 +505,14 @@ namespace visualsearch
 						// randomly select samples from every segment level
 						random_shuffle(tsps.begin(), tsps.end());
 						for (size_t id=0; id<tsps.size(); id++) {
-							if(tsps[id].area < cimg.rows*cimg.cols*0.05) continue;
+							if(tsps[id].area < cimg.rows*cimg.cols*0.005) continue;
 							// check if have large overlap with one of the objects
 							bool isvalid = true;
 							for (size_t j=0; j<masks.size(); j++) {
 								Mat& curmask = masks[j];
 								//resize(masks[j], curmask, newsz);
 								Mat intersectMask = curmask & tsps[id].mask;
-								if( countNonZero(intersectMask) / countNonZero(curmask | tsps[id].mask) > 0.5 ) {
+								if( countNonZero(intersectMask)*1.f / countNonZero(curmask | tsps[id].mask) > 0.5 ) {
 									isvalid = false;
 									break;
 								}
