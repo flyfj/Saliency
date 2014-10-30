@@ -11,38 +11,38 @@ bool ObjViewMatcher::PrepareDatabase() {
 	// get files
 	obj_db.objects.clear();
 	DirInfos cate_dirs;
-	ToolFactory::GetDirsFromDir(root_dir, cate_dirs);
+	// top categories
+	ToolFactory::GetDirsFromDir(root_dir, cate_dirs);	
 	cate_dirs.erase(cate_dirs.begin()+10, cate_dirs.end());
-	for(auto cur_dir : cate_dirs) {
+	for(size_t i=0; i<cate_dirs.size(); i++) {
 		DirInfos sub_cate_dirs;
-		ToolFactory::GetDirsFromDir(cur_dir.dirpath, sub_cate_dirs);
+		ToolFactory::GetDirsFromDir(cate_dirs[i].dirpath, sub_cate_dirs);
 		for(auto cur_sub_dir : sub_cate_dirs) {
 			FileInfos cate_fns;
 			ToolFactory::GetFilesFromDir(cur_sub_dir.dirpath, "*_crop.png", cate_fns);
 			for (auto cur_fn : cate_fns) {
-				VisualObject cur_obj;
-				cur_obj.imgpath = cur_fn.filepath;
-				cur_obj.imgfile = cur_fn.filename;
-				obj_db.objects.push_back(cur_obj);
+				VisualObject cur_obj_view;
+				cur_obj_view.category_id = i;
+				cur_obj_view.imgpath = cur_fn.filepath;
+				cur_obj_view.imgfile = cur_fn.filename;
+				cur_obj_view.dmap_path = cur_fn.filepath.substr(0, cur_fn.filepath.length()-7) + "depthcrop.png";
+				obj_db.objects.push_back(cur_obj_view);
 			}
 		}
 
-		cout<<"Finish category: "<<cur_dir.dirpath<<endl;
+		cout<<"Loaded category: "<<cate_dirs[i].dirpath<<endl;
 	}
-
-	// generate lsh functions
-	lsh_coder.GenerateHashFunctions(25*25, 128, true);
 
 	// get features
 	cout<<"Extracting view features..."<<endl;
-	for(auto& cur_obj : obj_db.objects) {
-		Mat vimg = imread(cur_obj.imgpath);
-		resize(vimg, vimg, Size(25, 25));
-		ExtractViewFeat(vimg, cur_obj.visual_desc.img_desc);
-		// compress
-		lsh_coder.ComputeCodes(cur_obj.visual_desc.img_desc, cur_obj.visual_desc.binary_code);
-		HashingTools<HashKeyType>::CodesToKey(cur_obj.visual_desc.binary_code, cur_obj.visual_desc.key_value);
+	for(auto& cur_obj_view : obj_db.objects) {
+		Mat vimg = imread(cur_obj_view.imgpath);
+		Mat dmap = imread(cur_obj_view.dmap_path, CV_LOAD_IMAGE_UNCHANGED);
+		resize(vimg, vimg, Size(10, 10));
+		resize(dmap, dmap, Size(10, 10));
+		ExtractViewFeat(vimg, dmap, cur_obj_view.visual_desc.img_desc);
 	}
+	
 	cout<<"Feature extraction done."<<endl;
 
 	cout<<"Database ready."<<endl;
@@ -50,7 +50,31 @@ bool ObjViewMatcher::PrepareDatabase() {
 	return true;
 }
 
-bool ObjViewMatcher::ExtractViewFeat(const Mat& color_view, Mat& view_feat) {
+bool ObjViewMatcher::LearnOptimalBinaryCodes(int code_len) {
+	// generate lsh functions
+	lsh_coder.GenerateHashFunctions(25*25, 128, true);
+	// generate random weights for binary codes
+	lsh_coder.ComputeCodes(cur_obj.visual_desc.img_desc, cur_obj.visual_desc.binary_code);
+	HashingTools<HashKeyType>::CodesToKey(cur_obj.visual_desc.binary_code, cur_obj.visual_desc.key_value);
+	
+	return true;
+}
+
+float ObjViewMatcher::EvaluateCodeQuality() {
+	float cost = 0;
+	int cnt = 0;
+	// pair-wise mean hamming distance
+	for(size_t i=0; i<obj_db.objects.size(); i++) {
+		for(size_t j=i+1; j<obj_db.objects.size(); j++) {
+			cost += HashingTools<HashKeyType>::HammingDist(obj_db.objects[i].visual_desc.key_value, obj_db.objects[j].visual_desc.key_value);
+			cnt++;
+		}
+	}
+	cost /= cnt;
+	return cost;
+}
+
+bool ObjViewMatcher::ExtractViewFeat(const Mat& color_view, const Mat& dmap_view, Mat& view_feat) {
 	Mat gray_view;
 	cvtColor(color_view, gray_view, CV_BGR2GRAY);
 	gray_view.convertTo(gray_view, CV_32F);
@@ -66,7 +90,7 @@ bool ObjViewMatcher::ExtractViewFeat(const Mat& color_view, Mat& view_feat) {
 	return true;
 }
 
-bool ObjViewMatcher::MatchView(const Mat& color_view) {
+bool ObjViewMatcher::MatchView(const Mat& color_view, const Mat& depth_view) {
 	Mat view_feat;
 	ExtractViewFeat(color_view, view_feat);
 	BinaryCodes codes;

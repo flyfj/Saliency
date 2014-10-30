@@ -297,7 +297,7 @@ bool ObjectProposalTester::LoadNYU20Masks(FileInfo imgfn, vector<Mat>& gt_masks)
 	return true;
 }
 
-//#define NYU20
+#define NYU20
 void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 	DataManagerInterface* db_man = NULL;
@@ -324,7 +324,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 #ifdef NYU20
 
 	ToolFactory::GetFilesFromDir(nyu20_cdir, "*.png", imgfns);
-	imgfns.erase(imgfns.begin()+10, imgfns.end());
+	imgfns.erase(imgfns.begin()+500, imgfns.end());
 	dmapfns.resize(imgfns.size());
 	for(size_t i=0; i<imgfns.size(); i++) {
 		string img_fn_no_ext = imgfns[i].filename.substr(0, 5);
@@ -345,6 +345,8 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	}*/
 
 	vector<vector<Point2f>> all_prs(imgfns.size());
+	float avg_recall = 0;
+	int common_num = 0;
 //#pragma omp parallel for
 	for (int i=0; i<imgfns.size(); i++) {
 
@@ -386,23 +388,16 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 		vector<Point2f> cur_pr;
 		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, true);
-
 		all_prs[i] = cur_pr;
+		avg_recall += cur_pr[cur_pr.size()-1].x;
+		if(cur_pr.size() > common_num) common_num = cur_pr.size();
+		cout<<"mean recall: "<<avg_recall / (i+1)<<endl;
 
 		cout<<"finish image "<<i<<"/"<<imgfns.size()<<endl<<endl;;
 	}
 
 	delete db_man;
 	db_man = NULL;
-
-	// get mean pr
-	float avg_recall = 0;
-	int common_num = 0;
-	for(auto pr : all_prs) {
-		// accumulate and compute mean recall
-		avg_recall += pr[pr.size()-1].x;
-		if(pr.size() > common_num) common_num = pr.size();
-	}
 	
 	vector<Point2f> mean_pr(common_num);
 	for(size_t j=0; j<common_num; j++) {
@@ -419,7 +414,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 			cout<<"error"<<endl;
 	}
 	
-	ofstream out("eccv_all_pr.txt");
+	ofstream out("nyu20_all_pr.txt");
 	for(size_t i=0; i<mean_pr.size(); i++) {
 		out<<mean_pr[i].x<<" "<<mean_pr[i].y<<endl;
 	}
@@ -458,5 +453,5 @@ void ObjectProposalTester::TestViewMatch() {
 	Mat view = imread(queryfn);
 	resize(view, view, Size(25,25));
 	imshow("query", view);
-	matcher.MatchView(view);
+	matcher.MatchView(view, Mat());
 }
