@@ -183,7 +183,7 @@ namespace objectproposal
 	//////////////////////////////////////////////////////////////////////////
 
 	void ObjSegmentProposal::ComputePRCurves(const vector<SuperPixel>& ranked_objs, const vector<Mat>& gt_masks, float cover_th, 
-		vector<Point2f>& pr_vals, bool seg_or_win /* = true */) {
+		vector<Point2f>& pr_vals, vector<float>& best_overlap, bool seg_or_win /* = true */) {
 		SegmentProcessor seg_proc;
 		vector<SuperPixel> gt_objs(gt_masks.size());
 		for (size_t i=0; i<gt_masks.size(); i++) {
@@ -191,6 +191,8 @@ namespace objectproposal
 			seg_proc.ExtractBasicSegmentFeatures(gt_objs[i], Mat(), Mat());
 		}
 
+		best_overlap.clear();
+		best_overlap.resize(gt_masks.size(), 0);
 		vector<bool> detect_gt(gt_masks.size(), false);
 		vector<Point2f> tmp_vals(ranked_objs.size());
 		for(size_t i=0; i<ranked_objs.size(); i++) {
@@ -205,6 +207,7 @@ namespace objectproposal
 				else
 					cover_rate = (ranked_objs[i].box & gt_objs[j].box).area()*1.f / (ranked_objs[i].box | gt_objs[j].box).area();
 
+				best_overlap[j] = MAX(cover_rate, best_overlap[j]);
 				if(cover_rate >= cover_th) {
 					tmp_vals[i].y++;
 					if( !detect_gt[j] ) { detect_gt[j] = true; tmp_vals[i].x++; }

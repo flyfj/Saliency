@@ -5,6 +5,7 @@
 #include "Common/common_libs.h"
 #include "Common/Tools/Tools.h"
 #include "Common/Tools/ImgVisualizer.h"
+#include "Features/Feature3D.h"
 #include "search/hashing/basehasher.h"
 #include "search/hashing/lshcoder.h"
 using namespace visualsearch::common;

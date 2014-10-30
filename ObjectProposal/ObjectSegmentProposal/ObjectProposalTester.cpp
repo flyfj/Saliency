@@ -208,7 +208,7 @@ void ObjectProposalTester::TestSegmentor3D() {
 		seg_prop.Run(cimg, dmap, -1, sps);
 
 		vector<Point2f> cur_pr;
-		seg_prop.ComputePRCurves(sps, gt_masks, 0.6f, cur_pr, false);
+		//seg_prop.ComputePRCurves(sps, gt_masks, 0.6f, cur_pr, false);
 		// accumulate and compute mean recall
 		avg_recall += cur_pr[cur_pr.size()-1].x;
 
@@ -297,7 +297,7 @@ bool ObjectProposalTester::LoadNYU20Masks(FileInfo imgfn, vector<Mat>& gt_masks)
 	return true;
 }
 
-#define NYU20
+//#define NYU20
 void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 	DataManagerInterface* db_man = NULL;
@@ -311,7 +311,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
 	random_shuffle(imgfns.begin(), imgfns.end());
-	imgfns.erase(imgfns.begin()+500, imgfns.end());
+	imgfns.erase(imgfns.begin()+100, imgfns.end());
 	//imgfns[0].filepath = eccv_cfn + "11_03-46-20.jpg";
 	//imgfns[0].filename = "11_03-46-20.jpg";
 	//imgfns.erase(imgfns.begin()+10, imgfns.end());
@@ -346,6 +346,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 	vector<vector<Point2f>> all_prs(imgfns.size());
 	float avg_recall = 0;
+	vector<float> best_gt_cover_rates;
 	int common_num = 0;
 //#pragma omp parallel for
 	for (int i=0; i<imgfns.size(); i++) {
@@ -387,11 +388,17 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		//seg_prop.GetCandidatesFromIterativeSeg(cimg, dmap, sps);
 
 		vector<Point2f> cur_pr;
-		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, true);
+		vector<float> best_overlap;
+		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, best_overlap, true);
+		best_gt_cover_rates.insert(best_gt_cover_rates.end(), best_overlap.begin(), best_overlap.end());
 		all_prs[i] = cur_pr;
 		avg_recall += cur_pr[cur_pr.size()-1].x;
 		if(cur_pr.size() > common_num) common_num = cur_pr.size();
 		cout<<"mean recall: "<<avg_recall / (i+1)<<endl;
+		// ABO
+		float abo = 0;
+		for(auto curval : best_gt_cover_rates) { abo += curval;}
+		cout<<"ABO: "<<abo/best_gt_cover_rates.size()<<endl;
 
 		cout<<"finish image "<<i<<"/"<<imgfns.size()<<endl<<endl;;
 	}

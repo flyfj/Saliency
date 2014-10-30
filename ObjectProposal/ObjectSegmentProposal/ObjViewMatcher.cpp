@@ -54,8 +54,8 @@ bool ObjViewMatcher::LearnOptimalBinaryCodes(int code_len) {
 	// generate lsh functions
 	lsh_coder.GenerateHashFunctions(25*25, 128, true);
 	// generate random weights for binary codes
-	lsh_coder.ComputeCodes(cur_obj.visual_desc.img_desc, cur_obj.visual_desc.binary_code);
-	HashingTools<HashKeyType>::CodesToKey(cur_obj.visual_desc.binary_code, cur_obj.visual_desc.key_value);
+	//lsh_coder.ComputeCodes(cur_obj.visual_desc.img_desc, cur_obj.visual_desc.binary_code);
+	//HashingTools<HashKeyType>::CodesToKey(cur_obj.visual_desc.binary_code, cur_obj.visual_desc.key_value);
 	
 	return true;
 }
@@ -92,7 +92,7 @@ bool ObjViewMatcher::ExtractViewFeat(const Mat& color_view, const Mat& dmap_view
 
 bool ObjViewMatcher::MatchView(const Mat& color_view, const Mat& depth_view) {
 	Mat view_feat;
-	ExtractViewFeat(color_view, view_feat);
+	ExtractViewFeat(color_view, depth_view, view_feat);
 	BinaryCodes codes;
 	HashKey key_value;
 	lsh_coder.ComputeCodes(view_feat, codes);
