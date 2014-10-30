@@ -297,21 +297,26 @@ bool ObjectProposalTester::LoadNYU20Masks(FileInfo imgfn, vector<Mat>& gt_masks)
 	return true;
 }
 
-#define NYU20
+//#define NYU20
 void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
-	Berkeley3DDataManager b3d_man;
-	RGBDECCV14 rgbd_man;
+	DataManagerInterface* db_man = NULL;
+	if(db_name == DB_SALIENCY_RGBD)
+		db_man = new RGBDECCV14;
+	if(db_name == DB_NYU2_RGBD)
+		db_man = new NYUDepth2DataMan;
+	if(db_name == DB_BERKELEY3D)
+		db_man = new Berkeley3DDataManager;
+
 	FileInfos imgfns, dmapfns;
-	rgbd_man.GetImageList(imgfns);
+	db_man->GetImageList(imgfns);
 	random_shuffle(imgfns.begin(), imgfns.end());
-	//b3d_man.GetImageList(imgfns);
-	imgfns.erase(imgfns.begin()+10, imgfns.end());
+	imgfns.erase(imgfns.begin()+500, imgfns.end());
 	//imgfns[0].filepath = eccv_cfn + "11_03-46-20.jpg";
 	//imgfns[0].filename = "11_03-46-20.jpg";
 	//imgfns.erase(imgfns.begin()+10, imgfns.end());
 	//b3d_man.GetDepthmapList(imgfns, dmapfns);
-	rgbd_man.GetDepthmapList(imgfns, dmapfns);
+	db_man->GetDepthmapList(imgfns, dmapfns);
 	map<string, vector<Mat>> gt_masks;
 	map<string, vector<ImgWin>> gt_boxes;
 	//b3d_man.LoadGTWins(imgfns, gt_boxes);
@@ -339,11 +344,11 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	}
 	}*/
 
-	vector<vector<Point2f>> all_pr;
-	int common_num = 0;
-	float avg_recall = 0;
-	for (size_t i=0; i<imgfns.size(); i++) {
+	vector<vector<Point2f>> all_prs(imgfns.size());
+//#pragma omp parallel for
+	for (int i=0; i<imgfns.size(); i++) {
 
+		cout<<"Processing "<<i<<"/"<<imgfns.size()<<endl;
 		Mat cimg = imread(imgfns[i].filepath);
 		Size newsz;
 		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
@@ -353,7 +358,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 #ifdef NYU20
 		dmap = imread(dmapfns[i].filepath, CV_LOAD_IMAGE_UNCHANGED);
 #else
-		rgbd_man.LoadDepthData(dmapfns[i].filepath, dmap);
+		db_man->LoadDepthData(dmapfns[i].filepath, dmap);
 #endif
 		dmap.convertTo(dmap, CV_32F);
 		resize(dmap, dmap, newsz);
@@ -363,16 +368,16 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 #else
 		FileInfos cur_fns;
 		cur_fns.push_back(imgfns[i]);
-		rgbd_man.LoadGTMasks(cur_fns, gt_masks);
+		db_man->LoadGTMasks(cur_fns, gt_masks);
 #endif
 		vector<Mat>& cur_gts = gt_masks[imgfns[i].filename];
 		for(auto& obj : cur_gts) {
 			resize(obj, obj, newsz);
 		}
 
-		imshow("color", cimg);
-		ImgVisualizer::DrawFloatImg("dmap", dmap);
-		ImgVisualizer::DrawFloatImg("mask", cur_gts[0]);
+		//imshow("color", cimg);
+		//ImgVisualizer::DrawFloatImg("dmap", dmap);
+		//ImgVisualizer::DrawFloatImg("mask", cur_gts[0]);
 
 		objectproposal::ObjSegmentProposal seg_prop;
 		vector<SuperPixel> sps;
@@ -381,27 +386,35 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 		vector<Point2f> cur_pr;
 		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, true);
-		// accumulate and compute mean recall
-		avg_recall += cur_pr[cur_pr.size()-1].x;
 
-		all_pr.push_back(cur_pr);
-		if(cur_pr.size() > common_num) common_num = cur_pr.size();
+		all_prs[i] = cur_pr;
 
-		cout<<"finish image "<<i<<"/"<<imgfns.size()<<endl;
+		cout<<"finish image "<<i<<"/"<<imgfns.size()<<endl<<endl;;
 	}
 
+	delete db_man;
+	db_man = NULL;
+
 	// get mean pr
+	float avg_recall = 0;
+	int common_num = 0;
+	for(auto pr : all_prs) {
+		// accumulate and compute mean recall
+		avg_recall += pr[pr.size()-1].x;
+		if(pr.size() > common_num) common_num = pr.size();
+	}
+	
 	vector<Point2f> mean_pr(common_num);
 	for(size_t j=0; j<common_num; j++) {
 		mean_pr[j] = Point2f(0, 0);
-		for(size_t i=0; i<all_pr.size(); i++) {
-			if(j >= all_pr[i].size()) 
-				mean_pr[j] += all_pr[i][all_pr[i].size()-1];
+		for(size_t i=0; i<all_prs.size(); i++) {
+			if(j >= all_prs[i].size()) 
+				mean_pr[j] += all_prs[i][all_prs[i].size()-1];
 			else 
-				mean_pr[j] += all_pr[i][j];
+				mean_pr[j] += all_prs[i][j];
 		}
-		mean_pr[j].x /= all_pr.size();
-		mean_pr[j].y /= all_pr.size();
+		mean_pr[j].x /= all_prs.size();
+		mean_pr[j].y /= all_prs.size();
 		if(mean_pr[j].x < 0)
 			cout<<"error"<<endl;
 	}

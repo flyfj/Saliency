@@ -78,6 +78,7 @@
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
       <CompileAs>Default</CompileAs>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
