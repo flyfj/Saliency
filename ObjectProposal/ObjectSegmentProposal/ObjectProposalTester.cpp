@@ -289,15 +289,17 @@ bool ObjectProposalTester::LoadNYU20Masks(FileInfo imgfn, vector<Mat>& gt_masks)
 	sprintf_s(str, "%s-mask*.png", img_fn_no_ext.c_str());
 	FileInfos maskfns;
 	ToolFactory::GetFilesFromDir(nyu20_gtdir, str, maskfns);
-	gt_masks.resize(maskfns.size());
-	for(size_t i=0; i<gt_masks.size(); i++) {
-		gt_masks[i] = imread(maskfns[i].filepath, CV_LOAD_IMAGE_GRAYSCALE);
+	gt_masks.reserve(maskfns.size());
+	for(size_t i=0; i<maskfns.size(); i++) {
+		Mat cur_mask = imread(maskfns[i].filepath, CV_LOAD_IMAGE_GRAYSCALE);
+		if(countNonZero(cur_mask)*1.f < cur_mask.rows*cur_mask.cols*0.005) continue;
+		gt_masks.push_back(cur_mask);
 	}
 
 	return true;
 }
 
-//#define NYU20
+#define NYU20
 void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 	DataManagerInterface* db_man = NULL;
@@ -324,7 +326,8 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 #ifdef NYU20
 
 	ToolFactory::GetFilesFromDir(nyu20_cdir, "*.png", imgfns);
-	imgfns.erase(imgfns.begin()+500, imgfns.end());
+	//imgfns.erase(imgfns.begin(), imgfns.begin()+9);
+	imgfns.erase(imgfns.begin()+50, imgfns.end());
 	dmapfns.resize(imgfns.size());
 	for(size_t i=0; i<imgfns.size(); i++) {
 		string img_fn_no_ext = imgfns[i].filename.substr(0, 5);
@@ -348,13 +351,14 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	float avg_recall = 0;
 	vector<float> best_gt_cover_rates;
 	int common_num = 0;
+	int valid_img_num = 0;
 //#pragma omp parallel for
 	for (int i=0; i<imgfns.size(); i++) {
 
 		cout<<"Processing "<<i<<"/"<<imgfns.size()<<endl;
 		Mat cimg = imread(imgfns[i].filepath);
 		Size newsz;
-		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 		resize(cimg, cimg, newsz);
 		
 		Mat dmap;
@@ -374,6 +378,9 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		db_man->LoadGTMasks(cur_fns, gt_masks);
 #endif
 		vector<Mat>& cur_gts = gt_masks[imgfns[i].filename];
+		if(cur_gts.empty()) continue;
+		valid_img_num++;
+
 		for(auto& obj : cur_gts) {
 			resize(obj, obj, newsz);
 		}
@@ -387,6 +394,14 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		seg_prop.Run(cimg, dmap, -1, sps);
 		//seg_prop.GetCandidatesFromIterativeSeg(cimg, dmap, sps);
 
+		// save proposal to folder
+		for(size_t id=0; id<sps.size(); id++) {
+			char str[30];
+			sprintf_s(str, "_%d.png", id);
+			string savefn = save_dir + imgfns[i].filename + string(str);
+			imwrite(savefn, sps[id].mask*255);
+		}
+
 		vector<Point2f> cur_pr;
 		vector<float> best_overlap;
 		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, best_overlap, true);
@@ -394,7 +409,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		all_prs[i] = cur_pr;
 		avg_recall += cur_pr[cur_pr.size()-1].x;
 		if(cur_pr.size() > common_num) common_num = cur_pr.size();
-		cout<<"mean recall: "<<avg_recall / (i+1)<<endl;
+		cout<<"mean recall: "<<avg_recall / valid_img_num<<endl;
 		// ABO
 		float abo = 0;
 		for(auto curval : best_gt_cover_rates) { abo += curval;}
@@ -425,17 +440,16 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	for(size_t i=0; i<mean_pr.size(); i++) {
 		out<<mean_pr[i].x<<" "<<mean_pr[i].y<<endl;
 	}
-	cout<<"total mean recall: "<<avg_recall / imgfns.size()<<endl;
-
+	cout<<"total mean recall: "<<avg_recall / valid_img_num<<endl;
 }
 
 void ObjectProposalTester::TestSegment() {
-	Mat cimg = imread(eccv_cfn);
+	Mat cimg = imread(nyu_cfn);
 	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 	cout<<newsz.width<<" "<<newsz.height<<endl;
 	resize(cimg, cimg, newsz);
-	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	resize(dmap, dmap, newsz);
 	segmentation::IterativeSegmentor iter_segmentor;
 	iter_segmentor.Init(cimg, dmap);

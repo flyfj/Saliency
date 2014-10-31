@@ -28,8 +28,8 @@ class ObjectProposalTester {
 
 public:
 	ObjectProposalTester() {
-		nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\2.jpg";
-		nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\2_d.png";
+		nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\1.jpg";
+		nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\1_d.png";
 		
 		uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\table_small\\table_small_1\\";
 		uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\table_small\\table_small_1\\";
@@ -38,14 +38,14 @@ public:
 		uw_obj_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\stapler\\stapler_1\\stapler_1_1_1_crop.png";
 		uw_obj_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\stapler\\stapler_1\\stapler_1_1_1_depthcrop.png";
 		
-		eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\";
+		eccv_cfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\RGB\\11_03-46-20.jpg";
 		eccv_dfn = "E:\\Datasets\\RGBD_Dataset\\Saliency\\Depth\\smoothedDepth\\11_03-46-20_Depth.png";
 
 		nyu20_cdir = "E:\\Datasets\\RGBD_Dataset\\nyu_20\\rgb\\";
 		nyu20_ddir = "E:\\Datasets\\RGBD_Dataset\\nyu_20\\depth\\";
 		nyu20_gtdir = "E:\\Datasets\\RGBD_Dataset\\nyu_20\\mask\\";
 
-		save_dir = "E:\\res\\segments\\meeting\\";
+		save_dir = "E:\\res\\segments\\nyu20\\";
 	}
 
 	void TestRankerLearner();

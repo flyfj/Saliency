@@ -11,7 +11,7 @@ namespace objectproposal
 	bool ObjSegmentProposal::GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps) {
 
 		iter_segmentor.merge_feat_types = SP_COLOR;
-		iter_segmentor.seg_size_bound_ = Point2f(0.001f, 0.9f);
+		iter_segmentor.seg_size_bound_ = Point2f(0.0015f, 0.8f);
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.verbose = false;
 		iter_segmentor.Run2();
@@ -193,6 +193,7 @@ namespace objectproposal
 
 		best_overlap.clear();
 		best_overlap.resize(gt_masks.size(), 0);
+		vector<int> best_proposals(gt_masks.size(), 0);
 		vector<bool> detect_gt(gt_masks.size(), false);
 		vector<Point2f> tmp_vals(ranked_objs.size());
 		for(size_t i=0; i<ranked_objs.size(); i++) {
@@ -207,13 +208,23 @@ namespace objectproposal
 				else
 					cover_rate = (ranked_objs[i].box & gt_objs[j].box).area()*1.f / (ranked_objs[i].box | gt_objs[j].box).area();
 
-				best_overlap[j] = MAX(cover_rate, best_overlap[j]);
+				if(cover_rate > best_overlap[j]) {
+					best_overlap[j] = cover_rate;
+					best_proposals[j] = i;
+				}
 				if(cover_rate >= cover_th) {
 					tmp_vals[i].y++;
 					if( !detect_gt[j] ) { detect_gt[j] = true; tmp_vals[i].x++; }
 				}
 			}
 		}
+
+		/*for(size_t i=0; i<best_proposals.size(); i++) {
+		imshow("gt mask", gt_masks[i]*255);
+		imshow("proposal", ranked_objs[best_proposals[i]].mask*255);
+		cout<<best_overlap[i]<<endl;
+		waitKey(0);
+		}*/
 
 		pr_vals.resize(tmp_vals.size());
 		// normalize
