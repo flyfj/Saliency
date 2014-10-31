@@ -35,7 +35,7 @@ namespace objectproposal
 		//////////////////////////////////////////////////////////////////////////
 		// evaluation
 		void ComputePRCurves(const vector<SuperPixel>& ranked_objs, const vector<Mat>& gt_masks, float cover_th, 
-			vector<Point2f>& pr_vals, vector<float>& best_overlap, bool seg_or_win = true);
+			vector<Point2f>& pr_vals, vector<Point3f>& best_overlap, bool seg_or_win = true);
 
 	private:
 		visualsearch::processors::segmentation::IterativeSegmentor iter_segmentor;

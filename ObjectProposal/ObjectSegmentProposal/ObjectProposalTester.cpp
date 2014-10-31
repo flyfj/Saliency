@@ -300,6 +300,7 @@ bool ObjectProposalTester::LoadNYU20Masks(FileInfo imgfn, vector<Mat>& gt_masks)
 }
 
 #define NYU20
+//#define UW_SCENE
 void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 	DataManagerInterface* db_man = NULL;
@@ -313,7 +314,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
 	random_shuffle(imgfns.begin(), imgfns.end());
-	imgfns.erase(imgfns.begin()+100, imgfns.end());
+	imgfns.erase(imgfns.begin()+50, imgfns.end());
 	//imgfns[0].filepath = eccv_cfn + "11_03-46-20.jpg";
 	//imgfns[0].filename = "11_03-46-20.jpg";
 	//imgfns.erase(imgfns.begin()+10, imgfns.end());
@@ -337,19 +338,56 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 #endif
 
-	/*Mat cimg = imread(imgfns[0].filepath);
-	for(auto pi=gt_boxes.begin(); pi!=gt_boxes.end(); pi++) {
-	gt_masks[pi->first].resize(pi->second.size());
-	for(size_t i=0; i<pi->second.size(); i++) {
-	gt_masks[pi->first][i].create(cimg.rows, cimg.cols, CV_8U);
-	gt_masks[pi->first][i].setTo(0);
-	gt_masks[pi->first][i](pi->second[i]).setTo(1);
+#ifdef UW_SCENE
+
+	imgfns.clear();
+	dmapfns.clear();
+	char str[50];
+	for(int id=50; id<60; id++) {
+		sprintf_s(str, "table_small_1_%d.png", id);
+		string cfn = uw_cfn + string(str);
+		FileInfo imgfn;
+		imgfn.filename = string(str);
+		imgfn.filepath = cfn;
+		imgfns.push_back(imgfn);
+		sprintf_s(str, "table_small_1_%d_depth.png", id);
+		string dfn = uw_dfn + string(str);
+		FileInfo dmapfn;
+		dmapfn.filename = string(str);
+		dmapfn.filepath = dfn;
+		dmapfns.push_back(dmapfn);
+		sprintf_s(str, "%d.txt", id);
+		string gtfn = uw_gt_dir + string(str);
+		// load gt boxes
+		ifstream in(gtfn.c_str());
+		int win_num;
+		in>>win_num;
+		if(win_num == 0) continue;
+		vector<ImgWin> gt_wins(win_num);
+		for(int i=0; i<win_num; i++) {
+			int xmin, ymin, xmax, ymax;
+			in>>xmin>>ymin>>xmax>>ymax;
+			xmin = (int)(xmin*ratio);
+			ymin = (int)(ymin*ratio);
+			xmax = (int)(xmax*ratio);
+			ymax = (int)(ymax*ratio);
+			gt_wins[i] = ImgWin(xmin, ymin, xmax-xmin, ymax-ymin);
+		}
+		vector<Mat> gts(win_num);
+		for(size_t i=0; i<gt_wins.size(); i++) {
+			gts[i].create(cimg.rows, cimg.cols, CV_8U);
+			gts[i].setTo(0);
+			gts[i](gt_wins[i]).setTo(1);
+		}
+		gt_masks[imgfn.filename] = gts;
 	}
-	}*/
+	
+
+#endif
 
 	vector<vector<Point2f>> all_prs(imgfns.size());
 	float avg_recall = 0;
-	vector<float> best_gt_cover_rates;
+	vector<Point3f> best_gt_cover;
 	int common_num = 0;
 	int valid_img_num = 0;
 //#pragma omp parallel for
@@ -362,7 +400,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		resize(cimg, cimg, newsz);
 		
 		Mat dmap;
-#ifdef NYU20
+#if defined(NYU20) || defined(UW_SCENE)
 		dmap = imread(dmapfns[i].filepath, CV_LOAD_IMAGE_UNCHANGED);
 #else
 		db_man->LoadDepthData(dmapfns[i].filepath, dmap);
@@ -394,6 +432,8 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		seg_prop.Run(cimg, dmap, -1, sps);
 		//seg_prop.GetCandidatesFromIterativeSeg(cimg, dmap, sps);
 
+//#define SAVE
+#ifdef SAVE
 		// save proposal to folder
 		for(size_t id=0; id<sps.size(); id++) {
 			char str[30];
@@ -401,19 +441,36 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 			string savefn = save_dir + imgfns[i].filename + string(str);
 			imwrite(savefn, sps[id].mask*255);
 		}
+#endif
 
 		vector<Point2f> cur_pr;
-		vector<float> best_overlap;
+		vector<Point3f> best_overlap;
 		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, best_overlap, true);
-		best_gt_cover_rates.insert(best_gt_cover_rates.end(), best_overlap.begin(), best_overlap.end());
+
+		// save best results
+		for(size_t k=0; k<best_overlap.size(); k++) {
+			vector<SuperPixel> show_sps;
+			show_sps.push_back(sps[best_overlap[k].y]);
+			Mat resimg;
+			ImgVisualizer::DrawShapes(cimg, show_sps, resimg, false);
+			imshow("res", resimg);
+			waitKey(0);
+			char str[30];
+			sprintf_s(str, "nyu_best_%d_%d.png", i, k);
+			string savefn = save_dir + str;
+			imwrite(savefn, resimg);
+		}
+		
+
+		best_gt_cover.insert(best_gt_cover.end(), best_overlap.begin(), best_overlap.end());
 		all_prs[i] = cur_pr;
 		avg_recall += cur_pr[cur_pr.size()-1].x;
 		if(cur_pr.size() > common_num) common_num = cur_pr.size();
 		cout<<"mean recall: "<<avg_recall / valid_img_num<<endl;
 		// ABO
 		float abo = 0;
-		for(auto curval : best_gt_cover_rates) { abo += curval;}
-		cout<<"ABO: "<<abo/best_gt_cover_rates.size()<<endl;
+		for(auto curval : best_gt_cover) { abo += curval.z;}
+		cout<<"ABO: "<<abo/best_gt_cover.size()<<endl;
 
 		cout<<"finish image "<<i<<"/"<<imgfns.size()<<endl<<endl;;
 	}
