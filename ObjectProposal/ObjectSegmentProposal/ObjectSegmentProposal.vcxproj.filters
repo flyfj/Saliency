@@ -105,6 +105,9 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\Segmentor3D.h">
       <Filter>Library\segmentation</Filter>
     </ClInclude>
+    <ClInclude Include="ObjectSearcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -259,6 +262,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\Segmentor3D.cpp">
       <Filter>Library\segmentation</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjectSearcher.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

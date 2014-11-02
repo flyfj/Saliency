@@ -50,7 +50,7 @@ void ObjectProposalTester::Random() {
 void ObjectProposalTester::BoundaryPlayground() {
 	
 	vector<Mat> all_imgs(10);
-	Mat cimg = imread(eccv_cfn);
+	Mat cimg = imread(nyu_cfn);
 	Size newsz;
 	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
@@ -59,21 +59,21 @@ void ObjectProposalTester::BoundaryPlayground() {
 	Mat lab_cimg;
 	cimg.convertTo(lab_cimg, CV_32F, 1.f/255);
 
-	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	dmap.convertTo(dmap, CV_32F);
 	resize(dmap, dmap, newsz);
 	
 	visualsearch::features::Feature3D feat3d;
 	Mat color_bmap, pts3d, pts_bmap, normal_map, normal_bmap, tbmap;
-	feat3d.ComputeBoundaryMap(lab_cimg, Mat(), Mat(), features::BMAP_COLOR, color_bmap);
 	feat3d.ComputeKinect3DMap(dmap, pts3d, false);
+	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, Mat(), features::BMAP_COLOR, color_bmap);
 	RGBDTools tool;
 	//tool.SavePointsToOBJ("scene.obj", pts3d);
 	//return;
 	feat3d.ComputeBoundaryMap(Mat(), pts3d, Mat(), features::BMAP_3DPTS, pts_bmap);
 	feat3d.ComputeNormalMap(pts3d, normal_map);
 	feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
-	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, normal_map, BMAP_3DPTS | BMAP_COLOR, tbmap);
+	feat3d.ComputeBoundaryMap(lab_cimg, pts3d, normal_map, BMAP_3DPTS, tbmap);
 	double minv, maxv;
 	minMaxLoc(color_bmap, &minv, &maxv);
 	cout<<minv<<" "<<maxv<<endl;
@@ -82,13 +82,15 @@ void ObjectProposalTester::BoundaryPlayground() {
 	tbmap.convertTo(tbmap, CV_8U, 255);
 	cvtColor(tbmap, tbmap, CV_GRAY2BGR);
 	
+	double start_t = GetTickCount();
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
-	segmentor.m_dThresholdK = 100;
-	segmentor.m_dMinArea = 50;
+	segmentor.m_dThresholdK = 1000;
+	segmentor.m_dMinArea = 200;
 	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
-	segmentor.slic_seg_num_ = 20;
+	segmentor.slic_seg_num_ = 2;
 	int num = segmentor.DoSegmentation(tbmap);
 	cout<<"segment number: "<<num<<endl;
+	cout<<"segment time: "<<(GetTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
 	segmentation::SegmentProcessor seg_proc;
 	for(size_t i=0; i<segmentor.superPixels.size(); i++) {
 		seg_proc.ExtractBasicSegmentFeatures(segmentor.superPixels[i], Mat(), Mat());
@@ -520,6 +522,35 @@ void ObjectProposalTester::TestSegment() {
 	segmentor.DoSegmentation(cimg);
 	imshow("seg", segmentor.m_segImg);
 	waitKey(0);
+
+}
+
+void ObjectProposalTester::Build3DPCL(DatasetName db_name) {
+
+	DataManagerInterface* db_man = NULL;
+	if(db_name == DB_SALIENCY_RGBD)
+		db_man = new RGBDECCV14;
+	if(db_name == DB_NYU2_RGBD)
+		db_man = new NYUDepth2DataMan;
+	
+	FileInfos imgfns, dmapfns;
+	db_man->GetImageList(imgfns);
+	imgfns.erase(imgfns.begin()+10, imgfns.end());
+	db_man->GetDepthmapList(imgfns, dmapfns);
+
+	char str[100];
+	for(size_t i=0; i<imgfns.size(); i++) {
+
+		Mat dmap;
+		db_man->LoadDepthData(dmapfns[i].filepath, dmap);
+
+		RGBDTools rgbd;
+		Mat pts3d;
+		rgbd.KinectDepthTo3D(dmap, pts3d);
+		sprintf_s(str, "%s.obj", imgfns[i].filename.c_str());
+		string savefn = save_dir + str;
+		rgbd.SavePointsToOBJ(savefn, pts3d);
+	}
 
 }
 

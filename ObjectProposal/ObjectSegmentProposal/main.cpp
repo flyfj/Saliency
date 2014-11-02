@@ -72,10 +72,11 @@ int main()
 	ObjectProposalTester tester;
 	//tester.TestSegment();
 	//tester.TestViewMatch();
-	//tester.BoundaryPlayground();
+	tester.BoundaryPlayground();
 	//tester.TestSegmentor3D();
+	//tester.Build3DPCL(DB_NYU2_RGBD);
 	//tester.Random();
-	tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
+	//tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
 	//tester.BatchProposal();
 	//tester.TestBoundaryClf(false);
 	waitKey(0);
