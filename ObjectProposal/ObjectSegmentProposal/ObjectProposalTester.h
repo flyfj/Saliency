@@ -16,20 +16,24 @@
 #include "Processors/Segmentation/SegmentProcessor.h"
 #include "Processors\Segmentation\Segmentor3D.h"
 #include "ObjSegmentProposal.h"
+#include "Learners/RandomTrees/DecisionTree.h"
 #include <Eigen/Eigen>
 #include "ObjViewMatcher.h"
+#include "Processors/Attention/SaliencyComputer.h"
+#include "ObjectSearcher.h"
 
 using namespace visualsearch;
 using namespace visualsearch::io;
 using namespace visualsearch::processors;
+using namespace visualsearch::processors::attention;
 using namespace visualsearch::features;
 
 class ObjectProposalTester {
 
 public:
 	ObjectProposalTester() {
-		nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\10.jpg";
-		nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\10_d.png";
+		nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\2.jpg";
+		nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\2_d.png";
 		
 		uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\table_small\\table_small_1\\";
 		uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\table_small\\table_small_1\\";
@@ -63,12 +67,18 @@ public:
 	void TestSegment();
 	void Random();
 
+	void TestObjSearch();
+
+	void TestSaliency();
+
 	void TestViewMatch();
 
 	void Build3DPCL(DatasetName db_name);
 
 private:
 	bool LoadNYU20Masks(FileInfo imgfn, vector<Mat>& gt_masks);
+
+	float ComputeSaliencyMapEntropy(const Mat& sal_map);
 
 	string nyu_cfn;
 	string nyu_dfn;

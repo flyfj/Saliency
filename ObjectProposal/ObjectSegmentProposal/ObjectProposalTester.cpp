@@ -47,6 +47,76 @@ void ObjectProposalTester::Random() {
 
 }
 
+void ObjectProposalTester::TestSaliency() {
+
+	Mat cimg = imread(nyu_cfn);
+	Size newsz;
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+	resize(cimg, cimg, newsz);
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	resize(dmap, dmap, newsz);
+	dmap.convertTo(dmap, CV_32F);
+	Mat pts3d, normal_map;
+	Feature3D feat3d;
+	feat3d.ComputeKinect3DMap(dmap, pts3d, true);
+	feat3d.ComputeNormalMap(pts3d, normal_map);
+
+	// convert to color image
+	Mat dmap_color, pts3d_color, normal_color;
+	normalize(dmap, dmap_color, 1, 0, NORM_MINMAX);
+	dmap_color.convertTo(dmap_color, CV_8U, 255);
+	cvtColor(dmap_color, dmap_color, CV_GRAY2BGR);
+	pts3d.convertTo(pts3d_color, CV_8U, 255);
+	normal_map.convertTo(normal_color, CV_8U, 255);
+
+	imshow("color", cimg);
+	imshow("dmap", dmap_color);
+	imshow("pts3d", pts3d_color);
+	ImgVisualizer::DrawNormals("normal", normal_map);
+
+	processors::attention::SaliencyComputer sal_comp;
+	Mat cimg_sal, dmap_sal, pts3d_sal, normal_sal;
+	sal_comp.ComputeSaliencyMap(cimg, SAL_HC, cimg_sal);
+	sal_comp.ComputeSaliencyMap(dmap_color, SAL_HC, dmap_sal);
+	sal_comp.ComputeSaliencyMap(pts3d_color, SAL_HC, pts3d_sal);
+	sal_comp.ComputeSaliencyMap(normal_color, SAL_HC, normal_sal);
+	ImgVisualizer::DrawFloatImg("cimg sal", cimg_sal);
+	ImgVisualizer::DrawFloatImg("dmap sal", dmap_sal);
+	ImgVisualizer::DrawFloatImg("pts sal", pts3d_sal);
+	ImgVisualizer::DrawFloatImg("normal sal", normal_sal);
+	cout<<"entropy: "<<endl;
+	cout<<"cimg sal: "<<ComputeSaliencyMapEntropy(cimg_sal)<<endl;
+	cout<<"dmap sal: "<<ComputeSaliencyMapEntropy(dmap_sal)<<endl;
+	cout<<"pts sal: "<<ComputeSaliencyMapEntropy(pts3d_sal)<<endl;
+	cout<<"normal sal: "<<ComputeSaliencyMapEntropy(normal_sal)<<endl;
+
+	waitKey(0);
+}
+
+void ObjectProposalTester::TestObjSearch() {
+	Mat cimg = imread(nyu_cfn);
+	Size newsz;
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+	resize(cimg, cimg, newsz);
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	resize(dmap, dmap, newsz);
+
+	ObjectSearcher searcher;
+	searcher.SplitSearch(cimg, dmap);
+}
+
+float ObjectProposalTester::ComputeSaliencyMapEntropy(const Mat& sal_map) {
+	int bin_num = 20;
+	float step = 1.f / bin_num;
+	learners::trees::NodeStatisticsHist hist(bin_num);
+	for (int r=0; r<sal_map.rows; r++) for(int c=0; c<sal_map.cols; c++) {
+		int bin_id = MIN(int(sal_map.at<float>(r,c)/step), bin_num-1);
+		hist.AddSample(bin_id, 1);
+	}
+
+	return hist.Entropy();
+}
+
 void ObjectProposalTester::BoundaryPlayground() {
 	
 	vector<Mat> all_imgs(10);
