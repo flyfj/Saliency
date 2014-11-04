@@ -150,6 +150,12 @@ void ObjectProposalTester::BoundaryPlayground() {
 	ImgVisualizer::DrawFloatImg("combined bmap", tbmap, all_imgs[7], false);
 
 	tbmap.convertTo(tbmap, CV_8U, 255);
+	color_bmap.convertTo(color_bmap, CV_8U, 255);
+	normal_bmap.convertTo(normal_bmap, CV_8U, 255);
+	imwrite("color.png", color_bmap);
+	imwrite("normal.png", normal_bmap);
+	imwrite("pts.png", tbmap);
+
 	cvtColor(tbmap, tbmap, CV_GRAY2BGR);
 	
 	double start_t = GetTickCount();

@@ -2,6 +2,14 @@
 BingObjectnessCVPR14/
 activeSegCode_win_ver_1_2/
 SelectiveSearchCodeIJCV/
+BSR_source/
+YAMLMatlab/
+libsvm/
+Packages/
+
+*.model
+*.yml
+*.xml
 
 ## data file
 *.ply
