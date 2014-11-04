@@ -11,6 +11,7 @@
 #include "Common/common_libs.h"
 #include "IO/Dataset/RGBDECCV14.h"
 #include "Common/Tools/RGBDTools.h"
+#include "Features/Color/ColorDescriptors.h"
 #include "IO/Dataset/Berkeley3DDataManager.h"
 #include "Processors/Segmentation/ImageSegmentor.h"
 #include "Processors/Segmentation/SegmentProcessor.h"
@@ -68,6 +69,8 @@ public:
 	void Random();
 
 	void TestObjSearch();
+
+	void TestSuperpixelClf(bool ifTrain);
 
 	void TestSaliency();
 

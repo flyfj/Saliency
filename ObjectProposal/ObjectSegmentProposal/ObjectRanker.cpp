@@ -321,7 +321,7 @@ namespace visualsearch
 				FileInfos imgfiles, dmapfiles;
 				nyuman.GetImageList(imgfiles);
 				nyuman.GetDepthmapList(imgfiles, dmapfiles);
-				map<string, vector<Mat>> objmasks;
+				map<string, vector<VisualObject>> objmasks;
 				imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
 				nyuman.LoadGTMasks(imgfiles, objmasks);
 
@@ -333,12 +333,12 @@ namespace visualsearch
 					Mat dmap;
 					nyuman.LoadDepthData(dmapfiles[i].filepath, dmap);
 
-					const vector<Mat> masks = objmasks[imgfiles[i].filename];
+					const vector<VisualObject> masks = objmasks[imgfiles[i].filename];
 					vector<ImgWin> poswins;
 					for (size_t k=0; k<masks.size(); k++)
 					{
 						SuperPixel cursegment;
-						cursegment.mask = masks[k];
+						cursegment.mask = masks[k].visual_desc.mask;
 						segprocessor.ExtractBasicSegmentFeatures(cursegment, cimg, dmap);
 						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
 						//imwrite(temp_dir + string(str), cursegment.mask*255);
@@ -443,7 +443,7 @@ namespace visualsearch
 				// generate training samples from given database
 				FileInfos imgfiles, dmapfiles;
 				DataManagerInterface* db_man = NULL;
-				map<string, vector<Mat>> objmasks;
+				map<string, vector<VisualObject>> objmasks;
 				if( (dbs & DB_NYU2_RGBD) != 0 )
 					db_man = new NYUDepth2DataMan();
 				if( (dbs & DB_SALIENCY_RGBD) != 0 )
@@ -472,12 +472,12 @@ namespace visualsearch
 					imshow("color", cimg);
 					//ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
 					
-					vector<Mat> masks = objmasks[imgfiles[i].filename];
+					vector<VisualObject> masks = objmasks[imgfiles[i].filename];
 					// positive sample: object segments
 					for (size_t k=0; k<masks.size(); k++) {
 						//resize(masks[k], masks[k], newsz);
 						SuperPixel cursegment;
-						cursegment.mask = masks[k];
+						cursegment.mask = masks[k].visual_desc.mask;
 						//resize(cursegment.mask, cursegment.mask, newsz);
 						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
 						//imwrite(temp_dir + string(str), cursegment.mask*255);
@@ -509,7 +509,7 @@ namespace visualsearch
 							// check if have large overlap with one of the objects
 							bool isvalid = true;
 							for (size_t j=0; j<masks.size(); j++) {
-								Mat& curmask = masks[j];
+								Mat& curmask = masks[j].visual_desc.mask;
 								//resize(masks[j], curmask, newsz);
 								Mat intersectMask = curmask & tsps[id].mask;
 								if( countNonZero(intersectMask)*1.f / countNonZero(curmask | tsps[id].mask) > 0.5 ) {

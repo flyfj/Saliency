@@ -72,7 +72,8 @@ int main()
 	ObjectProposalTester tester;
 	//tester.TestSegment();
 	//tester.TestViewMatch();
-	tester.TestObjSearch();
+	tester.TestSuperpixelClf(true);
+	//tester.TestObjSearch();
 	//tester.TestSaliency();
 	//tester.BoundaryPlayground();
 	//tester.TestSegmentor3D();
@@ -82,7 +83,7 @@ int main()
 	//tester.BatchProposal();
 	//tester.TestBoundaryClf(false);
 	waitKey(0);
-	//getchar();
+	getchar();
 	return 0;
 }
 
