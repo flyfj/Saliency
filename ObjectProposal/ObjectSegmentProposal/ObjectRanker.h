@@ -23,7 +23,7 @@
 #include "Processors/Attention/CenterSurroundFeatureContraster.h"
 #include "Processors/ShapeAnalyzer.h"
 #include "Learners/LearnerTools.h"
-#include "Learners/RandomTrees/RandomForest.h"
+#include "Learners/RandomTrees/RandomForest.hpp"
 
 
 namespace visualsearch {

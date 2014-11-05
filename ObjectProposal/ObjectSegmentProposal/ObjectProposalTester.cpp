@@ -213,19 +213,20 @@ void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 
 	std::cout<<"Start to train..."<<endl;
 	ofstream out("sp_forest.dat");
-	learners::trees::DecisionTree dtree;
+	learners::trees::DecisionTree<learners::trees::LinearFeature> dtree;
 	learners::trees::DTreeTrainingParams tparams;
 	tparams.feat_type = learners::trees::DTREE_FEAT_LINEAR;
 	tparams.feature_num = 500;
 	tparams.th_num = 50;
 	tparams.min_samp_num = 50;
 	tparams.MaxLevel = 8;
-	learners::trees::RandomForest rforest;
+	learners::trees::RandomForest<learners::trees::LinearFeature> rforest;
 	learners::trees::RForestTrainingParams rfparams;
 	rfparams.num_trees = 6;
 	rfparams.split_disjoint = false;
 	rfparams.tree_params = tparams;
-	rforest.Train(rank_train_data, rank_train_label, rfparams);
+	rforest.Init(rfparams);
+	rforest.Train(rank_train_data, rank_train_label);
 	rforest.Save(out);
 	//dtree.TrainTree(rank_train_data, rank_train_label, tparams);
 	//dtree.Save("bound_tree.dat");

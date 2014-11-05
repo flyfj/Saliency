@@ -272,7 +272,7 @@ namespace visualsearch
 
 
 				// dtrees
-				learners::trees::RandomForest rforest;
+				learners::trees::RandomForest<learners::trees::LinearFeature> rforest;
 				learners::trees::RForestTrainingParams rfparams;
 
 				rfparams.tree_params.feat_type = learners::trees::DTREE_FEAT_LINEAR;
@@ -281,8 +281,8 @@ namespace visualsearch
 				rfparams.tree_params.MaxLevel = 8;
 				rfparams.tree_params.feature_num = 200;
 				rfparams.tree_params.th_num = 50;
-
-				rforest.Train(rank_train_data, rank_train_label, rfparams);
+				rforest.Init(rfparams);
+				rforest.Train(rank_train_data, rank_train_label);
 				ofstream out("forest_ranker.dat");
 				rforest.Save(out);
 				//rforest.EvaluateRandomForest(rank_test_data, rank_test_label, 2);
@@ -291,7 +291,7 @@ namespace visualsearch
 				for (int r=0; r<rank_test_data.rows; r++)
 				{
 					vector<double> scores;
-					rforest.ForestPredict(rank_test_data.row(r), scores);
+					rforest.Predict(rank_test_data.row(r), scores);
 					for(size_t i=0; i<scores.size(); i++) pred_scores.at<float>(r, i) = (float)scores[i];
 					/*float res = model.predict(rank_test_data.row(r));
 					if(res > 0) 

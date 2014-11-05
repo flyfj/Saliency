@@ -197,9 +197,6 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\RGBDTools.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\RandomTrees\RandomForest.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\RandomTrees\DecisionTree.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
