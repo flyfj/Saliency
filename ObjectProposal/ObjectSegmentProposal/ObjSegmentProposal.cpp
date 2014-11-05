@@ -188,7 +188,7 @@ namespace objectproposal
 		vector<SuperPixel> gt_objs(gt_masks.size());
 		for (size_t i=0; i<gt_masks.size(); i++) {
 			gt_masks[i].copyTo(gt_objs[i].mask);
-			seg_proc.ExtractBasicSegmentFeatures(gt_objs[i], Mat(), Mat());
+			seg_proc.ExtractSegmentBasicFeatures(gt_objs[i]);
 		}
 
 		// x: gt obj; y: proposal obj; z: jaccard index

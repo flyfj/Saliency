@@ -72,10 +72,10 @@ int main()
 	ObjectProposalTester tester;
 	//tester.TestSegment();
 	//tester.TestViewMatch();
-	//tester.TestSuperpixelClf(true);
+	tester.TestSuperpixelClf(true);
 	//tester.TestObjSearch();
 	//tester.TestSaliency();
-	tester.BoundaryPlayground();
+	//tester.BoundaryPlayground();
 	//tester.TestSegmentor3D();
 	//tester.Build3DPCL(DB_NYU2_RGBD);
 	//tester.Random();

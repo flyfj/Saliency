@@ -107,133 +107,13 @@ void ObjectProposalTester::TestObjSearch() {
 
 void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 
-	// load ground truth
-	DataManagerInterface* db_man = NULL;
-	db_man = new NYUDepth2DataMan;
-	FileInfos imgfns, dmapfns;
-	db_man->GetImageList(imgfns);
-	imgfns.erase(imgfns.begin()+40, imgfns.end());
-	db_man->GetDepthmapList(imgfns, dmapfns);
-
-	Feature3D feat3d;
-	SegmentProcessor seg_processor;
-	ColorFeatParams cparams;
-	cparams.feat_type = color::COLOR_FEAT_HIST;
-	color::ColorDescriptors color_desc;
-	color_desc.Init(cparams);
-	Point3d normal_hist_bins(15, 15, 15);
-	ImageSegmentor img_segmentor;
-	img_segmentor.m_dMinArea = 100;
-	img_segmentor.m_dThresholdK = 30;
-	img_segmentor.seg_type_ = OVER_SEG_GRAPH;
-
-	int label_cnt = 0;
-	map<int, int> label_map;
-
-	map<int, ObjectCategory> gt_objs;
-	for(size_t i=0; i<imgfns.size(); i++) {
-
-		Mat cimg = imread(imgfns[i].filepath);
-		Size newsz;
-		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
-		resize(cimg, cimg, newsz);
-		Mat dmap;
-		db_man->LoadDepthData(dmapfns[i].filepath, dmap);
-		resize(dmap, dmap, newsz);
-		dmap.convertTo(dmap, CV_32F);
-
-		FileInfos tmp_imgfns;
-		tmp_imgfns.push_back(imgfns[i]);
-		map<string, vector<VisualObject>> gt_masks;
-		db_man->LoadGTMasks(tmp_imgfns, gt_masks);
-
-		// extract features
-		Mat pts3d, normal_map;
-		feat3d.ComputeKinect3DMap(dmap, pts3d, false);
-		feat3d.ComputeNormalMap(pts3d, normal_map);
-		normal_map = (normal_map + 1) / 2;	// convert to [0,1]
-
-		img_segmentor.DoSegmentation(cimg);
-
-		for(auto cur_sp : img_segmentor.superPixels) {
-			seg_processor.ExtractBasicSegmentFeatures(cur_sp, cimg, dmap);
-			cur_sp.centroid.x /= cimg.cols;
-			cur_sp.centroid.y /= cimg.rows;
-			// test if overlap with a gt obj
-			for(auto& cur_gt : gt_masks[imgfns[i].filename]) {
-
-				if(cur_gt.visual_desc.mask.rows != newsz.height) resize(cur_gt.visual_desc.mask, cur_gt.visual_desc.mask, newsz);
-
-				//imshow("sp mask", cur_sp.mask*255);
-				//imshow("gt mask", cur_gt.visual_desc.mask*255);
-				//waitKey(10);
-				if(countNonZero(cur_sp.mask & cur_gt.visual_desc.mask)*1.f / cur_sp.area < 0.9f)
-					continue;
-
-				Mat color_feat, normal_feat;
-				color_desc.Compute(cimg, color_feat, cur_sp.mask);
-				feat3d.ComputeNormalHist(normal_map, cur_sp.mask, normal_hist_bins, normal_feat);
-
-				int cnt = 0;
-				Mat total_feat(1, color_feat.cols+normal_feat.cols+2, CV_32F);
-				for(int id=0; id<color_feat.cols; id++) total_feat.at<float>(cnt++) = color_feat.at<float>(id);
-				for(int id=0; id<normal_feat.cols; id++) total_feat.at<float>(cnt++) = normal_feat.at<float>(id);
-				total_feat.at<float>(cnt++) = cur_sp.centroid.x;
-				total_feat.at<float>(cnt++) = cur_sp.centroid.y;
-				cur_gt.visual_desc.img_desc = total_feat;
-
-				// add to set
-				if(label_map.find(cur_gt.category_id) == label_map.end()) label_map[cur_gt.category_id] = label_cnt++;
-				gt_objs[label_map[cur_gt.category_id]].objects.push_back(cur_gt);
-			}
-		}
-
-		cout<<"finished image: "<<i<<"/"<<imgfns.size()<<endl;
+	SuperpixelClf sp_clf;
+	if(ifTrain) {
+		sp_clf.Train(DB_NYU2_RGBD);
 	}
-
-	delete db_man;
-	db_man = NULL;
-
-	// divide into train and test data
-	Mat rank_train_data, rank_test_data, rank_train_label, rank_test_label;
-	for (auto pi=gt_objs.begin(); pi!=gt_objs.end(); pi++) {
-		for (int r=0; r<pi->second.objects.size(); r++) {
-			if(r<pi->second.objects.size()*0.8) {
-				rank_train_data.push_back(pi->second.objects[r].visual_desc.img_desc);
-				rank_train_label.push_back(pi->first);
-			}
-			else {
-				rank_test_data.push_back(pi->second.objects[r].visual_desc.img_desc);
-				rank_test_label.push_back(pi->first);
-			}
-		}
+	else {
+		
 	}
-	
-	std::cout<<"Rank training data ready."<<endl;
-
-	std::cout<<"Start to train..."<<endl;
-	ofstream out("sp_forest.dat");
-	learners::trees::DecisionTree<learners::trees::LinearFeature> dtree;
-	learners::trees::DTreeTrainingParams tparams;
-	tparams.feat_type = learners::trees::DTREE_FEAT_LINEAR;
-	tparams.feature_num = 500;
-	tparams.th_num = 50;
-	tparams.min_samp_num = 50;
-	tparams.MaxLevel = 8;
-	learners::trees::RandomForest<learners::trees::LinearFeature> rforest;
-	learners::trees::RForestTrainingParams rfparams;
-	rfparams.num_trees = 6;
-	rfparams.split_disjoint = false;
-	rfparams.tree_params = tparams;
-	rforest.Init(rfparams);
-	rforest.Train(rank_train_data, rank_train_label);
-	rforest.Save(out);
-	//dtree.TrainTree(rank_train_data, rank_train_label, tparams);
-	//dtree.Save("bound_tree.dat");
-
-	rforest.EvaluateRandomForest(rank_test_data, rank_test_label, label_cnt);
-	//dtree.EvaluateDecisionTree(rank_test_data, rank_test_label, 2);
-
 }
 
 float ObjectProposalTester::ComputeSaliencyMapEntropy(const Mat& sal_map) {
@@ -300,7 +180,7 @@ void ObjectProposalTester::BoundaryPlayground() {
 	cout<<"segment time: "<<(GetTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
 	segmentation::SegmentProcessor seg_proc;
 	for(size_t i=0; i<segmentor.superPixels.size(); i++) {
-		seg_proc.ExtractBasicSegmentFeatures(segmentor.superPixels[i], Mat(), Mat());
+		seg_proc.ExtractSegmentBasicFeatures(segmentor.superPixels[i]);
 	}
 	all_imgs[8] = segmentor.m_segImg;
 

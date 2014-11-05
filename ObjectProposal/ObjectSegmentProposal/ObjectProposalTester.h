@@ -22,6 +22,7 @@
 #include "ObjViewMatcher.h"
 #include "Processors/Attention/SaliencyComputer.h"
 #include "ObjectSearcher.h"
+#include "SuperpixelClf.h"
 
 using namespace visualsearch;
 using namespace visualsearch::io;

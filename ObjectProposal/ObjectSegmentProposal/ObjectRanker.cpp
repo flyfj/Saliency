@@ -73,7 +73,7 @@ namespace visualsearch
 					imshow("baseseg", segmentor.m_segImg);
 					waitKey(10);
 					for(size_t i=0; i<segmentor.superPixels.size(); i++) 
-						segprocessor.ExtractBasicSegmentFeatures(segmentor.superPixels[i], cimg, dmap);
+						segprocessor.ExtractSegmentBasicFeatures(segmentor.superPixels[i]);
 
 					sal_comp_.Init(SAL_COLOR, cimg, dmap, segmentor.superPixels);
 					for (size_t i=0; i<shape_rank_ids.size(); i++) {
@@ -166,7 +166,7 @@ namespace visualsearch
 			{
 				vector<float> vals;
 				// geometric features
-				segprocessor.ExtractBasicSegmentFeatures(sp, cimg, dmap);
+				segprocessor.ExtractSegmentBasicFeatures(sp);
 				//vector<SuperPixel> sps;
 				//sps.push_back(sp);
 				//img_vis_.DrawShapes(cimg, sps);
@@ -339,7 +339,7 @@ namespace visualsearch
 					{
 						SuperPixel cursegment;
 						cursegment.mask = masks[k].visual_desc.mask;
-						segprocessor.ExtractBasicSegmentFeatures(cursegment, cimg, dmap);
+						segprocessor.ExtractSegmentBasicFeatures(cursegment);
 						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
 						//imwrite(temp_dir + string(str), cursegment.mask*255);
 						poswins.push_back(ImgWin(cursegment.box.x, cursegment.box.y, cursegment.box.width, cursegment.box.height));
