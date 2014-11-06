@@ -106,7 +106,7 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\ImgContrastBB.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\Objectness.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\ValStructVec.h" />
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\FixationSegmentator.h" />
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\PointSegmentator.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\ImageSegmentor.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\IterativeSegmentor.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\Segmentor3D.h" />
@@ -158,7 +158,7 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Geodesic\GeodesicSaliencyDetector.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\GlobalContrastSaliency.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\SaliencyComputer.cpp" />
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\FixationSegmentor.cpp" />
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\PointSegmentor.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\ImageSegmentor.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\IterativeSegmentor.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\Segmentor3D.cpp" />

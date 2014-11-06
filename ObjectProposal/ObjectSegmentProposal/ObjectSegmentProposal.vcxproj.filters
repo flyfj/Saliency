@@ -93,9 +93,6 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Feature3D.h">
       <Filter>Library\segmentation</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\FixationSegmentator.h">
-      <Filter>Library\segmentation</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectProposalTester.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -110,6 +107,9 @@
     </ClInclude>
     <ClInclude Include="SuperpixelClf.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\PointSegmentator.h">
+      <Filter>Library\segmentation</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -245,9 +245,6 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Feature3D.cpp">
       <Filter>Library\segmentation</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\FixationSegmentor.cpp">
-      <Filter>Library\segmentation</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\Berkeley3DDataManager.cpp">
       <Filter>Library\others</Filter>
     </ClCompile>
@@ -268,6 +265,9 @@
     </ClCompile>
     <ClCompile Include="SuperpixelClf.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\PointSegmentor.cpp">
+      <Filter>Library\segmentation</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

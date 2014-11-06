@@ -6,7 +6,7 @@ SuperpixelClf::SuperpixelClf(void)
 	// init forest params
 	DTreeTrainingParams tparams;
 	tparams.feature_num = 500;
-	tparams.th_num = 70;
+	tparams.th_num = 80;
 	tparams.min_samp_num = 50;
 	tparams.MaxLevel = 8;
 	
@@ -17,6 +17,28 @@ SuperpixelClf::SuperpixelClf(void)
 	rf.Init(rfparams);
 
 	rf_model_file = "sp_clf.model";
+	db_info_file = "db_info.dat";
+}
+
+bool SuperpixelClf::Init(int sp_feats) {
+	sp_feats_ = sp_feats;
+	// load db info
+	ifstream in(db_info_file);
+	if( in.is_open() ) {
+		Point val;
+		int num;
+		in>>num;
+		for(int i=0; i<num; i++) {
+			in>>val.x>>val.y;
+			label_map[val.x] = val.y;
+		}
+	}
+	// load classifier
+	ifstream in1(rf_model_file);
+	if( rf.Load(in1) ) 
+		return true;
+	else
+		return false;
 }
 
 
@@ -32,18 +54,16 @@ bool SuperpixelClf::Train(DatasetName db_name) {
 
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
-	imgfns.erase(imgfns.begin()+30, imgfns.end());
+	imgfns.erase(imgfns.begin()+50, imgfns.end());
 	db_man->GetDepthmapList(imgfns, dmapfns);
 
-	Feature3D feat3d;
-	SegmentProcessor seg_processor;
 	ImageSegmentor img_segmentor;
 	img_segmentor.m_dMinArea = 100;
 	img_segmentor.m_dThresholdK = 30;
 	img_segmentor.seg_type_ = OVER_SEG_GRAPH;
 
 	int label_cnt = 0;
-	map<int, int> label_map;	// label remapping, make sure start from 0
+	label_map.clear();
 
 	for(size_t i=0; i<imgfns.size(); i++) {
 
@@ -81,12 +101,14 @@ bool SuperpixelClf::Train(DatasetName db_name) {
 					continue;
 
 				// extract features
-				seg_processor.ExtractSegmentVisualFeatures(cur_sp, SP_COLOR | SP_NORMAL);
+				seg_processor.ExtractSegmentVisualFeatures(cur_sp, sp_feats_);
 
 				int cnt = 0;
-				Mat total_feat(1, cur_sp.namedFeats["color"].cols+cur_sp.namedFeats["normal"].cols+2, CV_32F);
+				Mat total_feat(1, cur_sp.namedFeats["color"].cols+cur_sp.namedFeats["normal"].cols+cur_sp.namedFeats["texture"].cols+2, CV_32F);
 				for(int id=0; id<cur_sp.namedFeats["color"].cols; id++) 
 					total_feat.at<float>(cnt++) = cur_sp.namedFeats["color"].at<float>(id);
+				for(int id=0; id<cur_sp.namedFeats["texture"].cols; id++)
+					total_feat.at<float>(cnt++) = cur_sp.namedFeats["texture"].at<float>(id);
 				for(int id=0; id<cur_sp.namedFeats["normal"].cols; id++) 
 					total_feat.at<float>(cnt++) = cur_sp.namedFeats["normal"].at<float>(id);
 				total_feat.at<float>(cnt++) = cur_sp.centroid.x;
@@ -105,6 +127,13 @@ bool SuperpixelClf::Train(DatasetName db_name) {
 	delete db_man;
 	db_man = NULL;
 
+	// save db info
+	ofstream out0(db_info_file);
+	out0<<label_map.size()<<endl;
+	for (auto pi : label_map) {
+		out0<<pi.first<<" "<<pi.second<<endl;
+	}
+
 	// divide into train and test data
 	Mat rank_train_data, rank_test_data, rank_train_label, rank_test_label;
 	for (auto pi=gt_objs.begin(); pi!=gt_objs.end(); pi++) {
@@ -120,12 +149,13 @@ bool SuperpixelClf::Train(DatasetName db_name) {
 		}
 	}
 
-	std::cout<<"Rank training data ready."<<endl;
+	std::cout<<"Training data ready."<<endl;
 
 	std::cout<<"Start to train..."<<endl;
 	ofstream out(rf_model_file);
 	rf.Train(rank_train_data, rank_train_label);
 	rf.Save(out);
+
 	rf.EvaluateRandomForest(rank_test_data, rank_test_label, label_cnt);
 
 	return true;
@@ -154,3 +184,47 @@ bool SuperpixelClf::Predict(const Mat& cimg, const Mat& dmap) {
 	return true;
 }
 
+bool SuperpixelClf::Predict(SuperPixel& sp, const Mat& cimg, const Mat& dmap_raw) {
+	// extract features
+	seg_processor.Init(cimg, dmap_raw);
+	seg_processor.ExtractSegmentBasicFeatures(sp);
+	seg_processor.ExtractSegmentVisualFeatures(sp, sp_feats_);
+
+	int cnt = 0;
+	Mat total_feat(1, sp.namedFeats["color"].cols+sp.namedFeats["normal"].cols+sp.namedFeats["texture"].cols+2, CV_32F);
+	for(int id=0; id<sp.namedFeats["color"].cols; id++) 
+		total_feat.at<float>(cnt++) = sp.namedFeats["color"].at<float>(id);
+	for(int id=0; id<sp.namedFeats["texture"].cols; id++)
+		total_feat.at<float>(cnt++) = sp.namedFeats["texture"].at<float>(id);
+	for(int id=0; id<sp.namedFeats["normal"].cols; id++) 
+		total_feat.at<float>(cnt++) = sp.namedFeats["normal"].at<float>(id);
+	total_feat.at<float>(cnt++) = sp.centroid.x;
+	total_feat.at<float>(cnt++) = sp.centroid.y;
+
+	vector<double> scores;
+	rf.Predict(total_feat, scores);
+
+	ofstream out("res.txt", ios::app);
+
+	// output results
+	for(size_t i=0; i<scores.size(); i++) {
+		out<<scores[i]<<" ";
+		for(auto pi=label_map.begin(); pi!=label_map.end(); pi++) {
+			if(pi->second == i) {
+				cout<<"raw class: "<<pi->first<<" "<<scores[i]<<endl;
+				break;
+			}
+		}
+	}
+	out<<endl;
+
+	return true;
+}
+
+float SuperpixelClf::LabelDistributionDist(const vector<float>& label1, const vector<float>& label2) {
+	float dist = 0;
+	for(size_t i=0; i<label1.size(); i++)
+		dist += fabs(label1[i]-label2[i]);
+
+	return dist;
+}

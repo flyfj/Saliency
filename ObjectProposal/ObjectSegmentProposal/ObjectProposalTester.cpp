@@ -109,10 +109,46 @@ void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 
 	SuperpixelClf sp_clf;
 	if(ifTrain) {
+		sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
 		sp_clf.Train(DB_NYU2_RGBD);
 	}
 	else {
+		Mat cimg = imread(nyu_cfn);
+		Size newsz;
+		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+		resize(cimg, cimg, newsz);
+		imshow("color", cimg);
+		Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+		resize(dmap, dmap, newsz);
+		Mat gtmap = imread(nyu_gtfn, CV_LOAD_IMAGE_UNCHANGED);
+		resize(gtmap, gtmap, newsz);
+		gtmap.convertTo(gtmap, CV_32S);
+		ImageSegmentor img_seg;
+		img_seg.m_dThresholdK = 30;
+		img_seg.m_dMinArea = 100;
+		img_seg.seg_type_ = OVER_SEG_GRAPH;
+		img_seg.DoSegmentation(cimg);
+		imshow("seg", img_seg.m_segImg);
+
+		srand(time(NULL));
+		map<int, vector<int>> sp_gt_ids;
+		SegmentProcessor sp_proc;
+		for (size_t i=0; i<img_seg.superPixels.size(); i++) {
+			sp_proc.ExtractSegmentBasicFeatures(img_seg.superPixels[i]);
+			int label = gtmap.at<int>(img_seg.superPixels[i].centroid);
+			sp_gt_ids[label].push_back(i);
+		}
 		
+		int seg_id1 = sp_gt_ids[11][rand() % sp_gt_ids[11].size()];
+		int seg_id2 = sp_gt_ids[5][rand() % sp_gt_ids[5].size()];
+		if(seg_id1 == seg_id2) return;
+			
+		imshow("mask1", img_seg.superPixels[seg_id1].mask*255);
+		imshow("mask2", img_seg.superPixels[seg_id2].mask*255);
+
+		sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
+		sp_clf.Predict(img_seg.superPixels[seg_id1], cimg, dmap);
+		sp_clf.Predict(img_seg.superPixels[seg_id2], cimg, dmap);
 	}
 }
 

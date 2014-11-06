@@ -2,7 +2,6 @@
 //
 #include "Features/Feature3D.h"
 #include "ObjectProposalTester.h"
-#include "Processors/Segmentation/FixationSegmentator.h"
 
 #include "ObjSegmentProposal.h"
 #include "IO/Dataset/NYUDepth2DataMan.h"
@@ -72,7 +71,7 @@ int main()
 	ObjectProposalTester tester;
 	//tester.TestSegment();
 	//tester.TestViewMatch();
-	tester.TestSuperpixelClf(true);
+	tester.TestSuperpixelClf(false);
 	//tester.TestObjSearch();
 	//tester.TestSaliency();
 	//tester.BoundaryPlayground();

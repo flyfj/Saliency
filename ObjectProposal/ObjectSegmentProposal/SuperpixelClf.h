@@ -18,15 +18,24 @@ class SuperpixelClf
 public:
 	SuperpixelClf(void);
 
+	// first call init; set up parameters
+	bool Init(int sp_feats);
+
 	bool Train(DatasetName db_name);
 
 	bool Predict(const Mat& cimg, const Mat& dmap);
 
-	bool Predict(const SuperPixel& sp);
+	bool Predict(SuperPixel& sp, const Mat& cimg, const Mat& dmap_raw);
 
 private:
+	static float LabelDistributionDist(const vector<float>& label1, const vector<float>& label2);
+
 	RForestTrainingParams rfparams;
 	RandomForest<LinearFeature> rf;
+	SegmentProcessor seg_processor;
 	string rf_model_file;
+	string db_info_file;
+	int sp_feats_;
+	map<int, int> label_map;	// label remapping, raw label -> new label
 };
 
