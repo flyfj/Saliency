@@ -25,11 +25,11 @@ public:
 
 	bool Predict(const Mat& cimg, const Mat& dmap);
 
-	bool Predict(SuperPixel& sp, const Mat& cimg, const Mat& dmap_raw, vector<double>& scores);
+	bool Predict(const Mat& samp, vector<double>& scores);
+
+	static float LabelDistributionDist(const vector<double>& label1, const vector<double>& label2);
 
 private:
-	static float LabelDistributionDist(const vector<float>& label1, const vector<float>& label2);
-
 	RForestTrainingParams rfparams;
 	RandomForest<LinearFeature> rf;
 	SegmentProcessor seg_processor;

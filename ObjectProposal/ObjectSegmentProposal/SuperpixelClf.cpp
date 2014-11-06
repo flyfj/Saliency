@@ -22,6 +22,7 @@ SuperpixelClf::SuperpixelClf(void)
 
 bool SuperpixelClf::Init(int sp_feats) {
 	sp_feats_ = sp_feats;
+
 	// load db info
 	ifstream in(db_info_file);
 	if( in.is_open() ) {
@@ -54,7 +55,7 @@ bool SuperpixelClf::Train(DatasetName db_name) {
 
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
-	imgfns.erase(imgfns.begin()+100, imgfns.end());
+	imgfns.erase(imgfns.begin()+300, imgfns.end());
 	db_man->GetDepthmapList(imgfns, dmapfns);
 
 	ImageSegmentor img_segmentor;
@@ -101,19 +102,7 @@ bool SuperpixelClf::Train(DatasetName db_name) {
 					continue;
 
 				// extract features
-				seg_processor.ExtractSegmentVisualFeatures(cur_sp, sp_feats_);
-
-				int cnt = 0;
-				Mat total_feat(1, cur_sp.namedFeats["color"].cols+cur_sp.namedFeats["normal"].cols+cur_sp.namedFeats["texture"].cols+2, CV_32F);
-				for(int id=0; id<cur_sp.namedFeats["color"].cols; id++) 
-					total_feat.at<float>(cnt++) = cur_sp.namedFeats["color"].at<float>(id);
-				for(int id=0; id<cur_sp.namedFeats["texture"].cols; id++)
-					total_feat.at<float>(cnt++) = cur_sp.namedFeats["texture"].at<float>(id);
-				for(int id=0; id<cur_sp.namedFeats["normal"].cols; id++) 
-					total_feat.at<float>(cnt++) = cur_sp.namedFeats["normal"].at<float>(id);
-				total_feat.at<float>(cnt++) = cur_sp.centroid.x;
-				total_feat.at<float>(cnt++) = cur_sp.centroid.y;
-				cur_gt.visual_desc.img_desc = total_feat;
+				seg_processor.ExtractSegmentVisualFeatures(cur_sp, sp_feats_, cur_gt.visual_desc.img_desc);
 
 				// add to set
 				if(label_map.find(cur_gt.category_id) == label_map.end()) label_map[cur_gt.category_id] = label_cnt++;
@@ -184,29 +173,14 @@ bool SuperpixelClf::Predict(const Mat& cimg, const Mat& dmap) {
 	return true;
 }
 
-bool SuperpixelClf::Predict(SuperPixel& sp, const Mat& cimg, const Mat& dmap_raw, vector<double>& scores) {
+bool SuperpixelClf::Predict(const Mat& samp, vector<double>& scores) {
 	// extract features
-	seg_processor.Init(cimg, dmap_raw);
-	seg_processor.ExtractSegmentBasicFeatures(sp);
-	seg_processor.ExtractSegmentVisualFeatures(sp, sp_feats_);
-
-	int cnt = 0;
-	Mat total_feat(1, sp.namedFeats["color"].cols+sp.namedFeats["normal"].cols+sp.namedFeats["texture"].cols+2, CV_32F);
-	for(int id=0; id<sp.namedFeats["color"].cols; id++) 
-		total_feat.at<float>(cnt++) = sp.namedFeats["color"].at<float>(id);
-	for(int id=0; id<sp.namedFeats["texture"].cols; id++)
-		total_feat.at<float>(cnt++) = sp.namedFeats["texture"].at<float>(id);
-	for(int id=0; id<sp.namedFeats["normal"].cols; id++) 
-		total_feat.at<float>(cnt++) = sp.namedFeats["normal"].at<float>(id);
-	total_feat.at<float>(cnt++) = sp.centroid.x;
-	total_feat.at<float>(cnt++) = sp.centroid.y;
-
-	rf.Predict(total_feat, scores);
+	rf.Predict(samp, scores);
 
 	return true;
 }
 
-float SuperpixelClf::LabelDistributionDist(const vector<float>& label1, const vector<float>& label2) {
+float SuperpixelClf::LabelDistributionDist(const vector<double>& label1, const vector<double>& label2) {
 	float dist = 0;
 	for(size_t i=0; i<label1.size(); i++)
 		dist += fabs(label1[i]-label2[i]);

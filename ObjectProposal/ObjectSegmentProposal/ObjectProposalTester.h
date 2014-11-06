@@ -21,6 +21,7 @@
 #include <Eigen/Eigen>
 #include "ObjViewMatcher.h"
 #include "Processors/Attention/SaliencyComputer.h"
+#include "Processors/Segmentation/PointSegmentator.h"
 #include "ObjectSearcher.h"
 #include "SuperpixelClf.h"
 

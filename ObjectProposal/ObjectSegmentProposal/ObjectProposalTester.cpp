@@ -124,6 +124,10 @@ void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 		Mat gtmap = imread(nyu_gtfn, CV_LOAD_IMAGE_UNCHANGED);
 		resize(gtmap, gtmap, newsz);
 		gtmap.convertTo(gtmap, CV_32S);
+
+		SegmentProcessor sp_proc;
+		sp_proc.Init(cimg, dmap);
+
 		ImageSegmentor img_seg;
 		img_seg.m_dThresholdK = 30;
 		img_seg.m_dMinArea = 100;
@@ -133,28 +137,75 @@ void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 
 		srand(time(NULL));
 		map<int, vector<int>> sp_gt_ids;
-		SegmentProcessor sp_proc;
 		for (size_t i=0; i<img_seg.superPixels.size(); i++) {
 			sp_proc.ExtractSegmentBasicFeatures(img_seg.superPixels[i]);
 			int label = gtmap.at<int>(img_seg.superPixels[i].centroid);
 			sp_gt_ids[label].push_back(i);
 		}
-		
-		int sel_label = 19;
-		ofstream out("sp_pred_19.txt");
+		// classification
 		sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
-		for(size_t i=0; i<sp_gt_ids[sel_label].size(); i++) {
-			int seg_id = sp_gt_ids[sel_label][i];
-			imshow("mask1", img_seg.superPixels[seg_id].mask*255);
-			vector<double> scores;
-			
-			sp_clf.Predict(img_seg.superPixels[seg_id], cimg, dmap, scores);
-			// output results
-			for(size_t i=0; i<scores.size(); i++) {
-				out<<scores[i]<<" ";
-			}
-			out<<endl;
+		vector<vector<double>> scores(img_seg.superPixels.size());
+		for(size_t i=0; i<img_seg.superPixels.size(); i++) {
+			SuperPixel& cur_sp = img_seg.superPixels[i];
+			Mat feat;
+			sp_proc.ExtractSegmentVisualFeatures(cur_sp, SP_COLOR | SP_TEXTURE | SP_NORMAL, feat);
+			sp_clf.Predict(feat, scores[i]);
 		}
+
+		// compute pair-wise distance
+		Mat adj_mat;
+		img_seg.ComputeAdjacencyMat(img_seg.superPixels, adj_mat);
+		Mat sp_dist(img_seg.superPixels.size(), img_seg.superPixels.size(), CV_32F);
+		for(int r=0; r<sp_dist.rows; r++) for(int c=r; c<sp_dist.cols; c++) {
+			sp_dist.at<float>(r,c) = sp_dist.at<float>(c,r) = SuperpixelClf::LabelDistributionDist(scores[r], scores[c]);
+			/*if(c==r) { sp_dist.at<float>(r, r) = 0; continue; }
+			if(adj_mat.at<int>(r,c) > 0) {
+			sp_dist.at<float>(r,c) = sp_dist.at<float>(c,r) = SuperpixelClf::LabelDistributionDist(scores[r], scores[c]);
+			cout<<"dist: "<<sp_dist.at<float>(r,c)<<endl;
+			}
+			else
+			sp_dist.at<float>(r,c) = sp_dist.at<float>(c,r) = 9999999.f;*/
+		}
+
+		Mat geo_dist;
+		//PointSegmentor::ComputeFloydWarshall(sp_dist, geo_dist);
+
+		while(1) {
+			int sp_id = rand() % img_seg.superPixels.size();
+			vector<SuperPixel> sps;
+			sps.push_back(img_seg.superPixels[sp_id]);
+			ImgVisualizer::DrawShapes(cimg, sps, Mat(), false);
+			Mat obj_map(cimg.rows, cimg.cols, CV_32F);
+			obj_map.setTo(0);
+
+			for (size_t i=0; i<img_seg.superPixels.size(); i++) {
+				obj_map.setTo(sp_dist.at<float>(sp_id, i), img_seg.superPixels[i].mask);
+			}
+			normalize(obj_map, obj_map, 1, 0, NORM_MINMAX);
+			obj_map = 1 - obj_map;
+			ImgVisualizer::DrawFloatImg("dist map", obj_map);
+			if( waitKey(0) == 'q' )
+				break;
+		}
+		
+		//int sel_label = 19;
+		//ofstream out("sp_pred_19.txt");
+		//sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
+		//for(size_t i=0; i<sp_gt_ids[sel_label].size(); i++) {
+		//	int seg_id = sp_gt_ids[sel_label][i];
+		//	SuperPixel& cur_sp = img_seg.superPixels[seg_id];
+		//	imshow("mask1", cur_sp.mask*255);
+		//	vector<double> scores;
+		//	
+		//	Mat feat;
+		//	sp_proc.ExtractSegmentVisualFeatures(cur_sp, SP_COLOR | SP_TEXTURE | SP_NORMAL, feat);
+		//	sp_clf.Predict(feat, scores);
+		//	// output results
+		//	for(size_t i=0; i<scores.size(); i++) {
+		//		out<<scores[i]<<" ";
+		//	}
+		//	out<<endl;
+		//}
 		
 	}
 }
