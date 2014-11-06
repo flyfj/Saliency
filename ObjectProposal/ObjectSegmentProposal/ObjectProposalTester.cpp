@@ -113,6 +113,7 @@ void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 		sp_clf.Train(DB_NYU2_RGBD);
 	}
 	else {
+		// show superpixel predictions from different images
 		Mat cimg = imread(nyu_cfn);
 		Size newsz;
 		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
@@ -139,16 +140,22 @@ void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 			sp_gt_ids[label].push_back(i);
 		}
 		
-		int seg_id1 = sp_gt_ids[11][rand() % sp_gt_ids[11].size()];
-		int seg_id2 = sp_gt_ids[5][rand() % sp_gt_ids[5].size()];
-		if(seg_id1 == seg_id2) return;
-			
-		imshow("mask1", img_seg.superPixels[seg_id1].mask*255);
-		imshow("mask2", img_seg.superPixels[seg_id2].mask*255);
-
+		int sel_label = 19;
+		ofstream out("sp_pred_19.txt");
 		sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
-		sp_clf.Predict(img_seg.superPixels[seg_id1], cimg, dmap);
-		sp_clf.Predict(img_seg.superPixels[seg_id2], cimg, dmap);
+		for(size_t i=0; i<sp_gt_ids[sel_label].size(); i++) {
+			int seg_id = sp_gt_ids[sel_label][i];
+			imshow("mask1", img_seg.superPixels[seg_id].mask*255);
+			vector<double> scores;
+			
+			sp_clf.Predict(img_seg.superPixels[seg_id], cimg, dmap, scores);
+			// output results
+			for(size_t i=0; i<scores.size(); i++) {
+				out<<scores[i]<<" ";
+			}
+			out<<endl;
+		}
+		
 	}
 }
 

@@ -25,7 +25,7 @@ public:
 
 	bool Predict(const Mat& cimg, const Mat& dmap);
 
-	bool Predict(SuperPixel& sp, const Mat& cimg, const Mat& dmap_raw);
+	bool Predict(SuperPixel& sp, const Mat& cimg, const Mat& dmap_raw, vector<double>& scores);
 
 private:
 	static float LabelDistributionDist(const vector<float>& label1, const vector<float>& label2);

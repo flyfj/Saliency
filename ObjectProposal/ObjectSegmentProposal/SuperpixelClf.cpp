@@ -8,7 +8,7 @@ SuperpixelClf::SuperpixelClf(void)
 	tparams.feature_num = 500;
 	tparams.th_num = 80;
 	tparams.min_samp_num = 50;
-	tparams.MaxLevel = 8;
+	tparams.MaxLevel = 9;
 	
 	rfparams.tree_params = tparams;
 	rfparams.num_trees = 6;
@@ -54,7 +54,7 @@ bool SuperpixelClf::Train(DatasetName db_name) {
 
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
-	imgfns.erase(imgfns.begin()+50, imgfns.end());
+	imgfns.erase(imgfns.begin()+100, imgfns.end());
 	db_man->GetDepthmapList(imgfns, dmapfns);
 
 	ImageSegmentor img_segmentor;
@@ -184,7 +184,7 @@ bool SuperpixelClf::Predict(const Mat& cimg, const Mat& dmap) {
 	return true;
 }
 
-bool SuperpixelClf::Predict(SuperPixel& sp, const Mat& cimg, const Mat& dmap_raw) {
+bool SuperpixelClf::Predict(SuperPixel& sp, const Mat& cimg, const Mat& dmap_raw, vector<double>& scores) {
 	// extract features
 	seg_processor.Init(cimg, dmap_raw);
 	seg_processor.ExtractSegmentBasicFeatures(sp);
@@ -201,22 +201,7 @@ bool SuperpixelClf::Predict(SuperPixel& sp, const Mat& cimg, const Mat& dmap_raw
 	total_feat.at<float>(cnt++) = sp.centroid.x;
 	total_feat.at<float>(cnt++) = sp.centroid.y;
 
-	vector<double> scores;
 	rf.Predict(total_feat, scores);
-
-	ofstream out("res.txt", ios::app);
-
-	// output results
-	for(size_t i=0; i<scores.size(); i++) {
-		out<<scores[i]<<" ";
-		for(auto pi=label_map.begin(); pi!=label_map.end(); pi++) {
-			if(pi->second == i) {
-				cout<<"raw class: "<<pi->first<<" "<<scores[i]<<endl;
-				break;
-			}
-		}
-	}
-	out<<endl;
 
 	return true;
 }
