@@ -107,6 +107,25 @@ void ObjectProposalTester::TestObjSearch() {
 
 void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 
+	Mat cimg = imread(nyu_cfn);
+	Size newsz;
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+	resize(cimg, cimg, newsz);
+	imshow("color", cimg);
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	resize(dmap, dmap, newsz);
+	Mat gtmap = imread(nyu_gtfn, CV_LOAD_IMAGE_UNCHANGED);
+	resize(gtmap, gtmap, newsz);
+	gtmap.convertTo(gtmap, CV_32S);
+
+	// test semantic merge
+	IterativeSegmentor iter_seg;
+	iter_seg.Init(cimg, dmap);
+	iter_seg.Run3();
+
+	return;
+
+
 	SuperpixelClf sp_clf;
 	if(ifTrain) {
 		sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
@@ -114,17 +133,6 @@ void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 	}
 	else {
 		// show superpixel predictions from different images
-		Mat cimg = imread(nyu_cfn);
-		Size newsz;
-		ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
-		resize(cimg, cimg, newsz);
-		imshow("color", cimg);
-		Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
-		resize(dmap, dmap, newsz);
-		Mat gtmap = imread(nyu_gtfn, CV_LOAD_IMAGE_UNCHANGED);
-		resize(gtmap, gtmap, newsz);
-		gtmap.convertTo(gtmap, CV_32S);
-
 		SegmentProcessor sp_proc;
 		sp_proc.Init(cimg, dmap);
 
@@ -739,9 +747,17 @@ void ObjectProposalTester::TestViewMatch() {
 	ObjViewMatcher matcher;
 	matcher.PrepareDatabase();
 
-	string queryfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\orange\\orange_1\\orange_1_1_1_crop.png";
+	Mat cimg = imread(uw_cfn + "table_small_1_45.png");
+	Size newsz;
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+	resize(cimg, cimg, newsz);
+	//Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
+
+	matcher.SearchImage(cimg, Mat());
+
+	/*string queryfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\orange\\orange_1\\orange_1_1_1_crop.png";
 	Mat view = imread(queryfn);
 	resize(view, view, Size(25,25));
 	imshow("query", view);
-	matcher.MatchView(view, Mat());
+	matcher.MatchView(view, Mat());*/
 }

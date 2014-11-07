@@ -55,7 +55,7 @@ bool SuperpixelClf::Train(DatasetName db_name) {
 
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
-	imgfns.erase(imgfns.begin()+300, imgfns.end());
+	imgfns.erase(imgfns.begin()+200, imgfns.end());
 	db_man->GetDepthmapList(imgfns, dmapfns);
 
 	ImageSegmentor img_segmentor;

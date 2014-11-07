@@ -4,6 +4,7 @@
 ObjViewMatcher::ObjViewMatcher(void)
 {
 	root_dir = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\";
+	view_sz = Size(30, 30);
 }
 
 
@@ -13,7 +14,8 @@ bool ObjViewMatcher::PrepareDatabase() {
 	DirInfos cate_dirs;
 	// top categories
 	ToolFactory::GetDirsFromDir(root_dir, cate_dirs);	
-	cate_dirs.erase(cate_dirs.begin()+10, cate_dirs.end());
+	cate_dirs.erase(cate_dirs.begin(), cate_dirs.begin()+5);
+	cate_dirs.erase(cate_dirs.begin()+1, cate_dirs.end());
 	for(size_t i=0; i<cate_dirs.size(); i++) {
 		DirInfos sub_cate_dirs;
 		ToolFactory::GetDirsFromDir(cate_dirs[i].dirpath, sub_cate_dirs);
@@ -35,12 +37,13 @@ bool ObjViewMatcher::PrepareDatabase() {
 
 	// get features
 	cout<<"Extracting view features..."<<endl;
-	for(auto& cur_obj_view : obj_db.objects) {
-		Mat vimg = imread(cur_obj_view.imgpath);
-		Mat dmap = imread(cur_obj_view.dmap_path, CV_LOAD_IMAGE_UNCHANGED);
-		resize(vimg, vimg, Size(10, 10));
-		resize(dmap, dmap, Size(10, 10));
-		ExtractViewFeat(vimg, dmap, cur_obj_view.visual_desc.img_desc);
+	for(size_t i=0; i<obj_db.objects.size(); i++) {
+		Mat vimg = imread(obj_db.objects[i].imgpath);
+		//Mat dmap = imread(cur_obj_view.dmap_path, CV_LOAD_IMAGE_UNCHANGED);
+		resize(vimg, vimg, view_sz);
+		//resize(dmap, dmap, view_sz);
+		ExtractViewFeat(vimg, Mat(), obj_db.objects[i].visual_desc.img_desc);
+		cout<<i<<"/"<<obj_db.objects.size()<<endl;
 	}
 	
 	cout<<"Feature extraction done."<<endl;
@@ -75,44 +78,110 @@ float ObjViewMatcher::EvaluateCodeQuality() {
 }
 
 bool ObjViewMatcher::ExtractViewFeat(const Mat& color_view, const Mat& dmap_view, Mat& view_feat) {
+
+	Mat gray_view;
+	cvtColor(color_view, gray_view, CV_BGR2GRAY);
+	edge_proc.Init(gray_view, EdgeFeatParams());
+	edge_proc.Compute2(Mat(), view_feat);
+
+	return true;
+}
+
+bool ObjViewMatcher::ComputeGradient(const Mat& color_view, Mat& grad_view) {
 	Mat gray_view;
 	cvtColor(color_view, gray_view, CV_BGR2GRAY);
 	gray_view.convertTo(gray_view, CV_32F);
 	Mat view_grad_x, view_grad_y;
 	Sobel(gray_view, view_grad_x, CV_32F, 1, 0);
 	Sobel(gray_view, view_grad_y, CV_32F, 0, 1);
-	Mat view_grad_mag = abs(view_grad_x) + abs(view_grad_y);
-	normalize(view_grad_mag, view_grad_mag, 1, 0, NORM_MINMAX);
-	view_feat.create(1, color_view.rows*color_view.cols, CV_32F);
-	for(int r=0; r<view_grad_mag.rows; r++) for(int c=0; c<view_grad_mag.cols; c++)
-		view_feat.at<float>(r*view_grad_mag.cols+c) = view_grad_mag.at<float>(r,c);
+	grad_view = abs(view_grad_x) + abs(view_grad_y);
+	normalize(grad_view, grad_view, 1, 0, NORM_L2);
+	return true;
+}
+
+bool ObjViewMatcher::MatchView(const Mat& view_feat, vector<DMatch>& matches) {
+
+	/*BinaryCodes codes;
+	HashKey key_value;
+	lsh_coder.ComputeCodes(view_feat, codes);
+	HashingTools<int>::CodesToKey(codes, key_value);*/
+
+	// search
+	matches.resize(obj_db.objects.size());
+#pragma omp parallel for
+	for (int i=0; i<obj_db.objects.size(); i++) {
+		matches[i].distance = (float)norm(view_feat, obj_db.objects[i].visual_desc.img_desc, NORM_L2);	//HashingTools<HashKeyType>::HammingDist(key_value, obj_db.objects[i].visual_desc.key_value);	
+		matches[i].trainIdx = i;
+	}
+	partial_sort(matches.begin(), matches.begin()+10, matches.end(), [](const DMatch& a, const DMatch& b) { return a.distance < b.distance; });
+
+	//// visualize
+	//char str[100];
+	//for(size_t i=0; i<10; i++) {
+	//	Mat img = imread(obj_db.objects[matches[i].trainIdx].imgpath);
+	//	sprintf_s(str, "%d", i);
+	//	imshow(str, img);
+	//	waitKey(10);
+	//}
 
 	return true;
 }
 
-bool ObjViewMatcher::MatchView(const Mat& color_view, const Mat& depth_view) {
-	Mat view_feat;
-	ExtractViewFeat(color_view, depth_view, view_feat);
-	BinaryCodes codes;
-	HashKey key_value;
-	lsh_coder.ComputeCodes(view_feat, codes);
-	HashingTools<int>::CodesToKey(codes, key_value);
+bool ObjViewMatcher::SearchImage(const Mat& cimg, const Mat& dmap_raw) {
 
-	// search
-	vector<DMatch> matches(obj_db.objects.size());
-	for (size_t i=0; i<obj_db.objects.size(); i++) {
-		matches[i].distance = (float)norm(view_feat, obj_db.objects[i].visual_desc.img_desc, NORM_L2);	//HashingTools<HashKeyType>::HammingDist(key_value, obj_db.objects[i].visual_desc.key_value);	
-		matches[i].trainIdx = i;
-	}
-	sort(matches.begin(), matches.end(), [](const DMatch& a, const DMatch& b) { return a.distance < b.distance; });
+	Mat gray_img;
+	cvtColor(cimg, gray_img, CV_BGR2GRAY);
 
-	// visualize
-	char str[100];
-	for(size_t i=0; i<10; i++) {
-		Mat img = imread(obj_db.objects[matches[i].trainIdx].imgpath);
-		sprintf_s(str, "%d", i);
-		imshow(str, img);
-		waitKey(10);
+	SlideWinParams win_params(cimg.cols, cimg.rows, 0.05, 0.05, 1, 1, 1, 1);
+	double start_t = getTickCount();
+	for(size_t id=0; id<win_params.win_specs.size(); id++) {
+		ImgWin cur_win = win_params.win_specs[id];
+		map<float, ImgWin> top_det;
+		Mat score_map(cimg.rows, cimg.cols, CV_32F);
+		score_map.setTo(1);
+//#pragma omp parallel for
+		for(int r=0; r<cimg.rows-cur_win.height-1; r++) {
+			for(int c=0; c<cimg.cols-cur_win.width-1; c++) {
+				ImgWin win(c, r, cur_win.width, cur_win.height);
+				Mat sub_view;
+				ExtractViewFeat(cimg(win), Mat(), sub_view);
+				vector<DMatch> matches;
+				MatchView(sub_view, matches);
+				//cout<<matches[0].distance<<endl;
+				score_map.at<float>(win.y+win.height/2, win.x+win.width/2) = matches[0].distance;
+				ImgWin best_match = win;
+				best_match.score = matches[0].trainIdx;
+				top_det[matches[0].distance] = best_match;
+			}
+		}
+
+		normalize(score_map, score_map, 1, 0, NORM_MINMAX);
+		score_map = 1 - score_map;
+		cout<<"Search time: "<<(getTickCount()-start_t) / getTickFrequency()<<"s."<<endl;
+		Mat disp_img = cimg.clone();
+		imshow("color", disp_img);
+		ImgVisualizer::DrawFloatImg("objectness", score_map);
+		waitKey(0);
+
+		int cnt = 0;
+		for(auto pi=top_det.begin(); pi!=top_det.end(); pi++) {
+			cout<<pi->first<<endl;
+			rectangle(disp_img, pi->second, CV_RGB(255,0,0), 2);
+			Mat db_view = imread(obj_db.objects[pi->second.score].imgpath);
+			resize(db_view, db_view, view_sz);
+			Mat test_win;
+			resize(cimg(pi->second), test_win, view_sz);
+			Mat db_grad, test_grad;
+			ComputeGradient(test_win, test_grad);
+			ComputeGradient(db_view, db_grad);
+			ImgVisualizer::DrawFloatImg("db grad", db_grad);
+			ImgVisualizer::DrawFloatImg("test grad", test_grad);
+			imshow("db view", db_view);
+			imshow("color", disp_img);
+			waitKey(0);
+			if(++cnt == 100) break;
+		}
+
 	}
 
 	return true;
