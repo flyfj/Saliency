@@ -269,5 +269,14 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\PointSegmentor.cpp">
       <Filter>Library\segmentation</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\DescriptorDictGenerator.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\AKMeans.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Search\Searcher.cpp">
+      <Filter>Library\others</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

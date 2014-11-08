@@ -7,9 +7,11 @@
 #include "IO/Dataset/NYUDepth2DataMan.h"
 #include "Learners/RandomTrees/RandomForest.hpp"
 #include "Processors/Segmentation/SegmentProcessor.h"
+#include "Processors/DescriptorDictGenerator.h"
 using namespace visualsearch::common;
 using namespace visualsearch::features;
 using namespace visualsearch::io::dataset;
+using namespace visualsearch::processors;
 using namespace visualsearch::processors::segmentation;
 using namespace visualsearch::learners::trees;
 
@@ -33,8 +35,10 @@ private:
 	RForestTrainingParams rfparams;
 	RandomForest<LinearFeature> rf;
 	SegmentProcessor seg_processor;
+	DescriptorDictionaryGenerator dict_gen;
 	string rf_model_file;
 	string db_info_file;
+	string sp_dict_file;
 	int sp_feats_;
 	map<int, int> label_map;	// label remapping, raw label -> new label
 };

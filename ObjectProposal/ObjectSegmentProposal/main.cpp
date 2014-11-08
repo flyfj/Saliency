@@ -70,8 +70,8 @@ int main()
 {
 	ObjectProposalTester tester;
 	//tester.TestSegment();
-	tester.TestViewMatch();
-	//tester.TestSuperpixelClf(true);
+	//tester.TestViewMatch();
+	tester.TestSuperpixelClf(false);
 	//tester.TestObjSearch();
 	//tester.TestSaliency();
 	//tester.BoundaryPlayground();

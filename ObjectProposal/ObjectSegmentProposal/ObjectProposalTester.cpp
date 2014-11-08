@@ -119,19 +119,24 @@ void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 	gtmap.convertTo(gtmap, CV_32S);
 
 	// test semantic merge
-	IterativeSegmentor iter_seg;
+	/*IterativeSegmentor iter_seg;
 	iter_seg.Init(cimg, dmap);
 	iter_seg.Run3();
 
-	return;
+	return;*/
 
 
 	SuperpixelClf sp_clf;
+	sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL | SP_DEPTH);
+
 	if(ifTrain) {
-		sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
 		sp_clf.Train(DB_NYU2_RGBD);
 	}
 	else {
+
+		sp_clf.Predict(cimg, dmap);
+		return;
+
 		// show superpixel predictions from different images
 		SegmentProcessor sp_proc;
 		sp_proc.Init(cimg, dmap);
@@ -157,8 +162,10 @@ void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 			SuperPixel& cur_sp = img_seg.superPixels[i];
 			Mat feat;
 			sp_proc.ExtractSegmentVisualFeatures(cur_sp, SP_COLOR | SP_TEXTURE | SP_NORMAL, feat);
-			sp_clf.Predict(feat, scores[i]);
+			//sp_clf.Predict(feat, scores[i]);
 		}
+
+		return;
 
 		// compute pair-wise distance
 		Mat adj_mat;
