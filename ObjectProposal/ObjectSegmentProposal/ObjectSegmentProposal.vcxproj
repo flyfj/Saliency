@@ -113,6 +113,7 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SegmentProcessor.h" />
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.h" />
     <ClInclude Include="ObjectSearcher.h" />
+    <ClInclude Include="ObjPatchMatcher.h" />
     <ClInclude Include="ObjProposalDemo.h" />
     <ClInclude Include="ObjSegmentProposal.h" />
     <ClInclude Include="ObjectRanker.h" />
@@ -170,6 +171,7 @@
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Search\Hashing\LSHCoder.cpp" />
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Search\Searcher.cpp" />
     <ClCompile Include="ObjectSearcher.cpp" />
+    <ClCompile Include="ObjPatchMatcher.cpp" />
     <ClCompile Include="ObjProposalDemo.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="ObjSegmentProposal.cpp" />

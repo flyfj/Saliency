@@ -24,6 +24,7 @@
 #include "Processors/Segmentation/PointSegmentator.h"
 #include "ObjectSearcher.h"
 #include "SuperpixelClf.h"
+#include "ObjPatchMatcher.h"
 
 using namespace visualsearch;
 using namespace visualsearch::io;
@@ -78,6 +79,8 @@ public:
 	void TestSaliency();
 
 	void TestViewMatch();
+
+	void TestPatchMatcher();
 
 	void Build3DPCL(DatasetName db_name);
 

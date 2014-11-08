@@ -307,7 +307,7 @@ void ObjectProposalTester::BoundaryPlayground() {
 	ImgVisualizer::DrawFloatImg("normal bmap", normal_bmap, all_imgs[6], false);
 	ImgVisualizer::DrawFloatImg("combine sp bmap", combine_bmap, all_imgs[9], false);
 	// combine
-	ImgVisualizer::DrawImgCollection("all", all_imgs, 5, Mat());
+	ImgVisualizer::DrawImgCollection("all", all_imgs, 5, Size(50,50), Mat());
 
 
 	waitKey(10);
@@ -767,4 +767,17 @@ void ObjectProposalTester::TestViewMatch() {
 	resize(view, view, Size(25,25));
 	imshow("query", view);
 	matcher.MatchView(view, Mat());*/
+}
+
+void ObjectProposalTester::TestPatchMatcher() {
+
+	Mat cimg = imread(nyu_cfn);
+	Size newsz;
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+	resize(cimg, cimg, newsz);
+	imshow("color", cimg);
+
+	ObjPatchMatcher pmatcher;
+	pmatcher.PreparePatchDB(DB_NYU2_RGBD);
+	pmatcher.Match(cimg);
 }

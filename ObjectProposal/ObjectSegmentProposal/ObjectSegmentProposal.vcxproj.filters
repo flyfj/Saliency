@@ -111,6 +111,9 @@
     <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\PointSegmentator.h">
       <Filter>Library\segmentation</Filter>
     </ClInclude>
+    <ClInclude Include="ObjPatchMatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -277,6 +280,9 @@
     </ClCompile>
     <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Search\Searcher.cpp">
       <Filter>Library\others</Filter>
+    </ClCompile>
+    <ClCompile Include="ObjPatchMatcher.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
