@@ -1,6 +1,8 @@
 
-data = load('sp_pred_19.txt');
-sz = size(data, 1);
+%data = load('sp_pred_19.txt');
+data = load('curve.mat');
+data = data.curve;
+sz = size(data, 2);
 len = min(5, sz);
 
 figure
