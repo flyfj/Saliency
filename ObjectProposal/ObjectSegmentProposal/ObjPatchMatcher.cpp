@@ -3,7 +3,7 @@
 
 ObjPatchMatcher::ObjPatchMatcher(void)
 {
-	patch_size = Size(7,7);
+	patch_size = Size(15,15);
 	int sel_cls[] = {58, 7, 124, 24, 136, 157, 19,88, 3, 83, 5, 344, 238, 13, 80, 89, 408, 49, 66};
 	valid_cls.resize(900, false);
 	for(auto id : sel_cls) valid_cls[id] = true;
@@ -83,7 +83,7 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 					Rect box(c-patch_size.width/2, r-patch_size.height/2, patch_size.width, patch_size.height);
 					cur_patch.visual_desc.box = box;
 					double sum_label = sum(lable_mask(box)).val[0];
-					if(sum_label < 10 || sum_label > 35) continue;
+					//if(sum_label < patch_size.area()* || sum_label > 35) continue;
 
 					/*cout<<sum_label<<endl;
 					Mat patch_large;
@@ -130,12 +130,16 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	Sobel(gray_img_float, grad_y, CV_32F, 0, 1);
 	magnitude(grad_x, grad_y, grad_mag);
 
+
 	// depth
-	Feature3D feat3d;
-	Mat dmap_float, pts3d, normal_map;
-	dmap_raw.convertTo(dmap_float, CV_32F);
-	feat3d.ComputeKinect3DMap(dmap_float, pts3d, false);
-	feat3d.ComputeNormalMap(pts3d, normal_map);
+	if( !dmap_raw.empty() ) {
+		Mat dmap_float, pts3d, normal_map;
+		Feature3D feat3d;
+		dmap_raw.convertTo(dmap_float, CV_32F);
+		feat3d.ComputeKinect3DMap(dmap_float, pts3d, false);
+		feat3d.ComputeNormalMap(pts3d, normal_map);
+	}
+
 
 	// init searcher
 	searcher.Build(patch_data, BruteForce_L2);
@@ -199,6 +203,7 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	}
 	cout<<"match done. Time cost: "<<(getTickCount()-start_t)/getTickFrequency()<<"s."<<endl;
 
+	//score_map(Rect(patch_size.width/2, patch_size.height/2, score_map.cols-patch_size.width/2, score_map.rows-patch_size.height/2)).copyTo(score_map);
 	score_map.setTo(max_dist, 255-edge_map);
 	normalize(score_map, score_map, 1, 0, NORM_MINMAX);
 	score_map = 1-score_map;
@@ -215,7 +220,9 @@ bool ObjPatchMatcher::MatchPatch(const Mat& feat, int k, vector<DMatch>& res) {
 		res[r].trainIdx = r;
 		res[r].distance = norm(feat, patch_data.row(r), NORM_L2);
 	}
-	partial_sort(res.begin(), res.begin()+k, res.end(), [](const DMatch& a, const DMatch& b) { return a.distance<b.distance; } );
+	nth_element(res.begin(), res.begin()+k, res.end(), [](const DMatch& a, const DMatch& b) { return a.distance < b.distance; });
+	partition(res.begin(), res.end(), [&](const DMatch& a) { return a.distance < res[k].distance; });
+	//partial_sort(res.begin(), res.begin()+k, res.end(), [](const DMatch& a, const DMatch& b) { return a.distance<b.distance; } );
 
 	return true;
 }

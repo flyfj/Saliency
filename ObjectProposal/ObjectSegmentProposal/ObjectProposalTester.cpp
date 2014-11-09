@@ -779,5 +779,5 @@ void ObjectProposalTester::TestPatchMatcher() {
 
 	ObjPatchMatcher pmatcher;
 	pmatcher.PreparePatchDB(DB_NYU2_RGBD);
-	pmatcher.Match(cimg);
+	pmatcher.Match(cimg, Mat());
 }
