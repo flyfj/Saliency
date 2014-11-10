@@ -15,16 +15,25 @@ using namespace visualsearch::search;
 using namespace visualsearch::io::dataset;
 
 
-#define VERBOSE
+//#define VERBOSE
 
 class ObjPatchMatcher
 {
 public:
 	ObjPatchMatcher(void);
 
+	// extract small patch around object boundary
 	bool PreparePatchDB(DatasetName db_name);
 
+	// load view patches from uw
+	bool PrepareViewPatchDB();
+
+	// match boundary patch
 	bool Match(const Mat& cimg, const Mat& dmap_raw);
+
+	bool MatchViewPatch(const Mat& cimg, const Mat& dmap_raw);
+
+	Size patch_size;
 
 private:
 	bool ComputePatchFeat(const Mat& patch, Mat& feat);
@@ -32,9 +41,10 @@ private:
 	bool MatchPatch(const Mat& feat, int k, vector<DMatch>& res);
 
 	Searcher searcher;
-	Size patch_size;
+
 	Mat patch_data;
 	ObjectCategory patch_meta;
 	vector<bool> valid_cls;
+	string uw_view_root;
 };
 

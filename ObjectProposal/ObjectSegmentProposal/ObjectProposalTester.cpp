@@ -512,7 +512,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
 	random_shuffle(imgfns.begin(), imgfns.end());
-	imgfns.erase(imgfns.begin()+50, imgfns.end());
+	imgfns.erase(imgfns.begin()+1, imgfns.end());
 	//imgfns[0].filepath = eccv_cfn + "11_03-46-20.jpg";
 	//imgfns[0].filename = "11_03-46-20.jpg";
 	//imgfns.erase(imgfns.begin()+10, imgfns.end());
@@ -526,7 +526,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 	ToolFactory::GetFilesFromDir(nyu20_cdir, "*.png", imgfns);
 	//imgfns.erase(imgfns.begin(), imgfns.begin()+9);
-	imgfns.erase(imgfns.begin()+50, imgfns.end());
+	imgfns.erase(imgfns.begin()+10, imgfns.end());
 	dmapfns.resize(imgfns.size());
 	for(size_t i=0; i<imgfns.size(); i++) {
 		string img_fn_no_ext = imgfns[i].filename.substr(0, 5);
@@ -627,7 +627,9 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 		objectproposal::ObjSegmentProposal seg_prop;
 		vector<SuperPixel> sps;
+		double start_t = getTickCount();
 		seg_prop.Run(cimg, dmap, -1, sps);
+		cout<<"Process time: "<<(getTickCount()-start_t)/getTickFrequency()<<"s."<<endl;
 		//seg_prop.GetCandidatesFromIterativeSeg(cimg, dmap, sps);
 
 //#define SAVE
@@ -641,23 +643,24 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		}
 #endif
 
+		// evaluation
 		vector<Point2f> cur_pr;
 		vector<Point3f> best_overlap;
-		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, best_overlap, true);
+		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, best_overlap, false);
 
 		// save best results
-		for(size_t k=0; k<best_overlap.size(); k++) {
-			vector<SuperPixel> show_sps;
-			show_sps.push_back(sps[best_overlap[k].y]);
-			Mat resimg;
-			ImgVisualizer::DrawShapes(cimg, show_sps, resimg, false);
-			imshow("res", resimg);
-			waitKey(0);
-			char str[30];
-			sprintf_s(str, "nyu_best_%d_%d.png", i, k);
-			string savefn = save_dir + str;
-			imwrite(savefn, resimg);
-		}
+		/*for(size_t k=0; k<best_overlap.size(); k++) {
+		vector<SuperPixel> show_sps;
+		show_sps.push_back(sps[best_overlap[k].y]);
+		Mat resimg;
+		ImgVisualizer::DrawShapes(cimg, show_sps, resimg, false);
+		imshow("res", resimg);
+		waitKey(10);
+		char str[30];
+		sprintf_s(str, "nyu_best_%d_%d.png", i, k);
+		string savefn = save_dir + str;
+		imwrite(savefn, resimg);
+		}*/
 		
 
 		best_gt_cover.insert(best_gt_cover.end(), best_overlap.begin(), best_overlap.end());
@@ -691,7 +694,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 			cout<<"error"<<endl;
 	}
 	
-	ofstream out("nyu20_all_pr.txt");
+	ofstream out("nyu20_tmp_pr.txt");
 	for(size_t i=0; i<mean_pr.size(); i++) {
 		out<<mean_pr[i].x<<" "<<mean_pr[i].y<<endl;
 	}
@@ -771,13 +774,17 @@ void ObjectProposalTester::TestViewMatch() {
 
 void ObjectProposalTester::TestPatchMatcher() {
 
-	Mat cimg = imread(nyu_cfn);
+	Mat cimg = imread(uw_cfn + "table_small_1_45.png");
+	//Mat cimg = imread(nyu_cfn);
 	Size newsz;
 	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 	resize(cimg, cimg, newsz);
 	imshow("color", cimg);
 
 	ObjPatchMatcher pmatcher;
-	pmatcher.PreparePatchDB(DB_NYU2_RGBD);
-	pmatcher.Match(cimg, Mat());
+	pmatcher.patch_size = Size(50, 50);
+	pmatcher.PrepareViewPatchDB();
+	pmatcher.MatchViewPatch(cimg, Mat());
+	//pmatcher.PreparePatchDB(DB_NYU2_RGBD);
+	//pmatcher.Match(cimg, Mat());
 }
