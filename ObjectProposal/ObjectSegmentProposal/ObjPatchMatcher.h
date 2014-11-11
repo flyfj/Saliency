@@ -15,7 +15,7 @@ using namespace visualsearch::search;
 using namespace visualsearch::io::dataset;
 
 
-//#define VERBOSE
+#define VERBOSE
 
 class ObjPatchMatcher
 {
@@ -34,9 +34,10 @@ public:
 	bool MatchViewPatch(const Mat& cimg, const Mat& dmap_raw);
 
 	Size patch_size;
+	bool use_depth;
 
 private:
-	bool ComputePatchFeat(const Mat& patch, Mat& feat);
+	bool ComputePatchFeat(MatFeatureSet& patches, Mat& feat);
 
 	bool MatchPatch(const Mat& feat, int k, vector<DMatch>& res);
 

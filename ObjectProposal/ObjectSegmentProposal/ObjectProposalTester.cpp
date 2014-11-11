@@ -72,7 +72,7 @@ void ObjectProposalTester::TestSaliency() {
 	imshow("color", cimg);
 	imshow("dmap", dmap_color);
 	imshow("pts3d", pts3d_color);
-	ImgVisualizer::DrawNormals("normal", normal_map);
+	ImgVisualizer::DrawNormals("normal", normal_map, Mat());
 
 	processors::attention::SaliencyComputer sal_comp;
 	Mat cimg_sal, dmap_sal, pts3d_sal, normal_sal;
@@ -774,17 +774,21 @@ void ObjectProposalTester::TestViewMatch() {
 
 void ObjectProposalTester::TestPatchMatcher() {
 
-	Mat cimg = imread(uw_cfn + "table_small_1_45.png");
-	//Mat cimg = imread(nyu_cfn);
+	//Mat cimg = imread(uw_cfn + "table_small_1_45.png");
+	Mat cimg = imread(nyu_cfn);
 	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	resize(dmap, dmap, newsz);
 	imshow("color", cimg);
+	ImgVisualizer::DrawFloatImg("dmap", dmap);
 
 	ObjPatchMatcher pmatcher;
-	pmatcher.patch_size = Size(50, 50);
-	pmatcher.PrepareViewPatchDB();
-	pmatcher.MatchViewPatch(cimg, Mat());
-	//pmatcher.PreparePatchDB(DB_NYU2_RGBD);
-	//pmatcher.Match(cimg, Mat());
+	pmatcher.use_depth = true;
+	pmatcher.patch_size = Size(11, 11);
+	//pmatcher.PrepareViewPatchDB();
+	//pmatcher.MatchViewPatch(cimg, Mat());
+	pmatcher.PreparePatchDB(DB_NYU2_RGBD);
+	pmatcher.Match(cimg, dmap);
 }

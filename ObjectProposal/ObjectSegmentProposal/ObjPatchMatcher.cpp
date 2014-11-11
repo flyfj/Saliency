@@ -4,6 +4,7 @@
 ObjPatchMatcher::ObjPatchMatcher(void)
 {
 	patch_size = Size(9, 9);
+	use_depth = false;
 	int sel_cls[] = {58, 7, 124, 24, 136, 157, 19,88, 3, 83, 5, 344, 238, 13, 80, 89, 408, 49, 66};
 	valid_cls.resize(900, false);
 	for(auto id : sel_cls) valid_cls[id] = true;
@@ -12,11 +13,20 @@ ObjPatchMatcher::ObjPatchMatcher(void)
 
 // normalized value concatenation
 // gray patch has problem when contrast of object patch is flipped, gradient is more robust
-bool ObjPatchMatcher::ComputePatchFeat(const Mat& patch, Mat& feat) {
-	Scalar mean_, std_;
-	meanStdDev(patch, mean_, std_);
-	Mat patch_ = (patch-mean_.val[0]);///std_.val[0];
-	patch_.reshape(1, 1).copyTo(feat);
+bool ObjPatchMatcher::ComputePatchFeat(MatFeatureSet& patches, Mat& feat) {
+	feat.release();
+	if(patches.find("gradient") != patches.end()) {
+		Scalar mean_, std_;
+		meanStdDev(patches["gradient"], mean_, std_);
+		Mat patch_ = (patches["gradient"]-mean_.val[0]);///std_.val[0];
+		if(feat.empty()) patch_.reshape(1,1).copyTo(feat);
+		else hconcat(patch_.reshape(1, 1), feat, feat);
+	}
+	if(patches.find("normal") != patches.end()) {
+		if(feat.empty()) patches["normal"].reshape(1,1).copyTo(feat);
+		else hconcat(patches["normal"].reshape(1,1), feat, feat);
+	}
+	
 
 	return true;
 }
@@ -34,15 +44,22 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
 	random_shuffle(imgfns.begin(), imgfns.end());
-	imgfns.erase(imgfns.begin()+50, imgfns.end());
+	imgfns.erase(imgfns.begin()+20, imgfns.end());
+	db_man->GetDepthmapList(imgfns, dmapfns);
 	map<string, vector<VisualObject>> gt_masks;
 	db_man->LoadGTMasks(imgfns, gt_masks);
 
 	for(size_t i=0; i<imgfns.size(); i++) {
+		// color
 		Mat cimg = imread(imgfns[i].filepath);
 		Size newsz;
 		tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 		resize(cimg, cimg, newsz);
+		// depth
+		Mat dmap;
+		db_man->LoadDepthData(dmapfns[i].filepath, dmap);
+		resize(dmap, dmap, newsz);
+		dmap.convertTo(dmap, CV_32F);
 
 		// get label image
 		Mat lable_mask = Mat::zeros(newsz.height, newsz.width, CV_8U);
@@ -66,7 +83,14 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 		Sobel(gray_img_float, grad_x, CV_32F, 1, 0);
 		Sobel(gray_img_float, grad_y, CV_32F, 0, 1);
 		magnitude(grad_x, grad_y, grad_mag);
+		Mat pts3d, normal_map;
+		if(use_depth) {
+			Feature3D feat3d;
+			feat3d.ComputeKinect3DMap(dmap, pts3d, false);
+			feat3d.ComputeNormalMap(pts3d, normal_map);
+		}
 
+		// extract patches
 		for(int r=patch_size.height/2; r<edge_map.rows-patch_size.height/2; r++) {
 			for(int c=patch_size.width/2; c<edge_map.cols-patch_size.width/2; c++) {
 					
@@ -97,10 +121,11 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 
 					lable_mask(box).convertTo(cur_patch.visual_desc.mask, CV_32F);
 					// extract feature vector
-					gray_img(box).copyTo( cur_patch.visual_desc.img_data );
-					grad_mag(box).copyTo( cur_patch.visual_desc.img_desc );
+					gray_img(box).copyTo( cur_patch.visual_desc.extra_features["gray"] );
+					grad_mag(box).copyTo( cur_patch.visual_desc.extra_features["gradient"] );
+					if(use_depth) normal_map(box).copyTo( cur_patch.visual_desc.extra_features["normal"] );
 					Mat feat;
-					ComputePatchFeat(grad_mag(box), feat);
+					ComputePatchFeat(cur_patch.visual_desc.extra_features, feat);
 					patch_data.push_back(feat);
 					patch_meta.objects.push_back(cur_patch);
 				}
@@ -148,8 +173,9 @@ bool ObjPatchMatcher::PrepareViewPatchDB() {
 	// get features
 	cout<<"Extracting view features..."<<endl;
 	for(size_t i=0; i<patch_meta.objects.size(); i++) {
+		VisualObject& cur_obj = patch_meta.objects[i];
 
-		Mat vimg = imread(patch_meta.objects[i].imgpath);
+		Mat vimg = imread(cur_obj.imgpath);
 		//Mat dmap = imread(cur_obj_view.dmap_path, CV_LOAD_IMAGE_UNCHANGED);
 		resize(vimg, vimg, patch_size);
 		Mat gray_img_float, grad_x, grad_y, grad_mag;
@@ -158,10 +184,10 @@ bool ObjPatchMatcher::PrepareViewPatchDB() {
 		Sobel(gray_img_float, grad_x, CV_32F, 1, 0);
 		Sobel(gray_img_float, grad_y, CV_32F, 0, 1);
 		magnitude(grad_x, grad_y, grad_mag);
-		grad_mag.copyTo(patch_meta.objects[i].visual_desc.img_desc);
+		grad_mag.copyTo(cur_obj.visual_desc.extra_features["gradient"]);
 
 		Mat cur_feat;
-		ComputePatchFeat(grad_mag, cur_feat);
+		ComputePatchFeat(cur_obj.visual_desc.extra_features, cur_feat);
 		patch_data.push_back(cur_feat);
 
 		cout<<i<<"/"<<patch_meta.objects.size()<<endl;
@@ -177,7 +203,7 @@ bool ObjPatchMatcher::PrepareViewPatchDB() {
 
 bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 
-	// color
+	// gradient
 	Mat gray_img, gray_img_float, edge_map;
 	cvtColor(cimg, gray_img, CV_BGR2GRAY);
 	gray_img.convertTo(gray_img_float, CV_32F);
@@ -191,8 +217,8 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	magnitude(grad_x, grad_y, grad_mag);
 
 	// depth
-	if( !dmap_raw.empty() ) {
-		Mat dmap_float, pts3d, normal_map;
+	Mat dmap_float, pts3d, normal_map;
+	if( use_depth ) {
 		Feature3D feat3d;
 		dmap_raw.convertTo(dmap_float, CV_32F);
 		feat3d.ComputeKinect3DMap(dmap_float, pts3d, false);
@@ -213,12 +239,15 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	float max_dist = 0;
 	double start_t = getTickCount();
 //#pragma omp parallel for
-	for(int r=patch_size.height/2; r<gray_img.rows-patch_size.height/2; r++) {
-		for(int c=patch_size.width/2; c<gray_img.cols-patch_size.width/2; c++) {
+	for(int r=patch_size.height/2; r<gray_img.rows-patch_size.height/2; r+=10) {
+		for(int c=patch_size.width/2; c<gray_img.cols-patch_size.width/2; c+=5) {
 
 			if(edge_map.at<uchar>(r,c) > 0) {
 				Rect box(c-patch_size.width/2, r-patch_size.height/2, patch_size.width, patch_size.height);
-				ComputePatchFeat(grad_mag(box), feat);
+				MatFeatureSet featset;
+				grad_mag(box).copyTo(featset["gradient"]);
+				if(use_depth) normal_map(box).copyTo(featset["normal"]);
+				ComputePatchFeat(featset, feat);
 				vector<DMatch> matches;
 				MatchPatch(feat, topK, matches);
 				
@@ -236,29 +265,42 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 				max_dist = MAX(max_dist, score_map.at<float>(r,c));
 
 #ifdef VERBOSE
+
+				// current patch
+				Mat disp, patch_img, patch_normal;
+				disp = cimg.clone();
+				rectangle(disp, box, CV_RGB(255,0,0), 2);
+				resize(gray_img(box), patch_img, Size(50,50));
+				resize(mean_mask, mean_mask, Size(50,50));
+				if(use_depth) resize(normal_map(box), patch_normal, Size(50,50));
+				imshow("query", patch_img);
+				imshow("query box", disp);
+				ImgVisualizer::DrawFloatImg("transfered mask", mean_mask);
+				ImgVisualizer::DrawNormals("patch normal", patch_normal, Mat(), true);
+				//tools::ImgVisualizer::DrawFloatImg("grad", grad_mag(box));
+
 				// show match results
 				vector<Mat> res_imgs(topK);
 				vector<Mat> res_gradients(topK);
+				vector<Mat> res_normals(topK);
 				vector<Mat> db_boxes(topK);
 				vector<Mat> res_masks(topK);
 				for(size_t i=0; i<topK; i++) {
-					const VisualObject& cur_obj = patch_meta.objects[matches[i].trainIdx];
-					res_imgs[i] = cur_obj.visual_desc.img_data;
+					VisualObject& cur_obj = patch_meta.objects[matches[i].trainIdx];
+					// mask
 					cur_obj.visual_desc.mask.convertTo(res_masks[i], CV_8U, 255);
-					tools::ImgVisualizer::DrawFloatImg("", cur_obj.visual_desc.img_desc, res_gradients[i], false); 
+					// gray
+					res_imgs[i] = cur_obj.visual_desc.extra_features["gray"];
+					// gradient
+					tools::ImgVisualizer::DrawFloatImg("", cur_obj.visual_desc.extra_features["gradient"], res_gradients[i], false);
+					// normal
+					if(use_depth) tools::ImgVisualizer::DrawNormals("", cur_obj.visual_desc.extra_features["normal"], res_normals[i]);
+					// box on image
 					db_boxes[i] = imread(patch_meta.objects[matches[i].trainIdx].imgpath);
 					resize(db_boxes[i], db_boxes[i], Size(cimg.cols, cimg.rows));
 					rectangle(db_boxes[i], patch_meta.objects[matches[i].trainIdx].visual_desc.box, CV_RGB(255,0,0), 2);
 				}
-				Mat disp, patch_img;
-				disp = cimg.clone();
-				rectangle(disp, box, CV_RGB(255,0,0), 2);
-				resize(gray_img(box), patch_img, Size(50, 50));
-				resize(mean_mask, mean_mask, Size(50,50));
-				imshow("query", patch_img);
-				imshow("query box", disp);
-				ImgVisualizer::DrawFloatImg("transfered mask", mean_mask);
-				//tools::ImgVisualizer::DrawFloatImg("grad", grad_mag(box));
+				tools::ImgVisualizer::DrawImgCollection("res_normals", res_normals, topK, Size(50,50), Mat());
 				tools::ImgVisualizer::DrawImgCollection("res_patches", res_imgs, topK, Size(50,50), Mat());
 				tools::ImgVisualizer::DrawImgCollection("res_gradients", res_gradients, topK, Size(50,50), Mat());
 				tools::ImgVisualizer::DrawImgCollection("res_masks", res_masks, topK, Size(50,50), Mat());
@@ -292,10 +334,13 @@ bool ObjPatchMatcher::MatchViewPatch(const Mat& cimg, const Mat& dmap_raw) {
 	gray_img.convertTo(gray_img_float, CV_32F);
 	waitKey(10);
 
+	// gradient
 	Mat grad_x, grad_y, grad_mag;
 	Sobel(gray_img_float, grad_x, CV_32F, 1, 0);
 	Sobel(gray_img_float, grad_y, CV_32F, 0, 1);
 	magnitude(grad_x, grad_y, grad_mag);
+
+	// depth
 
 	// do search
 	Mat score_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);
@@ -311,7 +356,9 @@ bool ObjPatchMatcher::MatchViewPatch(const Mat& cimg, const Mat& dmap_raw) {
 		for(int c=patch_size.width/2; c<gray_img.cols-patch_size.width/2; c++) {
 
 			Rect box(c-patch_size.width/2, r-patch_size.height/2, patch_size.width, patch_size.height);
-			ComputePatchFeat(grad_mag(box), feat);
+			MatFeatureSet featset;
+			grad_mag(box).copyTo(featset["gradient"]);
+			ComputePatchFeat(featset, feat);
 			vector<DMatch> matches;
 			MatchPatch(feat, topK, matches);
 

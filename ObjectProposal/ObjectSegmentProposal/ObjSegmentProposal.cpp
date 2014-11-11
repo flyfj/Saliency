@@ -37,7 +37,7 @@ namespace objectproposal
 		feat3d.ComputeBoundaryMap(Mat(), Mat(), normal_map, features::BMAP_NORMAL, normal_bmap);
 		
 		//imshow("3d", pts_3d);
-		ImgVisualizer::DrawNormals("normal", normal_map);
+		ImgVisualizer::DrawNormals("normal", normal_map, Mat());
 		ImgVisualizer::DrawFloatImg("color_bmap", color_bmap);
 		ImgVisualizer::DrawFloatImg("pts3d_bmap", pts_bmap);
 		ImgVisualizer::DrawFloatImg("normal_bmap", normal_bmap);

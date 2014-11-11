@@ -1,4 +1,8 @@
 
+
+
+
+
 data = load('curve.mat');
 data = data.curve;
 len = size(data, 2);
