@@ -9,6 +9,7 @@
 #include "IO/Dataset/NYUDepth2DataMan.h"
 #include "Common/Tools/ImgVisualizer.h"
 #include "Search/Hashing/LSHCoder.h"
+//#include "Processors/Segmentation/ObjectSegmentor.h"
 using namespace visualsearch;
 using namespace visualsearch::features;
 using namespace visualsearch::common;
@@ -17,7 +18,7 @@ using namespace visualsearch::search::binarycodes;
 using namespace visualsearch::io::dataset;
 
 
-#define VERBOSE
+//#define VERBOSE
 
 class ObjPatchMatcher
 {

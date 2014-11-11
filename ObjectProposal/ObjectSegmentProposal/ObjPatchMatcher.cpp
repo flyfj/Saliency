@@ -220,6 +220,7 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	gray_img.convertTo(gray_img_float, CV_32F);
 	Canny(gray_img, edge_map, 10, 50);
 	imshow("edge", edge_map);
+	imshow("color", cimg);
 	waitKey(10);
 
 	Mat grad_x, grad_y, grad_mag;
@@ -248,14 +249,18 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	Mat mask_count = Mat::zeros(cimg.rows, cimg.cols, CV_32S);	// number of mask overlapped on each pixel
 	Mat feat;
 	int topK = 20;
+	int total_cnt = countNonZero(edge_map);
+	vector<VisualObject> query_patches;
+	query_patches.reserve(total_cnt);
 
 	cout<<"Start match..."<<endl;
-	int total_cnt = countNonZero(edge_map);
+	
 	float max_dist = 0;
+	int cnt = 0;
 	double start_t = getTickCount();
 //#pragma omp parallel for
-	for(int r=patch_size.height/2; r<gray_img.rows-patch_size.height/2; r+=10) {
-		for(int c=patch_size.width/2; c<gray_img.cols-patch_size.width/2; c+=5) {
+	for(int r=patch_size.height/2; r<gray_img.rows-patch_size.height/2; r+=2) {
+		for(int c=patch_size.width/2; c<gray_img.cols-patch_size.width/2; c+=2) {
 
 			if(edge_map.at<uchar>(r,c) > 0) {
 				Rect box(c-patch_size.width/2, r-patch_size.height/2, patch_size.width, patch_size.height);
@@ -275,19 +280,25 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 					MatchPatch(feat, topK, matches);
 				}
 				
-				Mat mean_mask = Mat::zeros(patch_size.height, patch_size.width, CV_32F);
+				VisualObject cur_query;
+				cur_query.visual_desc.box = box;
+				cur_query.visual_desc.mask = Mat::zeros(patch_size.height, patch_size.width, CV_32F);
 				for(size_t i=0; i<topK; i++) { 
-					cout<<matches[i].distance<<endl;
 					score_map.at<float>(r,c) += matches[i].distance;
-					mean_mask += patch_meta.objects[matches[i].trainIdx].visual_desc.mask;
+					cur_query.visual_desc.mask += patch_meta.objects[matches[i].trainIdx].visual_desc.mask;
 				}
 				score_map.at<float>(r,c) /= topK;
-				mean_mask /= topK;
-				mask_map(box) += mean_mask*score_map.at<float>(r,c);
+				cur_query.visual_desc.mask /= topK;
+				Scalar mean_, std_;
+				meanStdDev(cur_query.visual_desc.mask, mean_, std_);
+				cur_query.visual_desc.scores.push_back(mean_.val[0]);
+				cur_query.visual_desc.scores.push_back(std_.val[0]);
+				mask_map(box) += cur_query.visual_desc.mask*score_map.at<float>(r,c);
 				mask_count(box) = mask_count(box) + 1;
 
 				//cout<<score_map.at<float>(r,c)<<endl;
 				max_dist = MAX(max_dist, score_map.at<float>(r,c));
+				query_patches.push_back(cur_query);
 
 #ifdef VERBOSE
 
@@ -346,7 +357,48 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	tools::ImgVisualizer::DrawFloatImg("bmap", score_map);
 
 	mask_map /= max_dist;
+	normalize(mask_map, mask_map, 1, 0, NORM_MINMAX);
 	tools::ImgVisualizer::DrawFloatImg("maskmap", mask_map);
+
+	// pick top weighted points to see if they are inside objects
+	// try graph-cut for region proposal
+	// among all retrieved mask patch, select most discriminative one and do graph-cut
+	sort(query_patches.begin(), query_patches.end(), [](const VisualObject& a, const VisualObject& b) { return a.visual_desc.scores[1] > b.visual_desc.scores[1]; });
+	for(size_t i=0; i<query_patches.size(); i++) {
+		Mat disp_img = cimg.clone();
+		rectangle(disp_img, query_patches[i].visual_desc.box, CV_RGB(255,0,0));
+		imshow("max std box", disp_img);
+		Mat big_mask;
+		resize(query_patches[i].visual_desc.mask, big_mask, Size(50,50));
+		ImgVisualizer::DrawFloatImg("max std mask", big_mask);
+		waitKey(0);
+		// use mask to do graph-cut
+		Mat fg_mask(cimg.rows, cimg.cols, CV_8U);
+		fg_mask.setTo(cv::GC_PR_FGD);
+		Mat th_mask;
+		threshold(query_patches[i].visual_desc.mask, th_mask, query_patches[i].visual_desc.scores[0], 1, CV_THRESH_BINARY);
+		th_mask.convertTo(th_mask, CV_8U);
+		fg_mask(query_patches[i].visual_desc.box).setTo(cv::GC_FGD, th_mask);
+		th_mask = 1-th_mask;
+		fg_mask(query_patches[i].visual_desc.box).setTo(cv::GC_BGD, th_mask);
+		cv::grabCut(cimg, fg_mask, Rect(0,0,1,1), Mat(), Mat(), 3, cv::GC_INIT_WITH_MASK);
+		fg_mask = fg_mask & 1;
+		disp_img.setTo(Vec3b(0,0,0));
+		cimg.copyTo(disp_img, fg_mask);
+		imshow("cut", disp_img);
+		waitKey(0);
+	}
+
+
+	float ths[] = {0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.3f, 0.2f};
+	for(size_t i=0; i<8; i++) {
+		Mat th_mask;
+		threshold(mask_map, th_mask, ths[i], 1, CV_THRESH_BINARY);
+		char str[30];
+		sprintf_s(str, "%f", ths[i]);
+		ImgVisualizer::DrawFloatImg(str, th_mask);
+		waitKey(0);
+	}
 
 	return true;
 }
@@ -432,7 +484,7 @@ bool ObjPatchMatcher::MatchPatch(const Mat& feat, int k, vector<DMatch>& res) {
 		res[r].distance = norm(feat, patch_data.row(r), NORM_L2);
 	}
 	nth_element(res.begin(), res.begin()+k, res.end(), [](const DMatch& a, const DMatch& b) { return a.distance < b.distance; });
-	partition(res.begin(), res.end(), [&](const DMatch& a) { return a.distance < res[k].distance; });
+	partition(res.begin(), res.end(), [&](const DMatch& a) { return a.distance <= res[k].distance; });
 	//partial_sort(res.begin(), res.begin()+k, res.end(), [](const DMatch& a, const DMatch& b) { return a.distance<b.distance; } );
 
 	return true;
@@ -447,6 +499,7 @@ bool ObjPatchMatcher::MatchCode(const HashKey& query_key, int k, vector<DMatch>&
 		res[i].trainIdx = i;
 		res[i].distance = HashingTools<HashKeyType>::HammingDist(query_key, patch_keys[i]);
 	}
+	//for(auto val : res) cout<<val.distance<<endl;
 	nth_element(res.begin(), res.begin()+k, res.end(), [](const DMatch& a, const DMatch& b) { return a.distance < b.distance; });
 	partition(res.begin(), res.end(), [&](const DMatch& a) { return a.distance < res[k].distance; });
 

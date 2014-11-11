@@ -786,10 +786,10 @@ void ObjectProposalTester::TestPatchMatcher() {
 
 	ObjPatchMatcher pmatcher;
 	pmatcher.use_depth = true;
-	pmatcher.use_code = true;
+	pmatcher.use_code = false;
 	pmatcher.patch_size = Size(11, 11);
 	//pmatcher.PrepareViewPatchDB();
 	//pmatcher.MatchViewPatch(cimg, Mat());
-	//pmatcher.PreparePatchDB(DB_NYU2_RGBD);
+	pmatcher.PreparePatchDB(DB_NYU2_RGBD);
 	pmatcher.Match(cimg, dmap);
 }
