@@ -5,9 +5,12 @@ ObjPatchMatcher::ObjPatchMatcher(void)
 {
 	patch_size = Size(9, 9);
 	use_depth = false;
+	use_code = false;
+
 	int sel_cls[] = {58, 7, 124, 24, 136, 157, 19,88, 3, 83, 5, 344, 238, 13, 80, 89, 408, 49, 66};
 	valid_cls.resize(900, false);
 	for(auto id : sel_cls) valid_cls[id] = true;
+
 	uw_view_root = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\";
 }
 
@@ -44,7 +47,7 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
 	random_shuffle(imgfns.begin(), imgfns.end());
-	imgfns.erase(imgfns.begin()+20, imgfns.end());
+	imgfns.erase(imgfns.begin()+10, imgfns.end());
 	db_man->GetDepthmapList(imgfns, dmapfns);
 	map<string, vector<VisualObject>> gt_masks;
 	db_man->LoadGTMasks(imgfns, gt_masks);
@@ -138,6 +141,14 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 
 	cout<<"total patch number: "<<patch_data.rows<<endl;
 
+	if(use_code) {
+		// compress to codes
+		LSHCoder lsh_coder;
+		if( !lsh_coder.LearnOptimalCodes(patch_data, 64, patch_keys) ) {
+			return false;
+		}
+	}
+
 	return true;
 }
 
@@ -227,6 +238,10 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 
 	// init searcher
 	searcher.Build(patch_data, BruteForce_L2);	// opencv bfmatcher has size limit: maximum 2^31
+	LSHCoder lsh_coder;
+	if(use_code) {
+		lsh_coder.Load();
+	}
 	
 	Mat score_map = Mat::zeros(edge_map.rows, edge_map.cols, CV_32F);
 	Mat mask_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);
@@ -249,10 +264,20 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 				if(use_depth) normal_map(box).copyTo(featset["normal"]);
 				ComputePatchFeat(featset, feat);
 				vector<DMatch> matches;
-				MatchPatch(feat, topK, matches);
+				if(use_code) {
+					BinaryCodes codes;
+					HashKey key_val;
+					lsh_coder.ComputeCodes(feat, codes);
+					HashingTools<HashKeyType>::CodesToKey(codes, key_val);
+					MatchCode(key_val, topK, matches);
+				}
+				else {
+					MatchPatch(feat, topK, matches);
+				}
 				
 				Mat mean_mask = Mat::zeros(patch_size.height, patch_size.width, CV_32F);
 				for(size_t i=0; i<topK; i++) { 
+					cout<<matches[i].distance<<endl;
 					score_map.at<float>(r,c) += matches[i].distance;
 					mean_mask += patch_meta.objects[matches[i].trainIdx].visual_desc.mask;
 				}
@@ -409,6 +434,21 @@ bool ObjPatchMatcher::MatchPatch(const Mat& feat, int k, vector<DMatch>& res) {
 	nth_element(res.begin(), res.begin()+k, res.end(), [](const DMatch& a, const DMatch& b) { return a.distance < b.distance; });
 	partition(res.begin(), res.end(), [&](const DMatch& a) { return a.distance < res[k].distance; });
 	//partial_sort(res.begin(), res.begin()+k, res.end(), [](const DMatch& a, const DMatch& b) { return a.distance<b.distance; } );
+
+	return true;
+}
+
+bool ObjPatchMatcher::MatchCode(const HashKey& query_key, int k, vector<DMatch>& res) {
+	
+	if( patch_keys.empty() ) return false;
+	res.resize(patch_keys.size());
+#pragma omp parallel for
+	for(int i=0; i<patch_keys.size(); i++) {
+		res[i].trainIdx = i;
+		res[i].distance = HashingTools<HashKeyType>::HammingDist(query_key, patch_keys[i]);
+	}
+	nth_element(res.begin(), res.begin()+k, res.end(), [](const DMatch& a, const DMatch& b) { return a.distance < b.distance; });
+	partition(res.begin(), res.end(), [&](const DMatch& a) { return a.distance < res[k].distance; });
 
 	return true;
 }

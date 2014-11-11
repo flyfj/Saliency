@@ -37,11 +37,14 @@ public:
 
 	Size patch_size;
 	bool use_depth;
+	bool use_code;
 
 private:
 	bool ComputePatchFeat(MatFeatureSet& patches, Mat& feat);
 
 	bool MatchPatch(const Mat& feat, int k, vector<DMatch>& res);
+
+	bool MatchCode(const HashKey& query_key, int k, vector<DMatch>& res);
 
 	Searcher searcher;
 
