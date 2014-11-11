@@ -8,10 +8,12 @@
 #include "Features/Feature3D.h"
 #include "IO/Dataset/NYUDepth2DataMan.h"
 #include "Common/Tools/ImgVisualizer.h"
+#include "Search/Hashing/LSHCoder.h"
 using namespace visualsearch;
 using namespace visualsearch::features;
 using namespace visualsearch::common;
 using namespace visualsearch::search;
+using namespace visualsearch::search::binarycodes;
 using namespace visualsearch::io::dataset;
 
 
@@ -45,6 +47,7 @@ private:
 
 	Mat patch_data;
 	ObjectCategory patch_meta;
+	vector<HashKey> patch_keys;
 	vector<bool> valid_cls;
 	string uw_view_root;
 };

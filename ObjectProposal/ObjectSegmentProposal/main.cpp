@@ -82,6 +82,7 @@ int main()
 	//tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
 	//tester.BatchProposal();
 	//tester.TestBoundaryClf(false);
+	//cout<<__FILE__<<" "<<__LINE__<<" "<<__FUNCTION__<<endl;
 	waitKey(0);
 	getchar();
 	return 0;
