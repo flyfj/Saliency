@@ -18,7 +18,7 @@ using namespace visualsearch::search::binarycodes;
 using namespace visualsearch::io::dataset;
 
 
-//#define VERBOSE
+#define VERBOSE
 
 class ObjPatchMatcher
 {
@@ -49,6 +49,9 @@ private:
 
 	// if obj_pt_sign is 1, then points with positive in the line is object
 	bool ComputeDominantLine(const Mat& mask_patch, Point tl_pt, Point3f& line_coeff, int& obj_pt_sign);
+
+	// save or load patch data from file to avoid re-extraction
+	bool PatchDataIO(bool toSave);
 
 	Searcher searcher;
 

@@ -779,7 +779,7 @@ void ObjectProposalTester::TestPatchMatcher() {
 	//Mat cimg = imread(uw_cfn + "table_small_1_45.png");
 	Mat cimg = imread(nyu_cfn);
 	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
 	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	resize(dmap, dmap, newsz);
