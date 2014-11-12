@@ -47,6 +47,9 @@ private:
 
 	bool MatchCode(const HashKey& query_key, int k, vector<DMatch>& res);
 
+	// if obj_pt_sign is 1, then points with positive in the line is object
+	bool ComputeDominantLine(const Mat& mask_patch, Point tl_pt, Point3f& line_coeff, int& obj_pt_sign);
+
 	Searcher searcher;
 
 	Mat patch_data;

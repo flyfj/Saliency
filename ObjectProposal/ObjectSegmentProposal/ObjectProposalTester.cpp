@@ -509,6 +509,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	if(db_name == DB_BERKELEY3D)
 		db_man = new Berkeley3DDataManager;
 
+	srand(time(0));
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
 	random_shuffle(imgfns.begin(), imgfns.end());
@@ -649,18 +650,18 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, best_overlap, false);
 
 		// save best results
-		/*for(size_t k=0; k<best_overlap.size(); k++) {
-		vector<SuperPixel> show_sps;
-		show_sps.push_back(sps[best_overlap[k].y]);
-		Mat resimg;
-		ImgVisualizer::DrawShapes(cimg, show_sps, resimg, false);
-		imshow("res", resimg);
-		waitKey(10);
-		char str[30];
-		sprintf_s(str, "nyu_best_%d_%d.png", i, k);
-		string savefn = save_dir + str;
-		imwrite(savefn, resimg);
-		}*/
+		for(size_t k=0; k<best_overlap.size(); k++) {
+			vector<SuperPixel> show_sps;
+			show_sps.push_back(sps[best_overlap[k].y]);
+			Mat resimg;
+			ImgVisualizer::DrawShapes(cimg, show_sps, resimg, false);
+			imshow("res", resimg);
+			waitKey(0);
+			char str[30];
+			sprintf_s(str, "nyu_best_%d_%d.png", i, k);
+			string savefn = save_dir + str;
+			//imwrite(savefn, resimg);
+		}
 		
 
 		best_gt_cover.insert(best_gt_cover.end(), best_overlap.begin(), best_overlap.end());
@@ -673,7 +674,8 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		for(auto curval : best_gt_cover) { abo += curval.z;}
 		cout<<"ABO: "<<abo/best_gt_cover.size()<<endl;
 
-		cout<<"finish image "<<i<<"/"<<imgfns.size()<<endl<<endl;;
+		cout<<"finish image "<<i<<"/"<<imgfns.size()<<endl<<endl;
+		waitKey(0);
 	}
 
 	delete db_man;
@@ -777,7 +779,7 @@ void ObjectProposalTester::TestPatchMatcher() {
 	//Mat cimg = imread(uw_cfn + "table_small_1_45.png");
 	Mat cimg = imread(nyu_cfn);
 	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 	resize(cimg, cimg, newsz);
 	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	resize(dmap, dmap, newsz);

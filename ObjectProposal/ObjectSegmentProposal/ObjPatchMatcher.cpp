@@ -47,7 +47,7 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
 	random_shuffle(imgfns.begin(), imgfns.end());
-	imgfns.erase(imgfns.begin()+10, imgfns.end());
+	imgfns.erase(imgfns.begin()+30, imgfns.end());
 	db_man->GetDepthmapList(imgfns, dmapfns);
 	map<string, vector<VisualObject>> gt_masks;
 	db_man->LoadGTMasks(imgfns, gt_masks);
@@ -245,10 +245,11 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	}
 	
 	Mat score_map = Mat::zeros(edge_map.rows, edge_map.cols, CV_32F);
+	Mat mask_vote_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);
 	Mat mask_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);
 	Mat mask_count = Mat::zeros(cimg.rows, cimg.cols, CV_32S);	// number of mask overlapped on each pixel
 	Mat feat;
-	int topK = 20;
+	int topK = 50;
 	int total_cnt = countNonZero(edge_map);
 	vector<VisualObject> query_patches;
 	query_patches.reserve(total_cnt);
@@ -259,8 +260,8 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	int cnt = 0;
 	double start_t = getTickCount();
 //#pragma omp parallel for
-	for(int r=patch_size.height/2; r<gray_img.rows-patch_size.height/2; r+=2) {
-		for(int c=patch_size.width/2; c<gray_img.cols-patch_size.width/2; c+=2) {
+	for(int r=patch_size.height/2; r<gray_img.rows-patch_size.height/2; r++) {
+		for(int c=patch_size.width/2; c<gray_img.cols-patch_size.width/2; c++) {
 
 			if(edge_map.at<uchar>(r,c) > 0) {
 				Rect box(c-patch_size.width/2, r-patch_size.height/2, patch_size.width, patch_size.height);
@@ -300,6 +301,15 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 				max_dist = MAX(max_dist, score_map.at<float>(r,c));
 				query_patches.push_back(cur_query);
 
+				// vote object regions
+				Point3f line_ori;
+				int obj_pt_sign;
+				ComputeDominantLine(cur_query.visual_desc.mask, box.tl(), line_ori, obj_pt_sign);
+				for(int rr=0; rr<cimg.rows; rr++) for(int cc=0; cc<cimg.cols; cc++) {
+					float line_val = line_ori.x*cc+line_ori.y*rr+line_ori.z;
+					if((line_val>0?1:-1)==obj_pt_sign) mask_vote_map.at<float>(rr, cc)++;
+				}
+
 #ifdef VERBOSE
 
 				// current patch
@@ -307,11 +317,12 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 				disp = cimg.clone();
 				rectangle(disp, box, CV_RGB(255,0,0), 2);
 				resize(gray_img(box), patch_img, Size(50,50));
-				resize(mean_mask, mean_mask, Size(50,50));
+				Mat cur_mask;
+				resize(cur_query.visual_desc.mask, cur_mask, Size(50,50));
 				if(use_depth) resize(normal_map(box), patch_normal, Size(50,50));
 				imshow("query", patch_img);
 				imshow("query box", disp);
-				ImgVisualizer::DrawFloatImg("transfered mask", mean_mask);
+				ImgVisualizer::DrawFloatImg("transfered mask", cur_mask);
 				ImgVisualizer::DrawNormals("patch normal", patch_normal, Mat(), true);
 				//tools::ImgVisualizer::DrawFloatImg("grad", grad_mag(box));
 
@@ -351,7 +362,7 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	cout<<"match done. Time cost: "<<(getTickCount()-start_t)/getTickFrequency()<<"s."<<endl;
 
 	//score_map(Rect(patch_size.width/2, patch_size.height/2, score_map.cols-patch_size.width/2, score_map.rows-patch_size.height/2)).copyTo(score_map);
-	score_map.setTo(max_dist, 255-edge_map);
+	//score_map.setTo(max_dist, 255-edge_map);
 	normalize(score_map, score_map, 1, 0, NORM_MINMAX);
 	score_map = 1-score_map;
 	tools::ImgVisualizer::DrawFloatImg("bmap", score_map);
@@ -359,6 +370,10 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw) {
 	mask_map /= max_dist;
 	normalize(mask_map, mask_map, 1, 0, NORM_MINMAX);
 	tools::ImgVisualizer::DrawFloatImg("maskmap", mask_map);
+
+	normalize(mask_vote_map, mask_vote_map, 1, 0, NORM_MINMAX);
+	ImgVisualizer::DrawFloatImg("vote map", mask_vote_map);
+	waitKey(0);
 
 	// pick top weighted points to see if they are inside objects
 	// try graph-cut for region proposal
@@ -502,6 +517,32 @@ bool ObjPatchMatcher::MatchCode(const HashKey& query_key, int k, vector<DMatch>&
 	//for(auto val : res) cout<<val.distance<<endl;
 	nth_element(res.begin(), res.begin()+k, res.end(), [](const DMatch& a, const DMatch& b) { return a.distance < b.distance; });
 	partition(res.begin(), res.end(), [&](const DMatch& a) { return a.distance < res[k].distance; });
+
+	return true;
+}
+
+bool ObjPatchMatcher::ComputeDominantLine(const Mat& mask_patch, Point tl_pt, Point3f& line_coeff, int& obj_pt_sign) {
+	Mat grad_x, grad_y, grad_mag;
+	Sobel(mask_patch, grad_x, CV_32F, 1, 0);
+	Sobel(mask_patch, grad_y, CV_32F, 0, 1);
+	magnitude(grad_x, grad_y, grad_mag);
+
+	float mean_grad_x = mean(grad_x).val[0];
+	float mean_grad_y = mean(grad_y).val[0];
+	// line: y=kx+b; k=-meanx/meany + pass center
+	Point centerp(tl_pt.x+mask_patch.cols/2, tl_pt.y+mask_patch.rows/2);
+	float k = -mean_grad_x / mean_grad_y;
+	float b = centerp.y - k*centerp.x;
+	line_coeff.x = k;
+	line_coeff.y = -1;
+	line_coeff.z = b;
+
+	float obj_pos = 0;
+	Point tl(centerp.x-mask_patch.cols/2, centerp.y-mask_patch.rows/2);
+	for(int r=0; r<mask_patch.rows; r++) for(int c=0; c<mask_patch.cols; c++) {
+		obj_pos += mask_patch.at<float>(r,c)*(line_coeff.x*(tl.x+c)+line_coeff.y*(tl.y+r)+line_coeff.z>0? 1:-1);
+	}
+	obj_pt_sign = obj_pos>0? 1: -1;
 
 	return true;
 }
