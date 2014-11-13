@@ -71,6 +71,7 @@ int main()
 	ObjectProposalTester tester;
 	//tester.TestSegment();
 	//tester.TestViewMatch();
+	//tester.TestGraphcut();
 	tester.TestPatchMatcher();
 	//tester.TestSuperpixelClf(false);
 	//tester.TestObjSearch();

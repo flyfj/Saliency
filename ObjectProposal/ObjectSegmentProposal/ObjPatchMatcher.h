@@ -6,6 +6,7 @@
 #include "Common/Tools/Tools.h"
 #include "Search/Searcher.h"
 #include "Features/Feature3D.h"
+#include "Learners/RandomTrees/DecisionTree.h"
 #include "IO/Dataset/NYUDepth2DataMan.h"
 #include "Common/Tools/ImgVisualizer.h"
 #include "Search/Hashing/LSHCoder.h"
@@ -16,6 +17,7 @@ using namespace visualsearch::common;
 using namespace visualsearch::search;
 using namespace visualsearch::search::binarycodes;
 using namespace visualsearch::io::dataset;
+using namespace visualsearch::learners::trees;
 
 
 #define VERBOSE
@@ -32,7 +34,7 @@ public:
 	bool PrepareViewPatchDB();
 
 	// match boundary patch
-	bool Match(const Mat& cimg, const Mat& dmap_raw);
+	bool Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map);
 
 	bool MatchViewPatch(const Mat& cimg, const Mat& dmap_raw);
 
