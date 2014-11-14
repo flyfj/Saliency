@@ -62,8 +62,9 @@ namespace visualsearch
 				// rank by shape first
 				vector<int> shape_rank_ids;
 				RankSegmentsByShape(sps, shape_rank_ids);
+				cout<<"after shape rank: "<<shape_rank_ids.size()<<endl;
 
-				map<float, int, greater<float>> sp_scores;
+				multimap<float, int, greater<float>> sp_scores;
 				if(use_comp) {
 					// compute composition cost for each superpixel
 					ImageSegmentor segmentor;
@@ -78,8 +79,9 @@ namespace visualsearch
 					sal_comp_.Init(SAL_COLOR, cimg, dmap, segmentor.superPixels);
 					for (size_t i=0; i<shape_rank_ids.size(); i++) {
 						int cur_id = shape_rank_ids[i];
-						float score = sal_comp_.Compose(sps[cur_id]);// * ((float)sps[i].area / contourArea(sps[i].convex_hull));
-						sp_scores[score] = cur_id;
+						float score = sal_comp_.Compose(sps[cur_id].box);
+						//float score = sal_comp_.Compose(sps[cur_id]);// * ((float)sps[i].area / contourArea(sps[i].convex_hull));
+						sp_scores.insert(pair<float,int>(score, cur_id));
 					}
 				}
 				else {
@@ -105,7 +107,7 @@ namespace visualsearch
 
 						float total_diff = fabs(sum_context_score - 3*mean_obj_score) / 3;
 						total_diff = total_diff * mean_obj_score;
-						sp_scores[total_diff] = i;
+						//sp_scores[total_diff] = i;
 					}
 				}
 
@@ -139,7 +141,7 @@ namespace visualsearch
 			}
 
 			bool ObjectRanker::RankSegmentsByShape(const vector<SuperPixel>& sps, vector<int>& ordered_sp_ids) {
-				int topK = MIN(200, sps.size());
+				int topK = MIN(3000, sps.size());
 				vector<Point2f> order_pairs;
 				order_pairs.reserve(topK);
 

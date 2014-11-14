@@ -11,7 +11,7 @@ namespace objectproposal
 	bool ObjSegmentProposal::GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps) {
 
 		iter_segmentor.merge_feat_types = SP_COLOR;
-		iter_segmentor.seg_size_bound_ = Point2f(0.0015f, 0.8f);
+		iter_segmentor.seg_size_bound_ = Point2f(0.0015f, 0.9f);
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.verbose = false;
 		iter_segmentor.Run2();
@@ -117,11 +117,11 @@ namespace objectproposal
 		ImgVisualizer::DrawShapes(cimg, res_sps, shapes, false);
 		imshow("shapes", shapes);
 		waitKey(10);*/
-		res = res_sps;
-		return true;
+		//res = res_sps;
+		//return true;
 
 		// rank
-		cout<<"Ranking segments..."<<endl;
+		cout<<endl<<"Ranking segments..."<<endl;
 		vector<int> rank_ids;
 		seg_ranker.RankSegments(cimg, dmap, res_sps, visualsearch::processors::attention::SEG_RANK_SALIENCY, rank_ids);
 

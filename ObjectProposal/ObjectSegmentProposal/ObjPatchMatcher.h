@@ -20,7 +20,7 @@ using namespace visualsearch::io::dataset;
 using namespace visualsearch::learners::trees;
 
 
-#define VERBOSE
+//#define VERBOSE
 
 class ObjPatchMatcher
 {
@@ -55,9 +55,12 @@ private:
 	// save or load patch data from file to avoid re-extraction
 	bool PatchDataIO(bool toSave);
 
+	Rect AlignBox(Rect box1, Rect box2, int imgw, int imgh);
+
 	Searcher searcher;
 
 	Mat patch_data;
+	vector<Mat> gt_obj_masks;		// ground truth object mask
 	ObjectCategory patch_meta;
 	vector<HashKey> patch_keys;
 	vector<bool> valid_cls;

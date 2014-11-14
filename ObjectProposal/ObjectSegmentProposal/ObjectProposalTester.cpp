@@ -527,7 +527,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 	ToolFactory::GetFilesFromDir(nyu20_cdir, "*.png", imgfns);
 	//imgfns.erase(imgfns.begin(), imgfns.begin()+9);
-	imgfns.erase(imgfns.begin()+10, imgfns.end());
+	//imgfns.erase(imgfns.begin()+10, imgfns.end());
 	dmapfns.resize(imgfns.size());
 	for(size_t i=0; i<imgfns.size(); i++) {
 		string img_fn_no_ext = imgfns[i].filename.substr(0, 5);
@@ -584,8 +584,14 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 #endif
 
-	vector<vector<Point2f>> all_prs(imgfns.size());
-	float avg_recall = 0;
+	mkdir(save_dir.c_str());
+
+	vector<vector<Point2f>> all_prs_05(imgfns.size());
+	vector<vector<Point2f>> all_prs_06(imgfns.size());
+	vector<vector<Point2f>> all_prs_07(imgfns.size());
+	float avg_recall_05 = 0;
+	float avg_recall_06 = 0;
+	float avg_recall_07 = 0;
 	vector<Point3f> best_gt_cover;
 	int common_num = 0;
 	int valid_img_num = 0;
@@ -633,21 +639,25 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		cout<<"Process time: "<<(getTickCount()-start_t)/getTickFrequency()<<"s."<<endl;
 		//seg_prop.GetCandidatesFromIterativeSeg(cimg, dmap, sps);
 
-//#define SAVE
+#define SAVE
 #ifdef SAVE
 		// save proposal to folder
 		for(size_t id=0; id<sps.size(); id++) {
 			char str[30];
 			sprintf_s(str, "_%d.png", id);
-			string savefn = save_dir + imgfns[i].filename + string(str);
+			string save_sub_dir = save_dir + imgfns[i].filename + "\\";
+			mkdir(save_sub_dir.c_str());
+			string savefn = save_sub_dir + string(str);
 			imwrite(savefn, sps[id].mask*255);
 		}
+
+		//continue;
 #endif
 
 		// evaluation
 		vector<Point2f> cur_pr;
 		vector<Point3f> best_overlap;
-		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, best_overlap, false);
+		seg_prop.ComputePRCurves(sps, cur_gts, 0.6f, cur_pr, best_overlap, true);
 
 		// save best results
 		for(size_t k=0; k<best_overlap.size(); k++) {
@@ -655,27 +665,26 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 			show_sps.push_back(sps[best_overlap[k].y]);
 			Mat resimg;
 			ImgVisualizer::DrawShapes(cimg, show_sps, resimg, false);
-			imshow("res", resimg);
-			waitKey(0);
+			//imshow("res", resimg);
+			//waitKey(0);
 			char str[30];
 			sprintf_s(str, "nyu_best_%d_%d.png", i, k);
 			string savefn = save_dir + str;
-			//imwrite(savefn, resimg);
+			imwrite(savefn, resimg);
 		}
 		
-
 		best_gt_cover.insert(best_gt_cover.end(), best_overlap.begin(), best_overlap.end());
-		all_prs[i] = cur_pr;
-		avg_recall += cur_pr[cur_pr.size()-1].x;
+		all_prs_06[i] = cur_pr;
+		avg_recall_06 += cur_pr[cur_pr.size()-1].x;
 		if(cur_pr.size() > common_num) common_num = cur_pr.size();
-		cout<<"mean recall: "<<avg_recall / valid_img_num<<endl;
+		cout<<"mean recall: "<<avg_recall_06 / valid_img_num<<endl;
 		// ABO
 		float abo = 0;
 		for(auto curval : best_gt_cover) { abo += curval.z;}
 		cout<<"ABO: "<<abo/best_gt_cover.size()<<endl;
 
 		cout<<"finish image "<<i<<"/"<<imgfns.size()<<endl<<endl;
-		waitKey(0);
+		waitKey(10);
 	}
 
 	delete db_man;
@@ -684,14 +693,14 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	vector<Point2f> mean_pr(common_num);
 	for(size_t j=0; j<common_num; j++) {
 		mean_pr[j] = Point2f(0, 0);
-		for(size_t i=0; i<all_prs.size(); i++) {
-			if(j >= all_prs[i].size()) 
-				mean_pr[j] += all_prs[i][all_prs[i].size()-1];
+		for(size_t i=0; i<all_prs_06.size(); i++) {
+			if(j >= all_prs_06[i].size()) 
+				mean_pr[j] += all_prs_06[i][all_prs_06[i].size()-1];
 			else 
-				mean_pr[j] += all_prs[i][j];
+				mean_pr[j] += all_prs_06[i][j];
 		}
-		mean_pr[j].x /= all_prs.size();
-		mean_pr[j].y /= all_prs.size();
+		mean_pr[j].x /= all_prs_06.size();
+		mean_pr[j].y /= all_prs_06.size();
 		if(mean_pr[j].x < 0)
 			cout<<"error"<<endl;
 	}
@@ -700,7 +709,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 	for(size_t i=0; i<mean_pr.size(); i++) {
 		out<<mean_pr[i].x<<" "<<mean_pr[i].y<<endl;
 	}
-	cout<<"total mean recall: "<<avg_recall / valid_img_num<<endl;
+	cout<<"total mean recall: "<<avg_recall_06 / valid_img_num<<endl;
 }
 
 void ObjectProposalTester::TestSegment() {
@@ -796,6 +805,7 @@ void ObjectProposalTester::TestPatchMatcher() {
 	pmatcher.PreparePatchDB(DB_NYU2_RGBD);
 	pmatcher.Match(cimg, dmap, scoremap);
 	ImgVisualizer::DrawFloatImg("scoremap", scoremap);
+	imshow("cimg", cimg);
 	waitKey(0);
 
 	// do segmentation
