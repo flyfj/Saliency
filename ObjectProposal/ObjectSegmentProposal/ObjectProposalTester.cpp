@@ -786,11 +786,11 @@ void ObjectProposalTester::TestViewMatch() {
 void ObjectProposalTester::TestPatchMatcher() {
 
 	//Mat cimg = imread(uw_cfn + "table_small_1_45.png");
-	Mat cimg = imread(nyu_cfn);
-	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+	Mat cimg = imread(eccv_cfn);
+	Size newsz(400, 400);
+	//ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 	resize(cimg, cimg, newsz);
-	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	Mat dmap = imread(eccv_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	resize(dmap, dmap, newsz);
 	imshow("color", cimg);
 	ImgVisualizer::DrawFloatImg("dmap", dmap);
@@ -802,11 +802,13 @@ void ObjectProposalTester::TestPatchMatcher() {
 	pmatcher.patch_size = Size(11, 11);
 	//pmatcher.PrepareViewPatchDB();
 	//pmatcher.MatchViewPatch(cimg, Mat());
-	pmatcher.PreparePatchDB(DB_NYU2_RGBD);
+	pmatcher.PreparePatchDB(DB_SALIENCY_RGBD);
 	pmatcher.Match(cimg, dmap, scoremap);
 	ImgVisualizer::DrawFloatImg("scoremap", scoremap);
 	imshow("cimg", cimg);
 	waitKey(0);
+
+	return;
 
 	// do segmentation
 	float ths[] = {0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.3f, 0.2f};

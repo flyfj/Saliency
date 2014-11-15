@@ -3,7 +3,7 @@
 
 ObjPatchMatcher::ObjPatchMatcher(void)
 {
-	patch_size = Size(7, 7);
+	patch_size = Size(9, 9);
 	use_depth = false;
 	use_code = false;
 
@@ -23,18 +23,22 @@ bool ObjPatchMatcher::ComputePatchFeat(MatFeatureSet& patches, Mat& feat) {
 		Scalar mean_, std_;
 		//normalize(patches["gray"], patches["gray"], 1, 0, NORM_MINMAX);
 		meanStdDev(patches["gray"], mean_, std_);
-		Mat patch_ = (patches["gray"]-mean_.val[0]);///std_.val[0];
+		Mat patch_ = (patches["gray"]-0);///std_.val[0];
 		if(feat.empty()) patch_.reshape(1,1).copyTo(feat);
 		else hconcat(patch_.reshape(1, 1), feat, feat);
 	}
 	if(patches.find("gradient") != patches.end()) {
+		normalize(patches["gradient"], patches["gradient"], 1, 0, NORM_MINMAX);
 		Scalar mean_, std_;
 		meanStdDev(patches["gradient"], mean_, std_);
-		Mat patch_ = (patches["gradient"]-mean_.val[0]);///std_.val[0];
+		Mat patch_ = (patches["gradient"]-0);///std_.val[0];
 		if(feat.empty()) patch_.reshape(1,1).copyTo(feat);
 		else hconcat(patch_.reshape(1, 1), feat, feat);
 	}
 	if(patches.find("normal") != patches.end()) {
+		Scalar mean_, std_;
+		meanStdDev(patches["normal"], mean_, std_);
+		//Mat patch_ = (patches["normal"]-mean_.val);
 		if(feat.empty()) patches["normal"].reshape(1,1).copyTo(feat);
 		else hconcat(patches["normal"].reshape(1,1), feat, feat);
 	}
@@ -60,12 +64,14 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 	DataManagerInterface* db_man = NULL;
 	if(db_name == DB_NYU2_RGBD)
 		db_man = new NYUDepth2DataMan;
+	if(db_name == DB_SALIENCY_RGBD)
+		db_man = new RGBDECCV14;
 
 	srand(time(0));
 	FileInfos imgfns, dmapfns;
 	db_man->GetImageList(imgfns);
 	random_shuffle(imgfns.begin(), imgfns.end());
-	imgfns.erase(imgfns.begin()+20, imgfns.end());
+	imgfns.erase(imgfns.begin()+30, imgfns.end());
 	db_man->GetDepthmapList(imgfns, dmapfns);
 	map<string, vector<VisualObject>> gt_masks;
 	db_man->LoadGTMasks(imgfns, gt_masks);
@@ -76,8 +82,8 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 	for(size_t i=0; i<imgfns.size(); i++) {
 		// color
 		Mat cimg = imread(imgfns[i].filepath);
-		Size newsz;
-		tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+		Size newsz(400, 400);
+		//tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
 		resize(cimg, cimg, newsz);
 		// depth
 		Mat dmap_float;
@@ -96,7 +102,7 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 		Mat label_id_mask = Mat::zeros(newsz.height, newsz.width, CV_32S)-1;
 		vector<VisualObject>& gt_objs = gt_masks[imgfns[i].filename];
 		for(auto& cur_gt : gt_objs) {
-			if( !valid_cls[cur_gt.category_id] ) continue;
+			//if( !valid_cls[cur_gt.category_id] ) continue;
 			resize(cur_gt.visual_desc.mask, cur_gt.visual_desc.mask, newsz);
 			label_id_mask.setTo(gt_obj_cnt++, cur_gt.visual_desc.mask);
 			gt_obj_masks.push_back(cur_gt.visual_desc.mask);
@@ -304,14 +310,13 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 
 		feat3d.ComputeKinect3DMap(dmap_float, pts3d, false);
 		feat3d.ComputeNormalMap(pts3d, normal_map);
-		//normal_map = (normal_map + 1)/2;
 	}
 
 	/*
 	 *	start searching
 	 */
 	// init searcher
-	searcher.Build(patch_data, BruteForce_L2);	// opencv bfmatcher has size limit: maximum 2^31
+	//searcher.Build(patch_data, BruteForce_L2);	// opencv bfmatcher has size limit: maximum 2^31
 	LSHCoder lsh_coder;
 	if(use_code) {
 		lsh_coder.Load();
@@ -322,7 +327,7 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 	mask_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);
 	Mat mask_count = Mat::zeros(cimg.rows, cimg.cols, CV_32S);	// number of mask overlapped on each pixel
 	Mat feat;
-	int topK = 30;
+	int topK = 40;
 	int total_cnt = countNonZero(edge_map);
 	vector<VisualObject> query_patches;
 	query_patches.reserve(total_cnt);
@@ -340,7 +345,7 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 			/*int rand_r = rand()%gray_img.rows;
 			int rand_c = rand()%gray_img.cols;
 			if(rand_r < patch_size.height/2 || rand_r > gray_img.rows-patch_size.height/2 ||
-			rand_c < patch_size.width/2 || rand_c > gray_img.cols-patch_size.width/2) continue;*/
+				rand_c < patch_size.width/2 || rand_c > gray_img.cols-patch_size.width/2) continue;*/
 			int rand_r = r, rand_c = c;
 
 			if(edge_map.at<uchar>(rand_r, rand_c) > 0) 
@@ -352,7 +357,7 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 				MatFeatureSet featset;
 				gray_img_float(box).copyTo(featset["gray"]);
 				//grad_mag(box).copyTo(featset["gradient"]);
-				if(use_depth) 
+				if(use_depth)
 				{ 
 					normal_map(box).copyTo(featset["normal"]);
 					dmap_float(box).copyTo(featset["depth"]);
@@ -372,6 +377,19 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 					MatchPatch(feat, topK, matches);
 				}
 				
+				if(matches[0].distance < 0 || matches[0].distance > 1000) {
+					cout<<"match dist: "<<matches[0].distance<<endl;
+					double minv, maxv;
+					cout<<norm(feat, patch_data.row(matches[0].trainIdx), NORM_L2)<<endl;
+					minMaxLoc(feat, &minv, &maxv);
+					cout<<minv<<" "<<maxv<<endl;
+					cout<<feat<<endl<<endl;
+					minMaxLoc(patch_data.row(matches[0].trainIdx), &minv, &maxv);
+					cout<<minv<<" "<<maxv<<endl;
+					cout<<patch_data.row(matches[0].trainIdx)<<endl;
+					imshow("cimg", cimg);
+					waitKey(0);
+				}
 				vector<vector<Mat>> pixel_mask_vals(patch_size.height, vector<Mat>(patch_size.width, Mat::zeros(1, topK, CV_32F)));
 				VisualObject cur_query;
 				cur_query.visual_desc.box = box;
@@ -404,20 +422,22 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 				if(gt_mask_id != -1) {
 					Mat nn_mask = gt_obj_masks[gt_mask_id];
 					//imshow("gt mask", nn_mask*255);
-					//waitKey(0);
+					//waitKey(10);
 					Rect gt_box = patch_meta.objects[matches[0].trainIdx].visual_desc.box;
 					Rect align_box = AlignBox(box, gt_box, cimg.cols, cimg.rows);
 					vector<ImgWin> boxes; boxes.push_back(align_box);
 					//ImgVisualizer::DrawWinsOnImg("alignbox", cimg, boxes);
-					//waitKey(0);
-					nn_mask(align_box).copyTo(align_mask(Rect(box.x-(gt_box.x-align_box.x), box.y-(gt_box.y-align_box.y), align_box.width, align_box.height)));
+					//waitKey(10);
+					Rect target_box = Rect(box.x-(gt_box.x-align_box.x), box.y-(gt_box.y-align_box.y), align_box.width, align_box.height);
+					cout<<target_box<<endl;
+					nn_mask(align_box).copyTo(align_mask(target_box));
 				}
 				align_mask.convertTo(align_mask, CV_32F);
-				mask_map += align_mask;//*score_map.at<float>(r,c);
+				mask_map += align_mask * matches[0].distance;	//*score_map.at<float>(r,c);
 				//mask_count(box) = mask_count(box) + 1;
 
 				//cout<<score_map.at<float>(r,c)<<endl;
-				max_dist = MAX(max_dist, score_map.at<float>(r,c));
+				max_dist = MAX(max_dist, matches[0].distance);
 				query_patches.push_back(cur_query);
 
 				// vote object regions
@@ -432,10 +452,11 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 #ifdef VERBOSE
 
 				// current patch
-				Mat disp, patch_img, patch_normal, patch_depth;
+				Mat disp, patch_gray, patch_grad, patch_normal, patch_depth;
 				disp = cimg.clone();
 				rectangle(disp, box, CV_RGB(255,0,0), 2);
-				resize(gray_img(box), patch_img, Size(50,50));
+				resize(gray_img(box), patch_gray, Size(50,50));
+				resize(grad_mag(box), patch_grad, Size(50,50));
 				Mat cur_mask;
 				resize(cur_query.visual_desc.mask, cur_mask, Size(50,50));
 				if(use_depth) 
@@ -447,16 +468,21 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 					//dmap_float(box).convertTo(patch_depth, CV_8U, 255);
 					resize(patch_depth, patch_depth, Size(50,50));
 				}
+
+				Mat onormal;
 				sprintf_s(str, "query_gray_%d.jpg", cnt);
-				imshow(str, patch_img);
-				imwrite(str, patch_img);
+				imshow(str, patch_gray);
+				imwrite(str, patch_gray);
+
+				/*sprintf_s(str, "query_grad_%d.jpg", cnt);
+				ImgVisualizer::DrawFloatImg(str, patch_grad, onormal, true);
+				imwrite(str, onormal);*/
 				
 				sprintf_s(str, "query_depth_%d.jpg", cnt);
 				imshow(str, patch_depth);
 				imwrite(str, patch_depth);
 				
 				sprintf_s(str, "query_normal_%d.jpg", cnt);
-				Mat onormal;
 				ImgVisualizer::DrawNormals(str, patch_normal, onormal, true);
 				imwrite(str, onormal);
 
@@ -485,7 +511,8 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 					// gray
 					cur_obj.visual_desc.extra_features["gray"].convertTo(res_imgs[i], CV_8U, 255);
 					// gradient
-					//tools::ImgVisualizer::DrawFloatImg("", cur_obj.visual_desc.extra_features["gradient"], res_gradients[i], false);
+					//ImgVisualizer::DrawFloatImg("", cur_obj.visual_desc.extra_features["gradient"], res_gradients[i], false);
+					// 3D
 					if(use_depth) 
 					{
 						// normal
@@ -513,7 +540,10 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 				ImgVisualizer::DrawImgCollection(str, res_depth, topK, Size(50,50), out_img);
 				imwrite(str, out_img);
 
-				//tools::ImgVisualizer::DrawImgCollection("res_gradients", res_gradients, topK, Size(50,50), Mat());
+				/*sprintf_s(str, "res_gradient_%d.jpg", cnt);
+				tools::ImgVisualizer::DrawImgCollection(str, res_gradients, topK, Size(50,50), out_img);
+				imwrite(str, out_img);*/
+
 				sprintf_s(str, "res_mask_%d.jpg", cnt);
 				tools::ImgVisualizer::DrawImgCollection(str, res_masks, topK, Size(50,50), out_img);
 				imwrite(str, out_img);
@@ -537,7 +567,8 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 	score_map = 1-score_map;
 	//tools::ImgVisualizer::DrawFloatImg("bmap", score_map);
 
-	//mask_map /= max_dist;
+	mask_map /= max_dist;
+	cout<<max_dist<<endl;
 	normalize(mask_map, mask_map, 1, 0, NORM_MINMAX);
 	//tools::ImgVisualizer::DrawFloatImg("maskmap", mask_map);
 
@@ -750,7 +781,9 @@ Rect ObjPatchMatcher::AlignBox(Rect box1, Rect box2, int imgw, int imgh) {
 	int minbottom = MIN(imgh-box1.y-1, imgh-box2.y-1);
 	newbox.x = MAX(0, box2.x-minleft);
 	newbox.y = MAX(0, box2.y-mintop);
-	newbox.width = minright+minleft-1;
-	newbox.height = minbottom+mintop-1;
+	newbox.width = minright+minleft-2;
+	newbox.height = minbottom+mintop-2;
+	if(newbox.width <0 || newbox.height<0)
+		cout<<"error"<<endl;
 	return newbox;
 }
