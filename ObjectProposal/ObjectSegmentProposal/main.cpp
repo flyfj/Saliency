@@ -70,9 +70,9 @@ int main()
 {
 	ObjectProposalTester tester;
 	//tester.TestSegment();
-	//tester.TestViewMatch();
+	tester.TestViewMatch();
 	//tester.TestGraphcut();
-	tester.TestPatchMatcher();
+	//tester.TestPatchMatcher();
 	//tester.TestSuperpixelClf(false);
 	//tester.TestObjSearch();
 	//tester.TestSaliency();

@@ -53,30 +53,6 @@ bool ObjViewMatcher::PrepareDatabase() {
 	return true;
 }
 
-bool ObjViewMatcher::LearnOptimalBinaryCodes(int code_len) {
-	// generate lsh functions
-	lsh_coder.GenerateHashFunctions(25*25, 128, true);
-	// generate random weights for binary codes
-	//lsh_coder.ComputeCodes(cur_obj.visual_desc.img_desc, cur_obj.visual_desc.binary_code);
-	//HashingTools<HashKeyType>::CodesToKey(cur_obj.visual_desc.binary_code, cur_obj.visual_desc.key_value);
-	
-	return true;
-}
-
-float ObjViewMatcher::EvaluateCodeQuality() {
-	float cost = 0;
-	int cnt = 0;
-	// pair-wise mean hamming distance
-	for(size_t i=0; i<obj_db.objects.size(); i++) {
-		for(size_t j=i+1; j<obj_db.objects.size(); j++) {
-			cost += HashingTools<HashKeyType>::HammingDist(obj_db.objects[i].visual_desc.key_value, obj_db.objects[j].visual_desc.key_value);
-			cnt++;
-		}
-	}
-	cost /= cnt;
-	return cost;
-}
-
 bool ObjViewMatcher::ExtractViewFeat(const Mat& color_view, const Mat& dmap_view, Mat& view_feat) {
 
 	Mat gray_view;
@@ -123,6 +99,11 @@ bool ObjViewMatcher::MatchView(const Mat& view_feat, vector<DMatch>& matches) {
 	//	imshow(str, img);
 	//	waitKey(10);
 	//}
+
+	return true;
+}
+
+bool ObjViewMatcher::MatchViewByPatches(const MatFeatureSet& view_maps, vector<DMatch>& matches) {
 
 	return true;
 }
