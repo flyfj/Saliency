@@ -36,9 +36,9 @@ class ObjectProposalTester {
 
 public:
 	ObjectProposalTester() {
-		nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\57.jpg";
-		nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\57_d.png";
-		nyu_gtfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\444_l.png";
+		nyu_cfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\1.jpg";
+		nyu_dfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\1_d.png";
+		nyu_gtfn = "E:\\Datasets\\RGBD_Dataset\\NYU\\Depth2\\1_l.png";
 		
 		uw_cfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\table_small\\table_small_1\\";
 		uw_dfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\table_small\\table_small_1\\";
