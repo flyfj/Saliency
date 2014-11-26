@@ -20,7 +20,7 @@ namespace visualsearch
 
 			//////////////////////////////////////////////////////////////////////////
 
-			bool ObjectRanker::RankSegments(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps, SegmentRankType rtype, vector<int>& orded_sp_ids)
+			bool ObjectRanker::RankSegments(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, SegmentRankType rtype, vector<int>& orded_sp_ids)
 			{
 				if(rtype == SEG_RANK_CC)
 					return RankSegmentsByCC(cimg, sps, orded_sp_ids);
@@ -56,7 +56,7 @@ namespace visualsearch
 
 			// use saliency map to find the best salient segments
 			// multi-scale contrast is used to filter  
-			bool ObjectRanker::RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps, vector<int>& orded_sp_ids)
+			bool ObjectRanker::RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, vector<int>& orded_sp_ids)
 			{
 				bool use_comp = true;
 				// rank by shape first
@@ -79,7 +79,7 @@ namespace visualsearch
 					sal_comp_.Init(SAL_COLOR, cimg, dmap, segmentor.superPixels);
 					for (size_t i=0; i<shape_rank_ids.size(); i++) {
 						int cur_id = shape_rank_ids[i];
-						float score = sal_comp_.Compose(sps[cur_id].box);
+						float score = sal_comp_.Compose(sps[cur_id].visual_data.bbox);
 						//float score = sal_comp_.Compose(sps[cur_id]);// * ((float)sps[i].area / contourArea(sps[i].convex_hull));
 						sp_scores.insert(pair<float,int>(score, cur_id));
 					}
@@ -94,14 +94,15 @@ namespace visualsearch
 					float context_ratios[3] = {1.0, 1.2, 1.3};
 					for (size_t i=0; i<sps.size(); i++)
 					{
-						float mean_obj_score = (float)cv::mean(sal_map, sps[i].mask).val[0];
-						float sum_obj_score = mean_obj_score * sps[i].area;
+						float mean_obj_score = (float)cv::mean(sal_map, sps[i].visual_data.mask).val[0];
+						float sum_obj_score = mean_obj_score * sps[i].visual_data.area;
 						float sum_context_score = 0;
 						float context_scores[3];
 						for(int k=0; k<3; k++) { 
-							ImgWin context_win = tools::ToolFactory::GetContextWin(cimg.cols, cimg.rows, sps[i].box, context_ratios[k]);
+							ImgWin context_win = tools::ToolFactory::GetContextWin(cimg.cols, cimg.rows, sps[i].visual_data.bbox, context_ratios[k]);
 							//cout<<context_win<<endl;
-							context_scores[k] = (cv::mean(sal_map(context_win)).val[0]*context_win.area() - sum_obj_score) / (context_win.area()-sps[i].area);
+							context_scores[k] = (cv::mean(sal_map(context_win)).val[0]*context_win.area() - sum_obj_score) / 
+								(context_win.area()-sps[i].visual_data.area);
 							sum_context_score += context_scores[k];
 						}
 
@@ -110,7 +111,6 @@ namespace visualsearch
 						//sp_scores[total_diff] = i;
 					}
 				}
-
 				orded_sp_ids.clear();
 				orded_sp_ids.reserve(sp_scores.size());
 				for (auto pi=sp_scores.begin(); pi!=sp_scores.end(); pi++) {
@@ -120,7 +120,7 @@ namespace visualsearch
 				return true;
 			}
 
-			bool ObjectRanker::RankSegmentsByCC(const Mat& cimg, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids)
+			bool ObjectRanker::RankSegmentsByCC(const Mat& cimg, const vector<VisualObject>& sps, vector<int>& orded_sp_ids)
 			{
 				map<float, int, greater<float>> sp_scores;
 				for (size_t i=0; i<sps.size(); i++)
@@ -140,13 +140,13 @@ namespace visualsearch
 				return true;
 			}
 
-			bool ObjectRanker::RankSegmentsByShape(const vector<SuperPixel>& sps, vector<int>& ordered_sp_ids) {
+			bool ObjectRanker::RankSegmentsByShape(const vector<VisualObject>& sps, vector<int>& ordered_sp_ids) {
 				int topK = MIN(3000, sps.size());
 				vector<Point2f> order_pairs;
 				order_pairs.reserve(topK);
 
 				for(size_t i=0; i<sps.size(); i++) {
-					float conv_val = sps[i].area*1.f / sps[i].convex_hull_area;
+					float conv_val = sps[i].visual_data.area*1.f / sps[i].visual_data.convex_hull_area;
 					order_pairs.push_back(Point2f(i, conv_val));
 				}
 
@@ -164,7 +164,7 @@ namespace visualsearch
 
 			//////////////////////////////////////////////////////////////////////////
 
-			bool ObjectRanker::ComputeSegmentRankFeature(const Mat& cimg, const Mat& dmap, SuperPixel& sp, Mat& feat)
+			bool ObjectRanker::ComputeSegmentRankFeature(const Mat& cimg, const Mat& dmap, VisualObject& sp, Mat& feat)
 			{
 				vector<float> vals;
 				// geometric features
@@ -173,14 +173,14 @@ namespace visualsearch
 				//sps.push_back(sp);
 				//img_vis_.DrawShapes(cimg, sps);
 				//waitKey(0);
-				vals.push_back((float)sp.area / (sp.mask.rows*sp.mask.cols));	// area percentage
+				vals.push_back((float)sp.visual_data.area / (sp.visual_data.mask.rows*sp.visual_data.mask.cols));	// area percentage
 				//vals.push_back(sp.isConvex);
-				vals.push_back((float)sp.area / sp.box.area());	// segment / box ratio
-				vals.push_back((float)sp.perimeter / (2*(sp.box.width+sp.box.height)));	// segment perimeter / box perimeter ratio
-				vals.push_back((float)sp.centroid.x / cimg.cols);
-				vals.push_back((float)sp.centroid.y / cimg.rows);	// normalized position in image
-				vals.push_back((float)sp.box.width);
-				vals.push_back((float)sp.box.height);
+				vals.push_back((float)sp.visual_data.area / sp.visual_data.bbox.area());	// segment / box ratio
+				vals.push_back((float)sp.visual_data.perimeter / (2*(sp.visual_data.bbox.width+sp.visual_data.bbox.height)));	// segment perimeter / box perimeter ratio
+				vals.push_back((float)sp.visual_data.centroid.x / cimg.cols);
+				vals.push_back((float)sp.visual_data.centroid.y / cimg.rows);	// normalized position in image
+				vals.push_back((float)sp.visual_data.bbox.width);
+				vals.push_back((float)sp.visual_data.bbox.height);
 
 				// saliency features
 				vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.0) );
@@ -194,7 +194,7 @@ namespace visualsearch
 					vals.push_back( cs_contraster.ComputeContrast(cimg, dmap, sp, FEAT_TYPE_DEPTH, 1.2) );
 					vals.push_back( cs_contraster.ComputeContrast(cimg, dmap, sp, FEAT_TYPE_DEPTH, 1.5) );
 					Mat meand;
-					depth_desc_.ComputeMeanDepth(dmap, meand, sp.mask);
+					depth_desc_.ComputeMeanDepth(dmap, meand, sp.visual_data.mask);
 					vals.push_back( meand.at<float>(0) );
 					// TODO: use depth composition cost
 
@@ -339,12 +339,12 @@ namespace visualsearch
 					vector<ImgWin> poswins;
 					for (size_t k=0; k<masks.size(); k++)
 					{
-						SuperPixel cursegment;
-						cursegment.mask = masks[k].visual_desc.mask;
+						VisualObject cursegment;
+						cursegment.visual_data.mask = masks[k].visual_data.mask;
 						segprocessor.ExtractSegmentBasicFeatures(cursegment);
 						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
 						//imwrite(temp_dir + string(str), cursegment.mask*255);
-						poswins.push_back(ImgWin(cursegment.box.x, cursegment.box.y, cursegment.box.width, cursegment.box.height));
+						poswins.push_back(ImgWin(cursegment.visual_data.bbox.x, cursegment.visual_data.bbox.y, cursegment.visual_data.bbox.width, cursegment.visual_data.bbox.height));
 						vector<ImgWin> wins;
 						wins.push_back(poswins[poswins.size()-1]);
 						vector<Mat> feats;
@@ -478,14 +478,14 @@ namespace visualsearch
 					// positive sample: object segments
 					for (size_t k=0; k<masks.size(); k++) {
 						//resize(masks[k], masks[k], newsz);
-						SuperPixel cursegment;
-						cursegment.mask = masks[k].visual_desc.mask;
+						VisualObject cursegment;
+						cursegment.visual_data.mask = masks[k].visual_data.mask;
 						//resize(cursegment.mask, cursegment.mask, newsz);
 						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
 						//imwrite(temp_dir + string(str), cursegment.mask*255);
 						if(test_) {
 							debug_img_.release();
-							cimg.copyTo(debug_img_, cursegment.mask);
+							cimg.copyTo(debug_img_, cursegment.visual_data.mask);
 							imshow("pos", debug_img_);
 							waitKey(0);
 						}
@@ -502,19 +502,19 @@ namespace visualsearch
 						imgsegmentor.m_dThresholdK = seg_ths[k];
 						imgsegmentor.seg_type_ = OVER_SEG_GRAPH;
 						imgsegmentor.DoSegmentation(cimg);
-						vector<SuperPixel>& tsps = imgsegmentor.superPixels;
+						vector<VisualObject>& tsps = imgsegmentor.superPixels;
 
 						// randomly select samples from every segment level
 						random_shuffle(tsps.begin(), tsps.end());
 						for (size_t id=0; id<tsps.size(); id++) {
-							if(tsps[id].area < cimg.rows*cimg.cols*0.005) continue;
+							if(tsps[id].visual_data.area < cimg.rows*cimg.cols*0.005) continue;
 							// check if have large overlap with one of the objects
 							bool isvalid = true;
 							for (size_t j=0; j<masks.size(); j++) {
-								Mat& curmask = masks[j].visual_desc.mask;
+								Mat& curmask = masks[j].visual_data.mask;
 								//resize(masks[j], curmask, newsz);
-								Mat intersectMask = curmask & tsps[id].mask;
-								if( countNonZero(intersectMask)*1.f / countNonZero(curmask | tsps[id].mask) > 0.5 ) {
+								Mat intersectMask = curmask & tsps[id].visual_data.mask;
+								if( countNonZero(intersectMask)*1.f / countNonZero(curmask | tsps[id].visual_data.mask) > 0.5 ) {
 									isvalid = false;
 									break;
 								}
@@ -522,10 +522,10 @@ namespace visualsearch
 							// pass all tests
 							sprintf_s(str, "%d.png", sumnum);
 							if(isvalid) {
-								imwrite(temp_dir + imgfiles[i].filename + "_" + string(str), tsps[id].mask*255);
+								imwrite(temp_dir + imgfiles[i].filename + "_" + string(str), tsps[id].visual_data.mask*255);
 								if(test_) {
 									debug_img_.release();
-									cimg.copyTo(debug_img_, tsps[id].mask);
+									cimg.copyTo(debug_img_, tsps[id].visual_data.mask);
 									imshow("neg", debug_img_);
 									waitKey(0);
 								}

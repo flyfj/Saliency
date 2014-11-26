@@ -2,12 +2,8 @@
 
 #pragma once
 
-#include "Common/common_libs.h"
-#include "Features/Feature3D.h"
+#include "stdafx.h"
 #include "ObjectRanker.h"
-#include "Processors/Segmentation/ImageSegmentor.h"
-#include "Processors/Attention/SaliencyComputer.h"
-#include "Learners/RandomTrees/DecisionTree.h"
 using namespace visualsearch;
 using namespace visualsearch::features;
 using namespace visualsearch::processors::attention;

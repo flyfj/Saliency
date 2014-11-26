@@ -6,27 +6,17 @@
 
 #pragma once
 
+#include "stdafx.h"
 #include "ObjectRanker.h"
 #include "ObjProposalDemo.h"
-#include "Common/common_libs.h"
-#include "IO/Dataset/RGBDECCV14.h"
-#include "Common/Tools/RGBDTools.h"
-#include "Features/Color/ColorDescriptors.h"
-#include "IO/Dataset/Berkeley3DDataManager.h"
-#include "Processors/Segmentation/ImageSegmentor.h"
-#include "Processors/Segmentation/SegmentProcessor.h"
-#include "Processors\Segmentation\Segmentor3D.h"
 #include "ObjSegmentProposal.h"
-#include "Learners/RandomTrees/DecisionTree.h"
-#include <Eigen/Eigen>
 #include "ObjViewMatcher.h"
-#include "Processors/Attention/SaliencyComputer.h"
-#include "Processors/Segmentation/PointSegmentator.h"
 #include "ObjectSearcher.h"
 #include "SuperpixelClf.h"
 #include "ObjPatchMatcher.h"
 
 using namespace visualsearch;
+using namespace visualsearch::common;
 using namespace visualsearch::io;
 using namespace visualsearch::processors;
 using namespace visualsearch::processors::attention;
