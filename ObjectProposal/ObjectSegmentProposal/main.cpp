@@ -1,6 +1,5 @@
 // ObjectSegmentProposal.cpp : Defines the entry point for the console application.
 //
-#include "Features/Feature3D.h"
 #include "ObjectProposalTester.h"
 
 #include "ObjSegmentProposal.h"
@@ -32,19 +31,20 @@
 #pragma comment(lib, "opencv_nonfree249d.lib")
 #pragma comment(lib, "opencv_objdetect249d.lib")
 #pragma comment(lib, "opencv_flann249d.lib")
+#pragma comment(lib, "EngineLib_debug.lib")
 
 #else
-#pragma comment(lib, "pcl_common_release.lib")
-#pragma comment(lib, "pcl_features_release.lib")
-#pragma comment(lib, "pcl_filters_release.lib")
-#pragma comment(lib, "pcl_visualization_release.lib")
-#pragma comment(lib, "pcl_search_release.lib")
-#pragma comment(lib, "pcl_kdtree_release.lib")
-#pragma comment(lib, "pcl_keypoints_release.lib")
-#pragma comment(lib, "pcl_registration_release.lib")
-#pragma comment(lib, "pcl_io_release.lib")
-#pragma comment(lib, "pcl_ml_release.lib")
-#pragma comment(lib, "pcl_recognition_release.lib")
+//#pragma comment(lib, "pcl_common_release.lib")
+//#pragma comment(lib, "pcl_features_release.lib")
+//#pragma comment(lib, "pcl_filters_release.lib")
+//#pragma comment(lib, "pcl_visualization_release.lib")
+//#pragma comment(lib, "pcl_search_release.lib")
+//#pragma comment(lib, "pcl_kdtree_release.lib")
+//#pragma comment(lib, "pcl_keypoints_release.lib")
+//#pragma comment(lib, "pcl_registration_release.lib")
+//#pragma comment(lib, "pcl_io_release.lib")
+//#pragma comment(lib, "pcl_ml_release.lib")
+//#pragma comment(lib, "pcl_recognition_release.lib")
 #pragma comment(lib, "opencv_core249.lib")
 #pragma comment(lib, "opencv_imgproc249.lib")
 #pragma comment(lib, "opencv_highgui249.lib")
@@ -53,6 +53,8 @@
 #pragma comment(lib, "opencv_nonfree249.lib")
 #pragma comment(lib, "opencv_objdetect249.lib")
 #pragma comment(lib, "opencv_flann249.lib")
+#pragma comment(lib, "EngineLib_release.lib")
+
 #endif
 
 //#pragma comment(lib, "vtkCommonCore-6.1.lib")

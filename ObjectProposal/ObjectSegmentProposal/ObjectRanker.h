@@ -8,22 +8,7 @@
 
 #include <memory>
 
-#include "Processors/Attention/Composition/SalientRGBDRegionDetector.h"
-#include "Processors/Segmentation/SegmentProcessor.h"
-#include "Common/common_libs.h"
-#include "Common/tools/Tools.h"
-#include "Common/tools/ImgVisualizer.h"
-#include "Processors/Segmentation/ImageSegmentor.h"
-#include "Features/Color/ColorDescriptors.h"
-#include "Features/DepthDescriptors.h"
-#include "IO/Dataset/NYUDepth2DataMan.h"
-#include "IO/Dataset/RGBDECCV14.h"
-#include "Processors/Segmentation/ImageSegmentor.h"
-#include "Processors/Attention/SaliencyComputer.h"
-#include "Processors/Attention/CenterSurroundFeatureContraster.h"
-#include "Processors/ShapeAnalyzer.h"
-#include "Learners/LearnerTools.h"
-#include "Learners/RandomTrees/RandomForest.hpp"
+#include "stdafx.h"
 
 
 namespace visualsearch {
@@ -54,21 +39,21 @@ namespace visualsearch {
 
 				bool RankWindowsBySaliency(const Mat& cimg, vector<ImgWin>& wins, vector<int>& ordered_win_ids);
 
-				bool RankSegments(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps, SegmentRankType rtype, vector<int>& orded_sp_ids);
+				bool RankSegments(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, SegmentRankType rtype, vector<int>& orded_sp_ids);
 
 				bool RankWindows(const Mat& cimg, const Mat& dmap, const vector<ImgWin>& wins, vector<int>& orded_win_ids);
 
 			private:
 				// hand-craft rank methods
-				bool RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps, vector<int>& orded_sp_ids);
+				bool RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, vector<int>& orded_sp_ids);
 
-				bool RankSegmentsByCC(const Mat& cimg, const vector<SuperPixel>& sps, vector<int>& orded_sp_ids);
+				bool RankSegmentsByCC(const Mat& cimg, const vector<VisualObject>& sps, vector<int>& orded_sp_ids);
 
-				bool RankSegmentsByShape(const vector<SuperPixel>& sps, vector<int>& ordered_sp_ids);
+				bool RankSegmentsByShape(const vector<VisualObject>& sps, vector<int>& ordered_sp_ids);
 
 				//////////////////////////////////////////////////////////////////////////
 
-				bool ComputeSegmentRankFeature(const Mat& cimg, const Mat& dmap, SuperPixel& sp, Mat& feat);
+				bool ComputeSegmentRankFeature(const Mat& cimg, const Mat& dmap, VisualObject& sp, Mat& feat);
 
 				bool ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, vector<ImgWin>& wins, vector<Mat>& feats);
 				

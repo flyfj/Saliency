@@ -13,15 +13,6 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
-    <Filter Include="Library">
-      <UniqueIdentifier>{ba53245a-f7a7-4727-89f2-11f1374b3999}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Library\segmentation">
-      <UniqueIdentifier>{cc77734b-77a4-4fef-a0ce-449cd590c5c5}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Library\others">
-      <UniqueIdentifier>{145325b7-7f6b-4a43-b33b-8a8ed8d68e4b}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -39,79 +30,19 @@
     <ClInclude Include="ObjProposalDemo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\ImageSegmentor.h">
-      <Filter>Library\segmentation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\IterativeSegmentor.h">
-      <Filter>Library\segmentation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SegmentProcessor.h">
-      <Filter>Library\segmentation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\BingObjectness.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\CmFile.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\CmShow.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\CmTimer.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\common_bing.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\common_libs.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\DataSetVOC.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\FilterTIG.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\ImgContrastBB.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\Objectness.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\ValStructVec.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\DataManagerInterface.h">
-      <Filter>Library\others</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.h">
-      <Filter>Library\segmentation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.h">
-      <Filter>Library\segmentation</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Feature3D.h">
-      <Filter>Library\segmentation</Filter>
-    </ClInclude>
     <ClInclude Include="ObjectProposalTester.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ObjViewMatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\Segmentor3D.h">
-      <Filter>Library\segmentation</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectSearcher.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="SuperpixelClf.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\PointSegmentator.h">
-      <Filter>Library\segmentation</Filter>
-    </ClInclude>
     <ClInclude Include="ObjPatchMatcher.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -128,160 +59,19 @@
     <ClCompile Include="ObjProposalDemo.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\ImageSegmentor.cpp">
-      <Filter>Library\segmentation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SegmentProcessor.cpp">
-      <Filter>Library\segmentation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\BingObjectness.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\CmFile.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\CmShow.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Color\ColorDescriptors.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\common_bing.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\DataSetVOC.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\blas\daxpy.c">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\blas\ddot.c">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\blas\dnrm2.c">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\blas\dscal.c">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Texture\EdgeHistogram.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\FilterTIG.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\GlobalContrastSaliency.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\ImgVisualizer.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Camera\KinectDataMan.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Bing\Objectness.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Camera\Kinect\OpenCVFrameHelper.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\SaliencyComputer.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\tron.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\LibLinear\linear.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\DatasetIO.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\DepthDescriptors.cpp">
-      <Filter>Library\segmentation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\RGBDTools.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\RandomTrees\DecisionTree.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\SVM\jsvm.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Geodesic\GeodesicSaliencyDetector.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Geodesic\BGMapExtractor_Grid.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\IterativeSegmentor.cpp">
-      <Filter>Library\segmentation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Common\Tools\Tools.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\ShapeAnalyzer.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\NYUDepth2DataMan.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\RGBDECCV14.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Learners\LearnerTools.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\CenterSurroundFeatureContraster.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Composition\SalientRGBDRegionDetector.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Attention\Composition\SegmentBasedWindowComposer.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\SLIC.cpp">
-      <Filter>Library\segmentation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Features\Feature3D.cpp">
-      <Filter>Library\segmentation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\IO\Dataset\Berkeley3DDataManager.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
     <ClCompile Include="ObjectProposalTester.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ObjViewMatcher.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Search\Hashing\LSHCoder.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\Segmentor3D.cpp">
-      <Filter>Library\segmentation</Filter>
-    </ClCompile>
-    <ClCompile Include="ObjectSearcher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="SuperpixelClf.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\Segmentation\PointSegmentor.cpp">
-      <Filter>Library\segmentation</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\DescriptorDictGenerator.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Processors\AKMeans.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\VisualSearchEngine\VisualSearchEngine\Engine\Search\Searcher.cpp">
-      <Filter>Library\others</Filter>
-    </ClCompile>
     <ClCompile Include="ObjPatchMatcher.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
