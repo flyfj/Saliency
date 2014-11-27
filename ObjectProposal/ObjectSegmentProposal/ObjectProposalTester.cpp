@@ -102,8 +102,8 @@ void ObjectProposalTester::TestObjSearch() {
 	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
 	resize(dmap, dmap, newsz);
 
-	ObjectSearcher searcher;
-	searcher.SplitSearch(cimg, dmap);
+	//ObjectSearcher searcher;
+	//searcher.SplitSearch(cimg, dmap);
 }
 
 void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
@@ -127,103 +127,103 @@ void ObjectProposalTester::TestSuperpixelClf(bool ifTrain) {
 	return;*/
 
 
-	SuperpixelClf sp_clf;
-	sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL | SP_DEPTH);
+	//SuperpixelClf sp_clf;
+	//sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL | SP_DEPTH);
 
-	if(ifTrain) {
-		sp_clf.Train(DB_NYU2_RGBD);
-	}
-	else {
+	//if(ifTrain) {
+	//	sp_clf.Train(DB_NYU2_RGBD);
+	//}
+	//else {
 
-		sp_clf.Predict(cimg, dmap);
-		return;
+	//	sp_clf.Predict(cimg, dmap);
+	//	return;
 
-		// show superpixel predictions from different images
-		SegmentProcessor sp_proc;
-		sp_proc.Init(cimg, dmap);
+	//	// show superpixel predictions from different images
+	//	SegmentProcessor sp_proc;
+	//	sp_proc.Init(cimg, dmap);
 
-		ImageSegmentor img_seg;
-		img_seg.m_dThresholdK = 30;
-		img_seg.m_dMinArea = 100;
-		img_seg.seg_type_ = OVER_SEG_GRAPH;
-		img_seg.DoSegmentation(cimg);
-		imshow("seg", img_seg.m_segImg);
+	//	ImageSegmentor img_seg;
+	//	img_seg.m_dThresholdK = 30;
+	//	img_seg.m_dMinArea = 100;
+	//	img_seg.seg_type_ = OVER_SEG_GRAPH;
+	//	img_seg.DoSegmentation(cimg);
+	//	imshow("seg", img_seg.m_segImg);
 
-		srand(time(NULL));
-		map<int, vector<int>> sp_gt_ids;
-		for (size_t i=0; i<img_seg.superPixels.size(); i++) {
-			sp_proc.ExtractSegmentBasicFeatures(img_seg.superPixels[i]);
-			int label = gtmap.at<int>(img_seg.superPixels[i].centroid);
-			sp_gt_ids[label].push_back(i);
-		}
-		// classification
-		sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
-		vector<vector<double>> scores(img_seg.superPixels.size());
-		for(size_t i=0; i<img_seg.superPixels.size(); i++) {
-			SuperPixel& cur_sp = img_seg.superPixels[i];
-			Mat feat;
-			sp_proc.ExtractSegmentVisualFeatures(cur_sp, SP_COLOR | SP_TEXTURE | SP_NORMAL, feat);
-			//sp_clf.Predict(feat, scores[i]);
-		}
+	//	srand(time(NULL));
+	//	map<int, vector<int>> sp_gt_ids;
+	//	for (size_t i=0; i<img_seg.superPixels.size(); i++) {
+	//		sp_proc.ExtractSegmentBasicFeatures(img_seg.superPixels[i]);
+	//		int label = gtmap.at<int>(img_seg.superPixels[i].centroid);
+	//		sp_gt_ids[label].push_back(i);
+	//	}
+	//	// classification
+	//	sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
+	//	vector<vector<double>> scores(img_seg.superPixels.size());
+	//	for(size_t i=0; i<img_seg.superPixels.size(); i++) {
+	//		SuperPixel& cur_sp = img_seg.superPixels[i];
+	//		Mat feat;
+	//		sp_proc.ExtractSegmentVisualFeatures(cur_sp, SP_COLOR | SP_TEXTURE | SP_NORMAL, feat);
+	//		//sp_clf.Predict(feat, scores[i]);
+	//	}
 
-		return;
+	//	return;
 
-		// compute pair-wise distance
-		Mat adj_mat;
-		img_seg.ComputeAdjacencyMat(img_seg.superPixels, adj_mat);
-		Mat sp_dist(img_seg.superPixels.size(), img_seg.superPixels.size(), CV_32F);
-		for(int r=0; r<sp_dist.rows; r++) for(int c=r; c<sp_dist.cols; c++) {
-			sp_dist.at<float>(r,c) = sp_dist.at<float>(c,r) = SuperpixelClf::LabelDistributionDist(scores[r], scores[c]);
-			/*if(c==r) { sp_dist.at<float>(r, r) = 0; continue; }
-			if(adj_mat.at<int>(r,c) > 0) {
-			sp_dist.at<float>(r,c) = sp_dist.at<float>(c,r) = SuperpixelClf::LabelDistributionDist(scores[r], scores[c]);
-			cout<<"dist: "<<sp_dist.at<float>(r,c)<<endl;
-			}
-			else
-			sp_dist.at<float>(r,c) = sp_dist.at<float>(c,r) = 9999999.f;*/
-		}
+	//	// compute pair-wise distance
+	//	Mat adj_mat;
+	//	img_seg.ComputeAdjacencyMat(img_seg.superPixels, adj_mat);
+	//	Mat sp_dist(img_seg.superPixels.size(), img_seg.superPixels.size(), CV_32F);
+	//	for(int r=0; r<sp_dist.rows; r++) for(int c=r; c<sp_dist.cols; c++) {
+	//		sp_dist.at<float>(r,c) = sp_dist.at<float>(c,r) = SuperpixelClf::LabelDistributionDist(scores[r], scores[c]);
+	//		/*if(c==r) { sp_dist.at<float>(r, r) = 0; continue; }
+	//		if(adj_mat.at<int>(r,c) > 0) {
+	//		sp_dist.at<float>(r,c) = sp_dist.at<float>(c,r) = SuperpixelClf::LabelDistributionDist(scores[r], scores[c]);
+	//		cout<<"dist: "<<sp_dist.at<float>(r,c)<<endl;
+	//		}
+	//		else
+	//		sp_dist.at<float>(r,c) = sp_dist.at<float>(c,r) = 9999999.f;*/
+	//	}
 
-		Mat geo_dist;
-		//PointSegmentor::ComputeFloydWarshall(sp_dist, geo_dist);
+	//	Mat geo_dist;
+	//	//PointSegmentor::ComputeFloydWarshall(sp_dist, geo_dist);
 
-		while(1) {
-			int sp_id = rand() % img_seg.superPixels.size();
-			vector<SuperPixel> sps;
-			sps.push_back(img_seg.superPixels[sp_id]);
-			ImgVisualizer::DrawShapes(cimg, sps, Mat(), false);
-			Mat obj_map(cimg.rows, cimg.cols, CV_32F);
-			obj_map.setTo(0);
+	//	while(1) {
+	//		int sp_id = rand() % img_seg.superPixels.size();
+	//		vector<SuperPixel> sps;
+	//		sps.push_back(img_seg.superPixels[sp_id]);
+	//		ImgVisualizer::DrawShapes(cimg, sps, Mat(), false);
+	//		Mat obj_map(cimg.rows, cimg.cols, CV_32F);
+	//		obj_map.setTo(0);
 
-			for (size_t i=0; i<img_seg.superPixels.size(); i++) {
-				obj_map.setTo(sp_dist.at<float>(sp_id, i), img_seg.superPixels[i].mask);
-			}
-			normalize(obj_map, obj_map, 1, 0, NORM_MINMAX);
-			obj_map = 1 - obj_map;
-			ImgVisualizer::DrawFloatImg("dist map", obj_map);
-			if( waitKey(0) == 'q' )
-				break;
-		}
-		
-		//int sel_label = 19;
-		//ofstream out("sp_pred_19.txt");
-		//sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
-		//for(size_t i=0; i<sp_gt_ids[sel_label].size(); i++) {
-		//	int seg_id = sp_gt_ids[sel_label][i];
-		//	SuperPixel& cur_sp = img_seg.superPixels[seg_id];
-		//	imshow("mask1", cur_sp.mask*255);
-		//	vector<double> scores;
-		//	
-		//	Mat feat;
-		//	sp_proc.ExtractSegmentVisualFeatures(cur_sp, SP_COLOR | SP_TEXTURE | SP_NORMAL, feat);
-		//	sp_clf.Predict(feat, scores);
-		//	// output results
-		//	for(size_t i=0; i<scores.size(); i++) {
-		//		out<<scores[i]<<" ";
-		//	}
-		//	out<<endl;
-		//}
-		
-	}
+	//		for (size_t i=0; i<img_seg.superPixels.size(); i++) {
+	//			obj_map.setTo(sp_dist.at<float>(sp_id, i), img_seg.superPixels[i].mask);
+	//		}
+	//		normalize(obj_map, obj_map, 1, 0, NORM_MINMAX);
+	//		obj_map = 1 - obj_map;
+	//		ImgVisualizer::DrawFloatImg("dist map", obj_map);
+	//		if( waitKey(0) == 'q' )
+	//			break;
+	//	}
+	//	
+	//	//int sel_label = 19;
+	//	//ofstream out("sp_pred_19.txt");
+	//	//sp_clf.Init(SP_COLOR | SP_TEXTURE | SP_NORMAL);
+	//	//for(size_t i=0; i<sp_gt_ids[sel_label].size(); i++) {
+	//	//	int seg_id = sp_gt_ids[sel_label][i];
+	//	//	SuperPixel& cur_sp = img_seg.superPixels[seg_id];
+	//	//	imshow("mask1", cur_sp.mask*255);
+	//	//	vector<double> scores;
+	//	//	
+	//	//	Mat feat;
+	//	//	sp_proc.ExtractSegmentVisualFeatures(cur_sp, SP_COLOR | SP_TEXTURE | SP_NORMAL, feat);
+	//	//	sp_clf.Predict(feat, scores);
+	//	//	// output results
+	//	//	for(size_t i=0; i<scores.size(); i++) {
+	//	//		out<<scores[i]<<" ";
+	//	//	}
+	//	//	out<<endl;
+	//	//}
+	//	
+	//}
 }
 
 float ObjectProposalTester::ComputeSaliencyMapEntropy(const Mat& sal_map) {
@@ -353,6 +353,12 @@ void ObjectProposalTester::BatchProposal() {
 
 }
 
+void ObjectProposalTester::ProposalDemo() {
+	ObjProposalDemo demo;
+	demo.RunVideoDemo(SENSOR_CAMERA, DEMO_OBJECT_SEG);
+
+}
+
 void ObjectProposalTester::TestSegmentor3D() {
 
 	char str[100];
@@ -403,7 +409,7 @@ void ObjectProposalTester::TestSegmentor3D() {
 		ImgVisualizer::DrawFloatImg("dmap", dmap);
 
 		objectproposal::ObjSegmentProposal seg_prop;
-		vector<SuperPixel> sps;
+		vector<VisualObject> sps;
 		seg_prop.Run(cimg, dmap, -1, sps);
 
 		vector<Point2f> cur_pr;
@@ -466,19 +472,19 @@ void ObjectProposalTester::TestSegmentor3D() {
 }
 
 void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {
-	Segmentor3D seg_3d;
+	/*Segmentor3D seg_3d;
 	if(ifTrain)
-		seg_3d.TrainBoundaryDetector(DB_NYU2_RGBD);
+	seg_3d.TrainBoundaryDetector(DB_NYU2_RGBD);
 	else {
-		Mat cimg = imread(nyu_cfn);
-		Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
-		dmap.convertTo(dmap, CV_32F);
+	Mat cimg = imread(nyu_cfn);
+	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	dmap.convertTo(dmap, CV_32F);
 
-		imshow("cimg", cimg);
-		ImgVisualizer::DrawFloatImg("dmap", dmap);
+	imshow("cimg", cimg);
+	ImgVisualizer::DrawFloatImg("dmap", dmap);
 
-		seg_3d.RunBoundaryDetection(cimg, dmap, Mat());
-	}
+	seg_3d.RunBoundaryDetection(cimg, dmap, Mat());
+	}*/
 }
 
 bool ObjectProposalTester::LoadNYU20Masks(FileInfo imgfn, vector<Mat>& gt_masks) {
@@ -585,7 +591,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 #endif
 
-	mkdir(save_dir.c_str());
+	_mkdir(save_dir.c_str());
 
 	vector<vector<Point2f>> all_prs_05(imgfns.size());
 	vector<vector<Point2f>> all_prs_06(imgfns.size());
@@ -634,7 +640,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 		//ImgVisualizer::DrawFloatImg("mask", cur_gts[0]);
 
 		objectproposal::ObjSegmentProposal seg_prop;
-		vector<SuperPixel> sps;
+		vector<VisualObject> sps;
 		double start_t = getTickCount();
 		seg_prop.Run(cimg, dmap, -1, sps);
 		cout<<"Process time: "<<(getTickCount()-start_t)/getTickFrequency()<<"s."<<endl;
@@ -647,9 +653,9 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 			char str[30];
 			sprintf_s(str, "_%d.png", id);
 			string save_sub_dir = save_dir + imgfns[i].filename + "\\";
-			mkdir(save_sub_dir.c_str());
+			_mkdir(save_sub_dir.c_str());
 			string savefn = save_sub_dir + string(str);
-			imwrite(savefn, sps[id].mask*255);
+			imwrite(savefn, sps[id].visual_data.mask*255);
 		}
 
 		//continue;
@@ -662,7 +668,7 @@ void ObjectProposalTester::EvaluateOnDataset(DatasetName db_name) {
 
 		// save best results
 		for(size_t k=0; k<best_overlap.size(); k++) {
-			vector<SuperPixel> show_sps;
+			vector<VisualObject> show_sps;
 			show_sps.push_back(sps[best_overlap[k].y]);
 			Mat resimg;
 			ImgVisualizer::DrawShapes(cimg, show_sps, resimg, false);
@@ -766,16 +772,16 @@ void ObjectProposalTester::Build3DPCL(DatasetName db_name) {
 }
 
 void ObjectProposalTester::TestViewMatch() {
-	ObjViewMatcher matcher;
-	matcher.PrepareDatabase();
+	//ObjViewMatcher matcher;
+	//matcher.PrepareDatabase();
 
-	Mat cimg = imread(uw_cfn + "table_small_1_45.png");
-	Size newsz;
-	ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
-	resize(cimg, cimg, newsz);
-	//Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
+	//Mat cimg = imread(uw_cfn + "table_small_1_45.png");
+	//Size newsz;
+	//ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+	//resize(cimg, cimg, newsz);
+	////Mat dmap = imread(uw_dfn, CV_LOAD_IMAGE_UNCHANGED);
 
-	matcher.SearchImage(cimg, Mat());
+	//matcher.SearchImage(cimg, Mat());
 
 	/*string queryfn = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-obj-dataset\\rgbd-dataset\\orange\\orange_1\\orange_1_1_1_crop.png";
 	Mat view = imread(queryfn);
@@ -796,67 +802,67 @@ void ObjectProposalTester::TestPatchMatcher() {
 	imshow("color", cimg);
 	ImgVisualizer::DrawFloatImg("dmap", dmap);
 
-	Mat scoremap;
-	ObjPatchMatcher pmatcher;
-	pmatcher.use_depth = true;
-	pmatcher.use_code = false;
-	pmatcher.patch_size = Size(11, 11);
-	//pmatcher.PrepareViewPatchDB();
-	//pmatcher.MatchViewPatch(cimg, Mat());
-	pmatcher.PreparePatchDB(DB_NYU2_RGBD);
-	pmatcher.Match(cimg, dmap, scoremap);
-	ImgVisualizer::DrawFloatImg("scoremap", scoremap);
-	imshow("cimg", cimg);
-	waitKey(0);
+	//Mat scoremap;
+	//ObjPatchMatcher pmatcher;
+	//pmatcher.use_depth = true;
+	//pmatcher.use_code = false;
+	//pmatcher.patch_size = Size(11, 11);
+	////pmatcher.PrepareViewPatchDB();
+	////pmatcher.MatchViewPatch(cimg, Mat());
+	//pmatcher.PreparePatchDB(DB_NYU2_RGBD);
+	//pmatcher.Match(cimg, dmap, scoremap);
+	//ImgVisualizer::DrawFloatImg("scoremap", scoremap);
+	//imshow("cimg", cimg);
+	//waitKey(0);
 
-	return;
+	//return;
 
-	// do segmentation
-	float ths[] = {0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.3f, 0.2f};
-	for(size_t i=0; i<8; i++) {
-		Mat th_mask;
-		threshold(scoremap, th_mask, ths[i], 1, CV_THRESH_BINARY);
-		th_mask.convertTo(th_mask, CV_8U);
-		imshow("th mask", th_mask*255);
-		waitKey(0);
-		if(countNonZero(th_mask) == 0) {
-			cerr<<"no fg points found."<<endl;
-			continue;
-		}
+	//// do segmentation
+	//float ths[] = {0.9f, 0.8f, 0.7f, 0.6f, 0.5f, 0.4f, 0.3f, 0.2f};
+	//for(size_t i=0; i<8; i++) {
+	//	Mat th_mask;
+	//	threshold(scoremap, th_mask, ths[i], 1, CV_THRESH_BINARY);
+	//	th_mask.convertTo(th_mask, CV_8U);
+	//	imshow("th mask", th_mask*255);
+	//	waitKey(0);
+	//	if(countNonZero(th_mask) == 0) {
+	//		cerr<<"no fg points found."<<endl;
+	//		continue;
+	//	}
 
-		ImageSegmentor img_segmentor;
-		img_segmentor.m_dMinArea = 30;
-		img_segmentor.m_dThresholdK = 30;
-		img_segmentor.seg_type_ = OVER_SEG_GRAPH;
-		img_segmentor.DoSegmentation(cimg);
-		Mat markers(scoremap.size(), CV_32S);
-		markers = Scalar::all(0);
-		int cnt = 1;
-		vector<bool> valid_sps(img_segmentor.superPixels.size(), false);
-		// take superpixel with contour points as initial region
-		for(int r=0; r<th_mask.rows; r++) for(int c=0; c<th_mask.cols; c++) {
-			if(th_mask.at<uchar>(r,c) > 0) {
-				int cur_id = img_segmentor.m_idxImg.at<int>(r,c);
-				if(!valid_sps[cur_id]) {
-					markers.setTo(cnt, img_segmentor.superPixels[cur_id].mask);
-					valid_sps[cur_id] = true;
-					cnt++;
-				}
-			}
-		}
-		ImgVisualizer::DrawFloatImg("markers", markers);
-		waitKey(0);
+	//	ImageSegmentor img_segmentor;
+	//	img_segmentor.m_dMinArea = 30;
+	//	img_segmentor.m_dThresholdK = 30;
+	//	img_segmentor.seg_type_ = OVER_SEG_GRAPH;
+	//	img_segmentor.DoSegmentation(cimg);
+	//	Mat markers(scoremap.size(), CV_32S);
+	//	markers = Scalar::all(0);
+	//	int cnt = 1;
+	//	vector<bool> valid_sps(img_segmentor.superPixels.size(), false);
+	//	// take superpixel with contour points as initial region
+	//	for(int r=0; r<th_mask.rows; r++) for(int c=0; c<th_mask.cols; c++) {
+	//		if(th_mask.at<uchar>(r,c) > 0) {
+	//			int cur_id = img_segmentor.m_idxImg.at<int>(r,c);
+	//			if(!valid_sps[cur_id]) {
+	//				markers.setTo(cnt, img_segmentor.superPixels[cur_id].mask);
+	//				valid_sps[cur_id] = true;
+	//				cnt++;
+	//			}
+	//		}
+	//	}
+	//	ImgVisualizer::DrawFloatImg("markers", markers);
+	//	waitKey(0);
 
-		vector<SuperPixel> sps;
-		RunWatershed(cimg, markers, cnt, sps);
-		for(size_t j=0; j<sps.size(); j++) {
-			Mat disp_img = Mat::zeros(cimg.rows, cimg.cols, CV_8UC3);
-			imshow("sp mask", sps[j].mask*255);
-			cimg.copyTo(disp_img, sps[j].mask);
-			imshow("disp", disp_img);
-			waitKey(0);
-		}
-	}
+	//	vector<SuperPixel> sps;
+	//	RunWatershed(cimg, markers, cnt, sps);
+	//	for(size_t j=0; j<sps.size(); j++) {
+	//		Mat disp_img = Mat::zeros(cimg.rows, cimg.cols, CV_8UC3);
+	//		imshow("sp mask", sps[j].mask*255);
+	//		cimg.copyTo(disp_img, sps[j].mask);
+	//		imshow("disp", disp_img);
+	//		waitKey(0);
+	//	}
+	//}
 }
 
 void ObjectProposalTester::TestGraphcut() {
@@ -874,15 +880,15 @@ void ObjectProposalTester::TestGraphcut() {
 	imshow("seg", img_segmentor.m_segImg);
 
 	srand(time(0));
-	vector<SuperPixel>& sps = img_segmentor.superPixels;
+	vector<VisualObject>& sps = img_segmentor.superPixels;
 	while(1) {
 		random_shuffle(sps.begin(), sps.end());
 		Mat fg_mask(cimg.rows, cimg.cols, CV_8U);
 		fg_mask.setTo(GC_PR_FGD);
-		fg_mask.setTo(GC_PR_BGD, sps[1].mask);
-		fg_mask.setTo(GC_FGD, sps[0].mask);
+		fg_mask.setTo(GC_PR_BGD, sps[1].visual_data.mask);
+		fg_mask.setTo(GC_FGD, sps[0].visual_data.mask);
 		for(size_t i=0; i<sps.size(); i++) {
-			if(sps[i].boundary) fg_mask.setTo(GC_BGD, sps[i].mask);
+			if(sps[i].visual_data.is_boundary) fg_mask.setTo(GC_BGD, sps[i].visual_data.mask);
 		}
 		ImgVisualizer::DrawFloatImg("init mask", fg_mask);
 		waitKey(0);
@@ -901,7 +907,7 @@ void ObjectProposalTester::TestGraphcut() {
 
 }
 
-void ObjectProposalTester::RunWatershed(const Mat& cimg, Mat& markers, int region_num, vector<SuperPixel>& sps) {
+void ObjectProposalTester::RunWatershed(const Mat& cimg, Mat& markers, int region_num, vector<VisualObject>& sps) {
 	
 	// markers contains positive labels for each superpixel
 	if(markers.depth() != CV_32S) return;
@@ -910,12 +916,12 @@ void ObjectProposalTester::RunWatershed(const Mat& cimg, Mat& markers, int regio
 	sps.clear();
 	sps.resize(region_num);
 	for(size_t i=0; i<sps.size(); i++) {
-		sps[i].mask = Mat::zeros(cimg.rows, cimg.cols, CV_8U);
+		sps[i].visual_data.mask = Mat::zeros(cimg.rows, cimg.cols, CV_8U);
 	}
 	for(int r=0; r<markers.rows; r++) {
 		for(int c=0; c<markers.cols; c++) {
 			if(markers.at<int>(r,c) == -1) continue;
-			sps[markers.at<int>(r,c)-1].mask.at<uchar>(r,c) = 1;
+			sps[markers.at<int>(r,c)-1].visual_data.mask.at<uchar>(r,c) = 1;
 		}
 	}
 

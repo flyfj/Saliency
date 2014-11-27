@@ -2,16 +2,8 @@
 
 #pragma once
 
-#include "Common/common_libs.h"
-#include "Common/Tools/Tools.h"
-#include "Search/Searcher.h"
-#include "Features/Feature3D.h"
-#include "Learners/RandomTrees/DecisionTree.h"
-#include "IO/Dataset/NYUDepth2DataMan.h"
-#include "IO/Dataset/RGBDECCV14.h"
-#include "Common/Tools/ImgVisualizer.h"
-#include "Search/Hashing/LSHCoder.h"
-//#include "Processors/Segmentation/ObjectSegmentor.h"
+#include "stdafx.h"
+
 using namespace visualsearch;
 using namespace visualsearch::features;
 using namespace visualsearch::common;

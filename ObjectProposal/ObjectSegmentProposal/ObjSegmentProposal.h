@@ -6,12 +6,8 @@
 
 #pragma once
 
-#include "Processors\Segmentation\IterativeSegmentor.h"
-#include "Processors\Segmentation\SegmentProcessor.h"
-#include "Processors\Segmentation\Segmentor3D.h"
-#include "Common\common_libs.h"
+#include "stdafx.h"
 #include "ObjectRanker.h"
-#include "Common/Tools/RGBDTools.h"
 
 namespace objectproposal
 {
@@ -23,24 +19,24 @@ namespace objectproposal
 	public:
 		ObjSegmentProposal(void);
 
-		bool Run(const Mat& cimg, const Mat& dmap, int topK, vector<SuperPixel>& res);
+		bool Run(const Mat& cimg, const Mat& dmap, int topK, vector<VisualObject>& res);
 
-		bool GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps);
-		bool GetCandidatesFromSegment3D(const Mat& cimg, const Mat& dmap, vector<SuperPixel>& sps);
+		bool GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps);
+		//bool GetCandidatesFromSegment3D(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps);
 
 		//////////////////////////////////////////////////////////////////////////
 
-		bool VisProposals(const Mat& cimg, const vector<SuperPixel>& res);
+		bool VisProposals(const Mat& cimg, const vector<VisualObject>& res);
 
 		//////////////////////////////////////////////////////////////////////////
 		// evaluation
-		void ComputePRCurves(const vector<SuperPixel>& ranked_objs, const vector<Mat>& gt_masks, float cover_th, 
+		void ComputePRCurves(const vector<VisualObject>& ranked_objs, const vector<Mat>& gt_masks, float cover_th, 
 			vector<Point2f>& pr_vals, vector<Point3f>& best_overlap, bool seg_or_win = true);
 
 	private:
 		visualsearch::processors::segmentation::IterativeSegmentor iter_segmentor;
 		visualsearch::processors::attention::ObjectRanker seg_ranker;
-		Segmentor3D seg3d;
+		//Segmentor3D seg3d;
 	};
 }
 

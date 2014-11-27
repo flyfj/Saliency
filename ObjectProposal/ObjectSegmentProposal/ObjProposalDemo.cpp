@@ -59,8 +59,8 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 		
 		frameid++;
 
-		if(dtype == DEMO_OBJECT_WIN)
-			RunObjWinProposal(cimg, dmap);
+		/*if(dtype == DEMO_OBJECT_WIN)
+			RunObjWinProposal(cimg, dmap);*/
 		if(dtype == DEMO_OBJECT_SEG)
 			RunObjSegProposal(cimg, dmap, Mat());
 		if(dtype == DEMO_SAL)
@@ -84,7 +84,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg)
 	if(!dmap.empty()) resize(dmap, dmap, newsz);
 
 	// propose
-	vector<SuperPixel> sps;
+	vector<VisualObject> sps;
 	seg_proposal.Run(cimg, dmap, 10, sps);
 
 	//return true;
@@ -129,49 +129,49 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg)
 	return true;
 }
 
-bool ObjProposalDemo::RunObjWinProposal(Mat& cimg, Mat& dmap)
-{
-	// resize image
-	Size newsz;
-	tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
-	resize(cimg, cimg, newsz);
-
-	/*Mat salmap;
-	salcomputer.ComputeSaliencyMap(cimg, SAL_HC, salmap);
-	salmap.convertTo(salmap, CV_8U, 255);
-	cvtColor(salmap, salmap, CV_GRAY2BGR);
-	imshow("salcolor", salmap);
-	waitKey(10);
-	*/
-
-	// get objects
-	vector<ImgWin> objwins, salwins;
-	if( !bing.GetProposals(cimg, objwins, 1000) )
-		return false;
-
-	// rank
-	vector<int> sorted_ids;
-	ranker.RankWindowsBySaliency(cimg, objwins, sorted_ids);
-
-	// nms
-	vector<ImgWin> drawwins = visualsearch::processors::nms(objwins, 0.4f);
-	drawwins.resize(MIN(drawwins.size(), 10));
-
-	//for (size_t i=0; i<MIN(sorted_ids.size(), 10); i++)
-		//drawwins.push_back(objwins[sorted_ids[i]]);
-	//objwins.erase(objwins.begin()+10, objwins.end());
-	
-	Mat oimg;
-	char str[30];
-	imgvis.DrawWinsOnImg("input", cimg, drawwins);
-	sprintf_s(str, "e:\\res\\objectness\\%d_1.jpg", frameid);
-	imwrite(str, cimg);
-	imgvis.DrawCroppedWins("obj", cimg, drawwins, 5, oimg);
-	sprintf_s(str, "e:\\res\\objectness\\%d_2.jpg", frameid);
-	imwrite(str, oimg);
-
-	return true;
-}
+//bool ObjProposalDemo::RunObjWinProposal(Mat& cimg, Mat& dmap)
+//{
+//	// resize image
+//	Size newsz;
+//	tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+//	resize(cimg, cimg, newsz);
+//
+//	/*Mat salmap;
+//	salcomputer.ComputeSaliencyMap(cimg, SAL_HC, salmap);
+//	salmap.convertTo(salmap, CV_8U, 255);
+//	cvtColor(salmap, salmap, CV_GRAY2BGR);
+//	imshow("salcolor", salmap);
+//	waitKey(10);
+//	*/
+//
+//	// get objects
+//	vector<ImgWin> objwins, salwins;
+//	if( !bing.GetProposals(cimg, objwins, 1000) )
+//		return false;
+//
+//	// rank
+//	vector<int> sorted_ids;
+//	ranker.RankWindowsBySaliency(cimg, objwins, sorted_ids);
+//
+//	// nms
+//	vector<ImgWin> drawwins = visualsearch::processors::nms(objwins, 0.4f);
+//	drawwins.resize(MIN(drawwins.size(), 10));
+//
+//	//for (size_t i=0; i<MIN(sorted_ids.size(), 10); i++)
+//		//drawwins.push_back(objwins[sorted_ids[i]]);
+//	//objwins.erase(objwins.begin()+10, objwins.end());
+//	
+//	Mat oimg;
+//	char str[30];
+//	imgvis.DrawWinsOnImg("input", cimg, drawwins);
+//	sprintf_s(str, "e:\\res\\objectness\\%d_1.jpg", frameid);
+//	imwrite(str, cimg);
+//	imgvis.DrawCroppedWins("obj", cimg, drawwins, 5, oimg);
+//	sprintf_s(str, "e:\\res\\objectness\\%d_2.jpg", frameid);
+//	imwrite(str, oimg);
+//
+//	return true;
+//}
 
 bool ObjProposalDemo::RunSaliency(Mat& cimg, Mat& dmap, visualsearch::processors::attention::SaliencyType saltype)
 {

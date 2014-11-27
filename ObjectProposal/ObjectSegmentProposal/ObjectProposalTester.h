@@ -10,10 +10,10 @@
 #include "ObjectRanker.h"
 #include "ObjProposalDemo.h"
 #include "ObjSegmentProposal.h"
-#include "ObjViewMatcher.h"
-#include "ObjectSearcher.h"
-#include "SuperpixelClf.h"
-#include "ObjPatchMatcher.h"
+//#include "ObjViewMatcher.h"
+//#include "ObjectSearcher.h"
+//#include "SuperpixelClf.h"
+//#include "ObjPatchMatcher.h"
 
 using namespace visualsearch;
 using namespace visualsearch::common;
@@ -51,6 +51,8 @@ public:
 
 	void BatchProposal();
 
+	void ProposalDemo();
+
 	void BoundaryPlayground();
 
 	void TestSegmentor3D();
@@ -74,7 +76,7 @@ public:
 
 	void TestPatchMatcher();
 
-	void RunWatershed(const Mat& cimg, Mat& markers, int region_num, vector<SuperPixel>& sps);
+	void RunWatershed(const Mat& cimg, Mat& markers, int region_num, vector<VisualObject>& sps);
 
 	void Build3DPCL(DatasetName db_name);
 

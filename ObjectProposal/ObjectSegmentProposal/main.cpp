@@ -1,13 +1,9 @@
 // ObjectSegmentProposal.cpp : Defines the entry point for the console application.
 //
 #include "ObjectProposalTester.h"
-
 #include "ObjSegmentProposal.h"
-#include "IO/Dataset/NYUDepth2DataMan.h"
 #include "ObjectRanker.h"
 #include "ObjProposalDemo.h"
-#include "Common/Tools/RGBDTools.h"
-#include "Processors/Segmentation/IterativeSegmentor.h"
 
 
 // link
@@ -74,7 +70,7 @@ int main()
 	//tester.TestSegment();
 	//tester.TestViewMatch();
 	//tester.TestGraphcut();
-	tester.TestPatchMatcher();
+	//tester.TestPatchMatcher();
 	//tester.TestSuperpixelClf(false);
 	//tester.TestObjSearch();
 	//tester.TestSaliency();

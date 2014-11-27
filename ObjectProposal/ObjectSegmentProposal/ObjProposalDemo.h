@@ -2,13 +2,9 @@
 
 #pragma once
 
+#include "stdafx.h"
 #include "ObjSegmentProposal.h"
-#include "Common/common_libs.h"
-//#include "IO/Camera/KinectDataMan.h"
-#include "IO/Camera/OpenCVCameraIO.hpp"
-#include "Processors/Attention/BingObjectness.h"
-#include "Common/tools/ImgVisualizer.h"
-#include "Processors/nms.hpp"
+//#include "Processors/Attention/BingObjectness.h"
 #include "ObjectRanker.h"
 
 //////////////////////////////////////////////////////////////////////////
@@ -32,7 +28,7 @@ using namespace visualsearch::io::camera;
 class ObjProposalDemo
 {
 private:
-	visualsearch::processors::attention::BingObjectness bing;
+	//visualsearch::processors::attention::BingObjectness bing;
 	visualsearch::processors::attention::ObjectRanker ranker;
 	visualsearch::tools::ImgVisualizer imgvis;
 	visualsearch::processors::attention::SaliencyComputer salcomputer;
@@ -49,7 +45,7 @@ public:
 
 	bool RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg);
 
-	bool RunObjWinProposal(Mat& cimg, Mat& dmap);
+	//bool RunObjWinProposal(Mat& cimg, Mat& dmap);
 
 	bool RunSaliency(Mat& cimg, Mat& dmap, visualsearch::processors::attention::SaliencyType saltype);
 

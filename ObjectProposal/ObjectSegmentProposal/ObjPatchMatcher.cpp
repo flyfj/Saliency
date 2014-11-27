@@ -103,10 +103,10 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 		vector<VisualObject>& gt_objs = gt_masks[imgfns[i].filename];
 		for(auto& cur_gt : gt_objs) {
 			//if( !valid_cls[cur_gt.category_id] ) continue;
-			resize(cur_gt.visual_desc.mask, cur_gt.visual_desc.mask, newsz);
-			label_id_mask.setTo(gt_obj_cnt++, cur_gt.visual_desc.mask);
-			gt_obj_masks.push_back(cur_gt.visual_desc.mask);
-			lable_mask.setTo(1, cur_gt.visual_desc.mask);
+			resize(cur_gt.visual_data.mask, cur_gt.visual_data.mask, newsz);
+			label_id_mask.setTo(gt_obj_cnt++, cur_gt.visual_data.mask);
+			gt_obj_masks.push_back(cur_gt.visual_data.mask);
+			lable_mask.setTo(1, cur_gt.visual_data.mask);
 		}
 
 		imshow("color", cimg);
@@ -151,14 +151,14 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 				picked_patch_mask.at<uchar>(center_pt) = 1;
 
 				VisualObject cur_patch;
-				cur_patch.imgpath = imgfns[i].filepath;
+				cur_patch.meta_data.img_path = imgfns[i].filepath;
 				Rect box(c-patch_size.width/2, r-patch_size.height/2, patch_size.width, patch_size.height);
-				cur_patch.visual_desc.box = box;
+				cur_patch.visual_data.bbox = box;
 
 				// find which object is dominant
 				map<int, int> obj_label_cnt;
 				int max_num = 0;
-				cur_patch.category_id = -1;
+				cur_patch.meta_data.category_id = -1;
 				for(int rr=box.y; rr<box.br().y; rr++) for(int cc=box.x; cc<box.br().x; cc++) {
 					int cur_id = label_id_mask.at<int>(rr,cc);
 					if(cur_id != -1)
@@ -167,7 +167,7 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 						if(obj_label_cnt[cur_id] > max_num) 
 						{ 
 							max_num = obj_label_cnt[cur_id];
-							cur_patch.category_id = cur_id;
+							cur_patch.meta_data.category_id= cur_id;
 						}
 					}
 				}
@@ -179,19 +179,19 @@ bool ObjPatchMatcher::PreparePatchDB(DatasetName db_name) {
 				}*/
 				
 
-				lable_mask(box).convertTo(cur_patch.visual_desc.mask, CV_32F);
+				lable_mask(box).convertTo(cur_patch.visual_data.mask, CV_32F);
 				// extract feature vector
-				gray_img_float(box).copyTo( cur_patch.visual_desc.extra_features["gray"] );
+				gray_img_float(box).copyTo( cur_patch.visual_data.custom_feats["gray"] );
 				//grad_mag(box).copyTo( cur_patch.visual_desc.extra_features["gradient"] );
 				if(use_depth) {
-					normal_map(box).copyTo( cur_patch.visual_desc.extra_features["normal"] );
-					dmap_float(box).copyTo( cur_patch.visual_desc.extra_features["depth"] );
+					normal_map(box).copyTo( cur_patch.visual_data.custom_feats["normal"] );
+					dmap_float(box).copyTo( cur_patch.visual_data.custom_feats["depth"] );
 					/*ImgVisualizer::DrawFloatImg("depthmask", cur_patch.visual_desc.extra_features["depth"]);
 					cout<<"new box"<<endl;
 					waitKey(0);*/
 				}
 				Mat feat;
-				ComputePatchFeat(cur_patch.visual_desc.extra_features, feat);
+				ComputePatchFeat(cur_patch.visual_data.custom_feats, feat);
 				patch_data.push_back(feat);
 				patch_meta.objects.push_back(cur_patch);
 			}
@@ -235,10 +235,10 @@ bool ObjPatchMatcher::PrepareViewPatchDB() {
 			ToolFactory::GetFilesFromDir(cur_sub_dir.dirpath, "*_crop.png", cate_fns);
 			for (auto cur_fn : cate_fns) {
 				VisualObject cur_obj_view;
-				cur_obj_view.category_id = i;
-				cur_obj_view.imgpath = cur_fn.filepath;
-				cur_obj_view.imgfile = cur_fn.filename;
-				cur_obj_view.dmap_path = cur_fn.filepath.substr(0, cur_fn.filepath.length()-7) + "depthcrop.png";
+				cur_obj_view.meta_data.category_id = i;
+				cur_obj_view.meta_data.img_path = cur_fn.filepath;
+				cur_obj_view.meta_data.img_file = cur_fn.filename;
+				cur_obj_view.meta_data.dmap_path = cur_fn.filepath.substr(0, cur_fn.filepath.length()-7) + "depthcrop.png";
 				patch_meta.objects.push_back(cur_obj_view);
 			}
 		}
@@ -251,7 +251,7 @@ bool ObjPatchMatcher::PrepareViewPatchDB() {
 	for(size_t i=0; i<patch_meta.objects.size(); i++) {
 		VisualObject& cur_obj = patch_meta.objects[i];
 
-		Mat vimg = imread(cur_obj.imgpath);
+		Mat vimg = imread(cur_obj.meta_data.img_path);
 		//Mat dmap = imread(cur_obj_view.dmap_path, CV_LOAD_IMAGE_UNCHANGED);
 		resize(vimg, vimg, patch_size);
 		Mat gray_img_float, grad_x, grad_y, grad_mag;
@@ -260,10 +260,10 @@ bool ObjPatchMatcher::PrepareViewPatchDB() {
 		Sobel(gray_img_float, grad_x, CV_32F, 1, 0);
 		Sobel(gray_img_float, grad_y, CV_32F, 0, 1);
 		magnitude(grad_x, grad_y, grad_mag);
-		grad_mag.copyTo(cur_obj.visual_desc.extra_features["gradient"]);
+		grad_mag.copyTo(cur_obj.visual_data.custom_feats["gradient"]);
 
 		Mat cur_feat;
-		ComputePatchFeat(cur_obj.visual_desc.extra_features, cur_feat);
+		ComputePatchFeat(cur_obj.visual_data.custom_feats, cur_feat);
 		patch_data.push_back(cur_feat);
 
 		cout<<i<<"/"<<patch_meta.objects.size()<<endl;
@@ -287,9 +287,9 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 	cvtColor(cimg, gray_img, CV_BGR2GRAY);
 	gray_img.convertTo(gray_img_float, CV_32F, 1.f/255);
 	Canny(gray_img, edge_map, 10, 50);
-	imshow("edge", edge_map);
-	imshow("color", cimg);
-	waitKey(10);
+	cv::imshow("edge", edge_map);
+	cv::imshow("color", cimg);
+	cv::waitKey(10);
 
 	Mat grad_x, grad_y, grad_mag;
 	Sobel(gray_img_float, grad_x, CV_32F, 1, 0);
@@ -392,18 +392,18 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 				}
 				vector<vector<Mat>> pixel_mask_vals(patch_size.height, vector<Mat>(patch_size.width, Mat::zeros(1, topK, CV_32F)));
 				VisualObject cur_query;
-				cur_query.visual_desc.box = box;
-				cur_query.visual_desc.mask = Mat::zeros(patch_size.height, patch_size.width, CV_32F);
+				cur_query.visual_data.bbox = box;
+				cur_query.visual_data.mask = Mat::zeros(patch_size.height, patch_size.width, CV_32F);
 				for(size_t i=0; i<topK; i++) { 
 					score_map.at<float>(rand_r,rand_c) += matches[i].distance;
-					cur_query.visual_desc.mask += patch_meta.objects[matches[i].trainIdx].visual_desc.mask;
+					cur_query.visual_data.mask += patch_meta.objects[matches[i].trainIdx].visual_data.mask;
 					for(int mr=0; mr<patch_size.height; mr++) for(int mc=0; mc<patch_size.width; mc++) {
 						pixel_mask_vals[mr][mc].at<float>(i) = 
-							patch_meta.objects[matches[i].trainIdx].visual_desc.mask.at<float>(mr, mc);
+							patch_meta.objects[matches[i].trainIdx].visual_data.mask.at<float>(mr, mc);
 					}
 				}
 				score_map.at<float>(rand_r,rand_c) /= topK;
-				cur_query.visual_desc.mask /= topK;			// average returned mask
+				cur_query.visual_data.mask /= topK;			// average returned mask
 				
 				// compute mask quality
 				Scalar mean_, std_;
@@ -413,17 +413,17 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 				out<<std_.val[0]<<" ";
 				}
 				out<<endl;*/
-				meanStdDev(cur_query.visual_desc.mask, mean_, std_);
-				cur_query.visual_desc.scores.push_back(mean_.val[0]);
-				cur_query.visual_desc.scores.push_back(std_.val[0]);
+				meanStdDev(cur_query.visual_data.mask, mean_, std_);
+				cur_query.visual_data.scores.push_back(mean_.val[0]);
+				cur_query.visual_data.scores.push_back(std_.val[0]);
 
 				Mat align_mask = Mat::zeros(cimg.rows, cimg.cols, CV_8U);
-				int gt_mask_id = patch_meta.objects[matches[0].trainIdx].category_id;
+				int gt_mask_id = patch_meta.objects[matches[0].trainIdx].meta_data.category_id;
 				if(gt_mask_id != -1) {
 					Mat nn_mask = gt_obj_masks[gt_mask_id];
 					//imshow("gt mask", nn_mask*255);
 					//waitKey(10);
-					Rect gt_box = patch_meta.objects[matches[0].trainIdx].visual_desc.box;
+					Rect gt_box = patch_meta.objects[matches[0].trainIdx].visual_data.bbox;
 					Rect align_box = AlignBox(box, gt_box, cimg.cols, cimg.rows);
 					vector<ImgWin> boxes; boxes.push_back(align_box);
 					//ImgVisualizer::DrawWinsOnImg("alignbox", cimg, boxes);
@@ -581,30 +581,31 @@ bool ObjPatchMatcher::Match(const Mat& cimg, const Mat& dmap_raw, Mat& mask_map)
 	// pick top weighted points to see if they are inside objects
 	// try graph-cut for region proposal
 	// among all retrieved mask patch, select most discriminative one and do graph-cut
-	sort(query_patches.begin(), query_patches.end(), [](const VisualObject& a, const VisualObject& b) { return a.visual_desc.scores[1] > b.visual_desc.scores[1]; });
+	sort(query_patches.begin(), query_patches.end(), [](const VisualObject& a, const VisualObject& b) { 
+		return a.visual_data.scores[1] > b.visual_data.scores[1]; });
 	for(size_t i=0; i<query_patches.size(); i++) {
 		Mat disp_img = cimg.clone();
-		rectangle(disp_img, query_patches[i].visual_desc.box, CV_RGB(255,0,0));
+		rectangle(disp_img, query_patches[i].visual_data.bbox, CV_RGB(255,0,0));
 		imshow("max std box", disp_img);
 		Mat big_mask;
-		resize(query_patches[i].visual_desc.mask, big_mask, Size(50,50));
+		resize(query_patches[i].visual_data.mask, big_mask, Size(50,50));
 		ImgVisualizer::DrawFloatImg("max std mask", big_mask);
 		waitKey(0);
 		// use mask to do graph-cut
 		Mat fg_mask(cimg.rows, cimg.cols, CV_8U);
 		fg_mask.setTo(cv::GC_PR_FGD);
 		Mat th_mask;
-		threshold(query_patches[i].visual_desc.mask, th_mask, query_patches[i].visual_desc.scores[0], 1, CV_THRESH_BINARY);
+		threshold(query_patches[i].visual_data.mask, th_mask, query_patches[i].visual_data.scores[0], 1, CV_THRESH_BINARY);
 		th_mask.convertTo(th_mask, CV_8U);
-		fg_mask(query_patches[i].visual_desc.box).setTo(cv::GC_FGD, th_mask);
+		fg_mask(query_patches[i].visual_data.bbox).setTo(cv::GC_FGD, th_mask);
 		th_mask = 1-th_mask;
-		fg_mask(query_patches[i].visual_desc.box).setTo(cv::GC_BGD, th_mask);
+		fg_mask(query_patches[i].visual_data.bbox).setTo(cv::GC_BGD, th_mask);
 		cv::grabCut(cimg, fg_mask, Rect(0,0,1,1), Mat(), Mat(), 3, cv::GC_INIT_WITH_MASK);
 		fg_mask = fg_mask & 1;
 		disp_img.setTo(Vec3b(0,0,0));
 		cimg.copyTo(disp_img, fg_mask);
-		imshow("cut", disp_img);
-		waitKey(0);
+		cv::imshow("cut", disp_img);
+		cv::waitKey(0);
 	}
 
 
@@ -669,20 +670,20 @@ bool ObjPatchMatcher::MatchViewPatch(const Mat& cimg, const Mat& dmap_raw) {
 		}
 	}
 
-	imshow("color", cimg);
+	cv::imshow("color", cimg);
 	ImgVisualizer::DrawFloatImg("scoremap", score_map);
-	waitKey(0);
+	cv::waitKey(0);
 
 	int cnt = 0;
 	Mat disp_img = cimg.clone();
 	for(auto pi=top_det.begin(); pi!=top_det.end(); pi++) {
 		cout<<pi->first<<endl;
 		rectangle(disp_img, pi->second, CV_RGB(255,0,0), 2);
-		Mat db_view = imread(patch_meta.objects[pi->second.score].imgpath);
+		Mat db_view = imread(patch_meta.objects[pi->second.score].meta_data.img_path);
 		resize(db_view, db_view, patch_size);
 		Mat test_win;
 		resize(cimg(pi->second), test_win, patch_size);
-		ImgVisualizer::DrawFloatImg("db grad", patch_meta.objects[pi->second.score].visual_desc.img_desc);
+		ImgVisualizer::DrawFloatImg("db grad", patch_meta.objects[pi->second.score].visual_data.img_desc);
 		ImgVisualizer::DrawFloatImg("test grad", grad_mag(pi->second));
 		imshow("db view", db_view);
 		imshow("color", disp_img);
