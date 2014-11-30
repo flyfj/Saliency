@@ -11,7 +11,7 @@ namespace objectproposal
 	bool ObjSegmentProposal::GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps) {
 
 		iter_segmentor.merge_feat_types = SP_COLOR;
-		iter_segmentor.seg_size_bound_ = Point2f(0.0015f, 0.9f);
+		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.6f);
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.verbose = false;
 		iter_segmentor.Run2();
@@ -115,9 +115,11 @@ namespace objectproposal
 		cout<<"object candidates: "<<res_sps.size()<<endl;
 
 		// rank
+		double start_t = getTickCount();
 		cout<<endl<<"Ranking segments..."<<endl;
 		vector<int> rank_ids;
 		seg_ranker.RankSegments(cimg, dmap, res_sps, visualsearch::processors::attention::SEG_RANK_SALIENCY, rank_ids);
+		cout << "ranking time: " << (getTickCount() - start_t) / getTickFrequency() << "s" << endl;
 
 		// post-processing
 		cout<<"Filter overlap segments..."<<endl;
@@ -143,7 +145,7 @@ namespace objectproposal
 		//	}*/
 		//}
 		valid_num = valid_seg.size() - valid_num;
-		cout<<"final proposal num: "<<valid_num<<endl;
+		cout << "final proposal num: " << valid_num << endl << endl;
 
 		res.clear();
 		if(topK == -1) res.reserve(valid_seg.size());

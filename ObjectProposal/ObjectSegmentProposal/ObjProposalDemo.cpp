@@ -11,7 +11,7 @@ ObjProposalDemo::ObjProposalDemo()
 
 bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 {
-	bool tosave = true;
+	bool tosave = false;
 	visualsearch::io::camera::OpenCVCameraIO cam;
 	if(stype == SENSOR_CAMERA)
 	{
@@ -44,11 +44,15 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 		}*/
 
 		// downsample cimg to have same size as dmap
-		//resize(cimg, cimg, Size(cimg.cols/2, cimg.rows/2));
+		Size newsz;
+		visualsearch::common::tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+		resize(cimg, cimg, newsz);
 		// show input
 		imshow("color", cimg);
-		imshow("depth", dmap);
-		//imgvis.DrawFloatImg("depth", dmap, Mat());
+		if (!dmap.empty()) {
+			resize(dmap, dmap, newsz);
+			ImgVisualizer::DrawFloatImg("depth", dmap);
+		}
 
 		if(tosave) {
 			sprintf_s(str, "frame_%d.jpg", frameid);
@@ -66,8 +70,6 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 		if(dtype == DEMO_SAL)
 			RunSaliency(cimg, dmap, visualsearch::processors::attention::SAL_HC);
 
-
-
 		if( waitKey(10) == 'q' )
 			break;
 	}
@@ -77,21 +79,19 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 
 bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg)
 {
-	// resize image
-	Size newsz;
-	visualsearch::common::tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
-	resize(cimg, cimg, newsz);
-	if(!dmap.empty()) resize(dmap, dmap, newsz);
-
 	// propose
 	vector<VisualObject> sps;
-	seg_proposal.Run(cimg, dmap, 10, sps);
+	seg_proposal.Run(cimg, dmap, 5, sps);
 
 	//return true;
 	
 	// display results
-	imgvis.DrawShapes(cimg, sps, oimg);
-	resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
+	vector<ImgWin> boxes;
+	for (auto val : sps) {
+		boxes.push_back(val.visual_data.bbox);
+	}
+	ImgVisualizer::DrawWinsOnImg("objects", cimg, boxes);
+	//resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
 	/*char str[30];
 	sprintf_s(str, "%d_0.jpg", frameid);
 	imwrite(DATADIR + string(str), cimg);

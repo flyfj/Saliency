@@ -71,8 +71,8 @@ namespace visualsearch
 					segmentor.m_dThresholdK = 30.f;
 					segmentor.seg_type_ = OVER_SEG_GRAPH;
 					cout<<"seg num "<<segmentor.DoSegmentation(cimg)<<endl;
-					imshow("baseseg", segmentor.m_segImg);
-					waitKey(10);
+					//imshow("baseseg", segmentor.m_segImg);
+					//waitKey(10);
 					for(size_t i=0; i<segmentor.superPixels.size(); i++) 
 						segprocessor.ExtractSegmentBasicFeatures(segmentor.superPixels[i]);
 

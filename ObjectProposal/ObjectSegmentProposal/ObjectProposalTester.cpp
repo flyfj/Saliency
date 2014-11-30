@@ -354,9 +354,9 @@ void ObjectProposalTester::BatchProposal() {
 }
 
 void ObjectProposalTester::ProposalDemo() {
+
 	ObjProposalDemo demo;
 	demo.RunVideoDemo(SENSOR_CAMERA, DEMO_OBJECT_SEG);
-
 }
 
 void ObjectProposalTester::TestSegmentor3D() {

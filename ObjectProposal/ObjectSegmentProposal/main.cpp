@@ -67,6 +67,7 @@
 int main()
 {
 	ObjectProposalTester tester;
+	tester.ProposalDemo();
 	//tester.TestSegment();
 	//tester.TestViewMatch();
 	//tester.TestGraphcut();
