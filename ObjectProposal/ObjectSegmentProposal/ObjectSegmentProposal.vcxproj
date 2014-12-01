@@ -60,8 +60,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
-    <IncludePath>C:\opencv249\opencv\build\include;C:\Program Files %28x86%29\boost_1_56_0;C:\Program Files %28x86%29\PCL\include\pcl-1.8;C:\Program Files %28x86%29\flann\include;C:\Program Files %28x86%29\Eigen\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;C:\Program Files %28x86%29\VTK\include\vtk-6.1;E:\Projects\GitHub\VisualSearchEngine\VisualSearchEngine\EngineLib\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv249\opencv\build\x86\vc12\lib;C:\Program Files %28x86%29\boost_1_56_0\lib32-msvc-11.0;C:\Program Files %28x86%29\flann\lib;C:\Program Files %28x86%29\VTK\lib\Release;C:\Program Files %28x86%29\PCL\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;E:\Projects\Github\VisualSearchEngine\VisualSearchEngine\EngineLib\lib;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv249\opencv\build\include;C:\Program Files %28x86%29\boost_1_57_0_vc12;C:\Program Files %28x86%29\PCL\include\pcl-1.8;C:\Program Files %28x86%29\flann\include;C:\Program Files %28x86%29\Eigen\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;C:\Program Files %28x86%29\VTK\include\vtk-6.1;E:\Projects\GitHub\VisualSearchEngine\VisualSearchEngine\EngineLib\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv249\opencv\build\x86\vc12\lib;C:\Program Files %28x86%29\boost_1_57_0\lib32-msvc-12.0;C:\Program Files %28x86%29\flann\lib;C:\Program Files %28x86%29\VTK\lib\Release;C:\Program Files %28x86%29\PCL\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;E:\Projects\Github\VisualSearchEngine\VisualSearchEngine\EngineLib\lib;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <IncludePath>C:\opencv249\opencv\build\include;$(IncludePath)</IncludePath>

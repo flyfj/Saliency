@@ -81,7 +81,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg)
 {
 	// propose
 	vector<VisualObject> sps;
-	seg_proposal.Run(cimg, dmap, 5, sps);
+	seg_proposal.Run(cimg, dmap, 1, sps);
 
 	//return true;
 	
@@ -90,7 +90,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg)
 	for (auto val : sps) {
 		boxes.push_back(val.visual_data.bbox);
 	}
-	ImgVisualizer::DrawWinsOnImg("objects", cimg, boxes);
+	ImgVisualizer::DrawWinsOnImg("objects", cimg, boxes, oimg);
 	//resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
 	/*char str[30];
 	sprintf_s(str, "%d_0.jpg", frameid);

@@ -16,6 +16,8 @@ namespace visualsearch
 
 				features::DepthFeatParams dparams;
 				dparams.dtype = DEPTH_FEAT_HIST;
+
+				ranker_fn = "svm_ranker.model";
 			}
 
 			//////////////////////////////////////////////////////////////////////////
@@ -28,6 +30,8 @@ namespace visualsearch
 					return RankSegmentsBySaliency(cimg, dmap, sps, orded_sp_ids);
 				if(rtype == SEG_RANK_SHAPE)
 					return RankSegmentsByShape(sps, orded_sp_ids);
+				if (rtype == SEG_RANK_LEARN)
+					return RankSegmentsByLearner(cimg, dmap, sps, orded_sp_ids);
 
 				return true;
 			}
@@ -49,6 +53,39 @@ namespace visualsearch
 					pi!=win_scores.end(); pi++)
 				{
 					ordered_win_ids.push_back(pi->second);
+				}
+
+				return true;
+			}
+
+			bool ObjectRanker::RankSegmentsByLearner(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, vector<int>& ordered_sp_ids) {
+				// load ranker
+				CvSVM model;
+				ifstream in(ranker_fn);
+				if (!in.is_open()) {
+					cerr << "can't load ranker from file: " << ranker_fn << endl;
+					return false;
+				}
+				in.close();
+				model.load(ranker_fn.c_str());
+				
+				// compute feature and score for each sp
+				vector<Point2f> sp_scores(sps.size());
+				for (size_t i = 0; i < sps.size(); i++) {
+					Mat cur_feat;
+					ComputeSegmentRankFeature(cimg, dmap, sps[i], cur_feat);
+					sp_scores[i].x = i;
+					sp_scores[i].y = -model.predict(cur_feat, true);
+				}
+				sort(sp_scores.begin(), sp_scores.end(), [](const Point2f& a, const Point2f& b) {
+					return a.y > b.y;
+				});
+
+				// add ids
+				ordered_sp_ids.clear();
+				ordered_sp_ids.resize(sp_scores.size());
+				for (size_t i = 0; i < sp_scores.size(); i++) {
+					ordered_sp_ids[i] = sp_scores[i].x;
 				}
 
 				return true;
@@ -281,7 +318,7 @@ namespace visualsearch
 
 				db_man->GetImageList(imgfiles);
 				//imgfiles.erase(imgfiles.begin(), imgfiles.begin() + 13);
-				imgfiles.erase(imgfiles.begin() + 50, imgfiles.end());
+				imgfiles.erase(imgfiles.begin() + 100, imgfiles.end());
 				db_man->GetDepthmapList(imgfiles, dmapfiles);
 
 				cout << "Generating training samples..." << endl;
@@ -289,8 +326,6 @@ namespace visualsearch
 				for (size_t i = 0; i < imgfiles.size(); i++)
 				{
 					cout << "Processing: " << imgfiles[i].filename << endl;
-					if (imgfiles[i].filename == "10_01-06-39.jpg") 
-						cout << "hi" << endl;
 					// load gt (avoid batch loading)
 					FileInfos tmp_files;
 					tmp_files.push_back(imgfiles[i]);
@@ -367,7 +402,8 @@ namespace visualsearch
 								}
 
 								Mat curnegfeat;
-								ComputeSegmentRankFeature(cimg, dmap, tsps[i], curnegfeat);
+								cout << "sp area: " << countNonZero(tsps[id].visual_data.mask) << endl;
+								ComputeSegmentRankFeature(cimg, dmap, tsps[id], curnegfeat);
 								negsamps.push_back(curnegfeat);
 
 								sumnum++;
@@ -427,7 +463,7 @@ namespace visualsearch
 				model.train_auto(rank_train_data, rank_train_label, Mat(), Mat(), params);
 
 				// save
-				model.save("svm_ranker.model");
+				model.save(ranker_fn.c_str());
 				
 				// evaluation
 				for (int r=0; r<rank_test_data.rows; r++) {

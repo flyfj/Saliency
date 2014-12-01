@@ -314,13 +314,14 @@ void ObjectProposalTester::BoundaryPlayground() {
 
 void ObjectProposalTester::BatchProposal() {
 
+	srand(time(NULL));
 	ObjProposalDemo demo;
-	visualsearch::io::dataset::NYUDepth2DataMan rgbd;
+	visualsearch::io::dataset::RGBDECCV14 rgbd;
 	FileInfos imgfiles, dmapfiles;
 	rgbd.GetImageList(imgfiles);
+	random_shuffle(imgfiles.begin(), imgfiles.end());
+	imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
 	rgbd.GetDepthmapList(imgfiles, dmapfiles);
-	imgfiles.erase(imgfiles.begin(), imgfiles.begin()+800);
-	dmapfiles.erase(dmapfiles.begin(), dmapfiles.begin()+800);
 
 	string savedir = "E:\\res\\segments\\";
 	char str[100];
@@ -343,10 +344,10 @@ void ObjectProposalTester::BatchProposal() {
 		newsz.height = newsz.width * oimg.rows / oimg.cols;
 		resize(oimg, oimg, newsz);
 		imshow("res", oimg);
-		waitKey(10);
+		waitKey(0);
 
 		string savefn = savedir + "nyu_" + imgfiles[i].filename + "_res.png";
-		imwrite(savefn, oimg);
+		//imwrite(savefn, oimg);
 	}
 
 }

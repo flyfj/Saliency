@@ -72,6 +72,7 @@ namespace visualsearch {
 				Mat debug_img_;				// used to save intermediate or debug results
 				vector<Mat> sal_maps;		// saliency maps of different types
 				bool test_;
+				string ranker_fn;			// filename for storing learned ranker
 			};
 		}
 	}

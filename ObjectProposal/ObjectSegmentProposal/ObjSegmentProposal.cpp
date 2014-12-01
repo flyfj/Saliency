@@ -11,7 +11,7 @@ namespace objectproposal
 	bool ObjSegmentProposal::GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps) {
 
 		iter_segmentor.merge_method = MERGE_ITER;
-		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.65f);
+		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.7f);
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.Run2();
 		sps = iter_segmentor.sps;
@@ -20,7 +20,6 @@ namespace objectproposal
 	}
 
 	//bool ObjSegmentProposal::GetCandidatesFromSegment3D(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps) {
-
 	//	// compute feature maps
 	//	visualsearch::features::Feature3D feat3d;
 	//	Mat pts_3d;
@@ -117,7 +116,7 @@ namespace objectproposal
 		double start_t = getTickCount();
 		cout<<endl<<"Ranking segments..."<<endl;
 		vector<int> rank_ids;
-		seg_ranker.RankSegments(cimg, dmap, res_sps, visualsearch::processors::attention::SEG_RANK_SALIENCY, rank_ids);
+		seg_ranker.RankSegments(cimg, dmap, res_sps, visualsearch::processors::attention::SEG_RANK_LEARN, rank_ids);
 		cout << "ranking time: " << (getTickCount() - start_t) / getTickFrequency() << "s" << endl;
 
 		// post-processing

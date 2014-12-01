@@ -67,7 +67,7 @@
 int main()
 {
 	ObjectProposalTester tester;
-	tester.TestRankerLearner();
+	//tester.TestRankerLearner();
 	//tester.ProposalDemo();
 	//tester.TestSegment();
 	//tester.TestViewMatch();
@@ -81,7 +81,7 @@ int main()
 	//tester.Build3DPCL(DB_NYU2_RGBD);
 	//tester.Random();
 	//tester.EvaluateOnDataset(DB_SALIENCY_RGBD);
-	//tester.BatchProposal();
+	tester.BatchProposal();
 	//tester.TestBoundaryClf(false);
 	//cout<<__FILE__<<" "<<__LINE__<<" "<<__FUNCTION__<<endl;
 	waitKey(0);
