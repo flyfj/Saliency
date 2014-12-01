@@ -3,8 +3,7 @@
 
 void ObjectProposalTester::TestRankerLearner() {
 	processors::attention::ObjectRanker ranker;
-	ranker.PrepareRankTrainData(dataset::DB_SALIENCY_RGBD);
-	ranker.LearnObjectPredictor();
+	ranker.LearnObjectPredictor(dataset::DB_SALIENCY_RGBD);
 }
 
 void ObjectProposalTester::Random() {
@@ -43,7 +42,6 @@ void ObjectProposalTester::Random() {
 	//return;
 
 	attention::ObjectRanker ranker;
-	ranker.PrepareRankTrainData(DB_NYU2_RGBD);
 	
 
 }

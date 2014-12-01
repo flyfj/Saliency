@@ -33,8 +33,7 @@ namespace visualsearch {
 				ObjectRanker(void);
 
 				// classifier if a superpixel is an object based a set of features
-				bool PrepareRankTrainData(DatasetName dbs);
-				bool LearnObjectPredictor();
+				bool LearnObjectPredictor(DatasetName db_name);
 				bool LearnObjectWindowPredictor();
 
 				bool RankWindowsBySaliency(const Mat& cimg, vector<ImgWin>& wins, vector<int>& ordered_win_ids);
@@ -44,6 +43,8 @@ namespace visualsearch {
 				bool RankWindows(const Mat& cimg, const Mat& dmap, const vector<ImgWin>& wins, vector<int>& orded_win_ids);
 
 			private:
+				// ranking using learned model
+				bool RankSegmentsByLearner(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, vector<int>& ordered_sp_ids);
 				// hand-craft rank methods
 				bool RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, vector<int>& orded_sp_ids);
 
@@ -57,7 +58,6 @@ namespace visualsearch {
 
 				bool ComputeWindowRankFeatures(const Mat& cimg, const Mat& dmap, vector<ImgWin>& wins, vector<Mat>& feats);
 				
-
 				//////////////////////////////////////////////////////////////////////////
 				processors::segmentation::SegmentProcessor segprocessor;
 				features::color::ColorDescriptors colordesc;
@@ -69,7 +69,8 @@ namespace visualsearch {
 
 				Mat rank_train_data, rank_train_label;
 				Mat rank_test_data, rank_test_label;
-				Mat debug_img_;		// used to save intermediate or debug results
+				Mat debug_img_;				// used to save intermediate or debug results
+				vector<Mat> sal_maps;		// saliency maps of different types
 				bool test_;
 			};
 		}

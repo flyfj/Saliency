@@ -167,39 +167,46 @@ namespace visualsearch
 			bool ObjectRanker::ComputeSegmentRankFeature(const Mat& cimg, const Mat& dmap, VisualObject& sp, Mat& feat)
 			{
 				vector<float> vals;
-				// geometric features
-				segprocessor.ExtractSegmentBasicFeatures(sp);
-				//vector<SuperPixel> sps;
-				//sps.push_back(sp);
-				//img_vis_.DrawShapes(cimg, sps);
-				//waitKey(0);
-				vals.push_back((float)sp.visual_data.area / (sp.visual_data.mask.rows*sp.visual_data.mask.cols));	// area percentage
-				//vals.push_back(sp.isConvex);
-				vals.push_back((float)sp.visual_data.area / sp.visual_data.bbox.area());	// segment / box ratio
-				vals.push_back((float)sp.visual_data.perimeter / (2*(sp.visual_data.bbox.width+sp.visual_data.bbox.height)));	// segment perimeter / box perimeter ratio
-				vals.push_back((float)sp.visual_data.centroid.x / cimg.cols);
-				vals.push_back((float)sp.visual_data.centroid.y / cimg.rows);	// normalized position in image
-				vals.push_back((float)sp.visual_data.bbox.width);
-				vals.push_back((float)sp.visual_data.bbox.height);
 
-				// saliency features
-				vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.0) );
+				/* geometric features
+				*/
+				segprocessor.ExtractSegmentBasicFeatures(sp);
+				// area percentage in image
+				vals.push_back((float)sp.visual_data.area / (sp.visual_data.mask.rows*sp.visual_data.mask.cols));	
+				// area percentage of convex hull
+				vals.push_back((float)sp.visual_data.area / sp.visual_data.convex_hull_area);
+				// segment / box ratio
+				vals.push_back((float)sp.visual_data.area / sp.visual_data.bbox.area());
+				// segment perimeter / box perimeter ratio
+				vals.push_back((float)sp.visual_data.perimeter / (2*(sp.visual_data.bbox.width+sp.visual_data.bbox.height)));
+				// normalized position in image
+				vals.push_back((float)sp.visual_data.centroid.x / sp.visual_data.mask.cols);
+				vals.push_back((float)sp.visual_data.centroid.y / sp.visual_data.mask.rows);
+				// relative box size
+				vals.push_back((float)sp.visual_data.bbox.width / sp.visual_data.mask.cols);
+				vals.push_back((float)sp.visual_data.bbox.height / sp.visual_data.mask.rows);
+
+				/* saliency features
+				*/
+				/*vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.1) );
 				vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.2) );
-				vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.5) );
+				vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.5) );*/
 				// TODO: use saliency composition cost
 
 				// depth: depth contrast
-				if( !dmap.empty() ) {
-					vals.push_back( cs_contraster.ComputeContrast(cimg, dmap, sp, FEAT_TYPE_DEPTH, 1.0) );
-					vals.push_back( cs_contraster.ComputeContrast(cimg, dmap, sp, FEAT_TYPE_DEPTH, 1.2) );
-					vals.push_back( cs_contraster.ComputeContrast(cimg, dmap, sp, FEAT_TYPE_DEPTH, 1.5) );
-					Mat meand;
-					depth_desc_.ComputeMeanDepth(dmap, meand, sp.visual_data.mask);
-					vals.push_back( meand.at<float>(0) );
-					// TODO: use depth composition cost
+				//if( !dmap.empty() ) {
+				//	// treat depth as color image
+				//	Mat dmap_color;
+				//	normalize(dmap, dmap, 1, 0, NORM_MINMAX);
+				//	dmap.convertTo(dmap_color, CV_8U, 255);
+				//	cvtColor(dmap_color, dmap_color, CV_GRAY2BGR);
+				//	vals.push_back( cs_contraster.ComputeContrast(dmap_color, Mat(), sp, FEAT_TYPE_COLOR, 1.1) );
+				//	vals.push_back( cs_contraster.ComputeContrast(dmap_color, Mat(), sp, FEAT_TYPE_COLOR, 1.2) );
+				//	vals.push_back( cs_contraster.ComputeContrast(dmap_color, Mat(), sp, FEAT_TYPE_COLOR, 1.5) );
+				//	// TODO: use depth composition cost
 
-					// 3D
-				}
+				//	// 3D
+				//}
 
 				// convert to mat
 				feat.create(1, vals.size(), CV_32F);
@@ -245,8 +252,170 @@ namespace visualsearch
 
 			//////////////////////////////////////////////////////////////////////////
 
-			bool ObjectRanker::LearnObjectPredictor()
+			// positive samples: gt object and its variants
+			// negative samples: random segments having low overlap with gt objects
+			bool ObjectRanker::LearnObjectPredictor(DatasetName db_name)
 			{
+				/*	prepare training data
+				*/
+				test_ = true;
+				string temp_dir = "E:\\res\\obj_ranker\\";	// save intermediate results
+				char str[100];
+				srand(time(NULL));
+
+				ImageSegmentor imgsegmentor;
+				imgsegmentor.m_dMinArea = 100;
+				std::vector<float> seg_ths(3);
+				seg_ths[0] = 50;
+				seg_ths[1] = 100;
+				seg_ths[2] = 200;
+
+				// generate training samples from given database
+				FileInfos imgfiles, dmapfiles;
+				DataManagerInterface* db_man = NULL;
+				map<string, vector<VisualObject>> objmasks;
+				if ((db_name & DB_NYU2_RGBD) != 0)
+					db_man = new NYUDepth2DataMan();
+				if ((db_name & DB_SALIENCY_RGBD) != 0)
+					db_man = new RGBDECCV14();
+
+				db_man->GetImageList(imgfiles);
+				//imgfiles.erase(imgfiles.begin(), imgfiles.begin() + 13);
+				imgfiles.erase(imgfiles.begin() + 50, imgfiles.end());
+				db_man->GetDepthmapList(imgfiles, dmapfiles);
+
+				cout << "Generating training samples..." << endl;
+				Mat possamps, negsamps;
+				for (size_t i = 0; i < imgfiles.size(); i++)
+				{
+					cout << "Processing: " << imgfiles[i].filename << endl;
+					if (imgfiles[i].filename == "10_01-06-39.jpg") 
+						cout << "hi" << endl;
+					// load gt (avoid batch loading)
+					FileInfos tmp_files;
+					tmp_files.push_back(imgfiles[i]);
+					db_man->LoadGTMasks(tmp_files, objmasks);
+					vector<VisualObject> masks = objmasks[imgfiles[i].filename];
+
+					// color image
+					Mat cimg = imread(imgfiles[i].filepath);
+					Size newsz;
+					tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
+					//resize(cimg, cimg, newsz);
+					// depth map
+					Mat dmap;
+					db_man->LoadDepthData(dmapfiles[i].filepath, dmap);
+					//resize(dmap, dmap, newsz);
+
+					//imshow("color", cimg);
+					//ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
+
+					// positive sample: object segments
+					for (size_t k = 0; k < masks.size(); k++) {
+						//resize(masks[k], masks[k], newsz);
+						VisualObject cursegment;
+						cursegment.visual_data.mask = masks[k].visual_data.mask;
+						//resize(cursegment.mask, cursegment.mask, newsz);
+						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
+						//imwrite(temp_dir + string(str), cursegment.mask*255);
+						if (test_) {
+							debug_img_.release();
+							cimg.copyTo(debug_img_, cursegment.visual_data.mask);
+							imshow("pos", debug_img_);
+							waitKey(10);
+						}
+
+						Mat curposfeat;
+						ComputeSegmentRankFeature(cimg, dmap, cursegment, curposfeat);
+						possamps.push_back(curposfeat);
+					}
+					cout << "Get positives for image " << i << endl;
+
+					// negative samples: random segments don't overlap with objects
+					int sumnum = 0;
+					bool finish = false;
+					for (size_t k = 0; k < seg_ths.size() && !finish; k++) {
+						imgsegmentor.m_dThresholdK = seg_ths[k];
+						imgsegmentor.seg_type_ = OVER_SEG_GRAPH;
+						imgsegmentor.DoSegmentation(cimg);
+						vector<VisualObject>& tsps = imgsegmentor.superPixels;
+
+						// randomly select samples from every segment level
+						random_shuffle(tsps.begin(), tsps.end());
+						for (size_t id = 0; id < tsps.size(); id++) {
+							if (tsps[id].visual_data.area < cimg.rows*cimg.cols*0.005) continue;
+							// check if have large overlap with one of the objects
+							bool isvalid = true;
+							for (size_t j = 0; j < masks.size(); j++) {
+								Mat& curmask = masks[j].visual_data.mask;
+								//resize(masks[j], curmask, newsz);
+								Mat intersectMask = curmask & tsps[id].visual_data.mask;
+								if (countNonZero(intersectMask)*1.f / countNonZero(curmask | tsps[id].visual_data.mask) > 0.5) {
+									isvalid = false;
+									break;
+								}
+							}
+							// pass all tests
+							sprintf_s(str, "%d.png", sumnum);
+							if (isvalid) {
+								//imwrite(temp_dir + imgfiles[i].filename + "_" + string(str), tsps[id].visual_data.mask * 255);
+								if (test_) {
+									debug_img_.release();
+									cimg.copyTo(debug_img_, tsps[id].visual_data.mask);
+									imshow("neg", debug_img_);
+									waitKey(10);
+								}
+
+								Mat curnegfeat;
+								ComputeSegmentRankFeature(cimg, dmap, tsps[i], curnegfeat);
+								negsamps.push_back(curnegfeat);
+
+								sumnum++;
+								cout << sumnum << endl;
+								if (sumnum == 10) {
+									finish = true;
+									break;
+								}
+							}
+						}
+					}
+					cout << "Get negatives for image " << i << endl;
+
+					cout << "Finished " << i << "/" << imgfiles.size() << " image" << endl;
+				}
+				delete db_man;
+				db_man = NULL;
+
+				// divide into train and test data with 3:7
+				rank_train_data.release();
+				rank_test_data.release();
+				rank_train_label.release();
+				rank_test_label.release();
+				for (int r = 0; r < possamps.rows; r++)
+				{
+					if (r < possamps.rows*0.7) {
+						rank_train_data.push_back(possamps.row(r));
+						rank_train_label.push_back(1);
+					}
+					else {
+						rank_test_data.push_back(possamps.row(r));
+						rank_test_label.push_back(1);
+					}
+				}
+				for (int r = 0; r < negsamps.rows; r++)
+				{
+					if (r < negsamps.rows*0.7) {
+						rank_train_data.push_back(negsamps.row(r));
+						rank_train_label.push_back(0);
+					}
+					else {
+						rank_test_data.push_back(negsamps.row(r));
+						rank_test_label.push_back(0);
+					}
+				}
+
+				cout << "Rank training data ready." << endl;
+
 				Mat pred_scores(rank_test_data.rows, 2, CV_32F);
 				pred_scores.setTo(0);
 				visualsearch::learners::LearnerTools learn_tool;
@@ -258,20 +427,21 @@ namespace visualsearch
 				model.train_auto(rank_train_data, rank_train_label, Mat(), Mat(), params);
 
 				// save
-				model.save("svm.model");
+				model.save("svm_ranker.model");
 				
 				// evaluation
 				for (int r=0; r<rank_test_data.rows; r++) {
-					float res = model.predict(rank_test_data.row(r), true);
-					if(res > 0) pred_scores.at<float>(r, 1) = res;
-					else		pred_scores.at<float>(r, 0) = -res;
+					float res = model.predict(rank_test_data.row(r), true);	// the return dfval is inversed!
+					if(res > 0) pred_scores.at<float>(r, 0) = res;
+					else		pred_scores.at<float>(r, 1) = -res;
+					cout << pred_scores.at<float>(r, 0) << " " << 
+						pred_scores.at<float>(r, 1) << " " << rank_test_label.at<int>(r) << endl;
 				}
-				cout<<pred_scores<<endl;
+				
 				float acc = learn_tool.ClassificationAccuracy(rank_test_label, pred_scores, 1);
 				cout<<"Accuracy: "<<acc<<endl;
 
 				return true;
-
 
 				// dtrees
 				learners::trees::RandomForest<learners::trees::LinearFeature> rforest;
@@ -428,160 +598,6 @@ namespace visualsearch
 
 			}
 
-			// positive samples: gt object and its variants
-			// negative samples: random segments having low overlap with gt objects
-			bool ObjectRanker::PrepareRankTrainData(DatasetName dbs)
-			{
-				test_ = false;
-				string temp_dir = "E:\\Results\\objectness\\nyu\\";	// save intermediate results
-				char str[50];
-
-				ImageSegmentor imgsegmentor;
-				std::vector<float> seg_ths(3);
-				seg_ths[0] = 50;
-				seg_ths[1] = 100;
-				seg_ths[2] = 200;
-
-				// generate training samples from given database
-				FileInfos imgfiles, dmapfiles;
-				DataManagerInterface* db_man = NULL;
-				map<string, vector<VisualObject>> objmasks;
-				if( (dbs & DB_NYU2_RGBD) != 0 )
-					db_man = new NYUDepth2DataMan();
-				if( (dbs & DB_SALIENCY_RGBD) != 0 )
-					db_man = new RGBDECCV14();
-
-				db_man->GetImageList(imgfiles);
-				imgfiles.erase(imgfiles.begin(), imgfiles.begin()+101);
-				db_man->GetDepthmapList(imgfiles, dmapfiles);
-
-				cout<<"Generating training samples..."<<endl;
-				Mat possamps, negsamps;
-				for(size_t i=0; i<imgfiles.size(); i++)
-				{
-					FileInfos tmp_files;
-					tmp_files.push_back(imgfiles[i]);
-					db_man->LoadGTMasks(tmp_files, objmasks);
-
-					Mat cimg = imread(imgfiles[i].filepath);
-					Size newsz;
-					tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
-					//resize(cimg, cimg, newsz);
-					Mat dmap;
-					//db_man->LoadDepthData(dmapfiles[i].filepath, dmap);
-					//resize(dmap, dmap, newsz);
-
-					imshow("color", cimg);
-					//ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
-					
-					vector<VisualObject> masks = objmasks[imgfiles[i].filename];
-					// positive sample: object segments
-					for (size_t k=0; k<masks.size(); k++) {
-						//resize(masks[k], masks[k], newsz);
-						VisualObject cursegment;
-						cursegment.visual_data.mask = masks[k].visual_data.mask;
-						//resize(cursegment.mask, cursegment.mask, newsz);
-						sprintf_s(str, "%d_posseg_%d.jpg", i, k);
-						//imwrite(temp_dir + string(str), cursegment.mask*255);
-						if(test_) {
-							debug_img_.release();
-							cimg.copyTo(debug_img_, cursegment.visual_data.mask);
-							imshow("pos", debug_img_);
-							waitKey(0);
-						}
-
-						Mat curposfeat;
-						//ComputeSegmentRankFeature(cimg, dmap, cursegment, curposfeat);
-						//possamps.push_back(curposfeat);
-					}
-
-					// negative samples: random segments don't overlap with objects
-					int sumnum = 0;
-					bool finish = false;
-					for (size_t k=0; k<seg_ths.size() && !finish; k++) {
-						imgsegmentor.m_dThresholdK = seg_ths[k];
-						imgsegmentor.seg_type_ = OVER_SEG_GRAPH;
-						imgsegmentor.DoSegmentation(cimg);
-						vector<VisualObject>& tsps = imgsegmentor.superPixels;
-
-						// randomly select samples from every segment level
-						random_shuffle(tsps.begin(), tsps.end());
-						for (size_t id=0; id<tsps.size(); id++) {
-							if(tsps[id].visual_data.area < cimg.rows*cimg.cols*0.005) continue;
-							// check if have large overlap with one of the objects
-							bool isvalid = true;
-							for (size_t j=0; j<masks.size(); j++) {
-								Mat& curmask = masks[j].visual_data.mask;
-								//resize(masks[j], curmask, newsz);
-								Mat intersectMask = curmask & tsps[id].visual_data.mask;
-								if( countNonZero(intersectMask)*1.f / countNonZero(curmask | tsps[id].visual_data.mask) > 0.5 ) {
-									isvalid = false;
-									break;
-								}
-							}
-							// pass all tests
-							sprintf_s(str, "%d.png", sumnum);
-							if(isvalid) {
-								imwrite(temp_dir + imgfiles[i].filename + "_" + string(str), tsps[id].visual_data.mask*255);
-								if(test_) {
-									debug_img_.release();
-									cimg.copyTo(debug_img_, tsps[id].visual_data.mask);
-									imshow("neg", debug_img_);
-									waitKey(0);
-								}
-
-								Mat curnegfeat;
-								//ComputeSegmentRankFeature(cimg, dmap, tsps[i], curnegfeat);
-								//negsamps.push_back(curnegfeat);
-								
-								sumnum++;
-								cout<<sumnum<<endl;
-								if(sumnum == 5) { 
-									finish = true;
-									break;
-								}
-							}
-						}
-					}
-
-					cout<<"Finished "<<i<<"/"<<imgfiles.size()<<" image"<<endl;
-				}
-
-				// divide into train and test data with 3:7
-				rank_train_data.release();
-				rank_test_data.release();
-				rank_train_label.release();
-				rank_test_label.release();
-				for (int r=0; r<possamps.rows; r++)
-				{
-					if(r<possamps.rows*0.8) {
-						rank_train_data.push_back(possamps.row(r));
-						rank_train_label.push_back(1);
-					}
-					else {
-						rank_test_data.push_back(possamps.row(r));
-						rank_test_label.push_back(1);
-					}
-				}
-				for (int r=0; r<negsamps.rows; r++)
-				{
-					if(r<negsamps.rows*0.8) {
-						rank_train_data.push_back(negsamps.row(r));
-						rank_train_label.push_back(0);
-					}
-					else {
-						rank_test_data.push_back(negsamps.row(r));
-						rank_test_label.push_back(0);
-					}
-				}
-
-				cout<<"Rank training data ready."<<endl;
-
-				delete db_man;
-				db_man = NULL;
-
-				return true;
-			}
 		}
 	}
 	

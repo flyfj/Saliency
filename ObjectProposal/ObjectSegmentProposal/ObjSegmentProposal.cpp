@@ -10,10 +10,9 @@ namespace objectproposal
 
 	bool ObjSegmentProposal::GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps) {
 
-		iter_segmentor.merge_feat_types = SP_COLOR;
-		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.6f);
+		iter_segmentor.merge_method = MERGE_ITER;
+		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.65f);
 		iter_segmentor.Init(cimg, dmap);
-		iter_segmentor.verbose = false;
 		iter_segmentor.Run2();
 		sps = iter_segmentor.sps;
 
