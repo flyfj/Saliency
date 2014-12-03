@@ -14,6 +14,7 @@
 #include <visualsearch/io/datasets/Berkeley3DDataManager.h>
 #include <visualsearch/io/datasets/NYUDepth2DataMan.h>
 #include <visualsearch/io/camera/OpenCVCameraIO.hpp>
+#include <visualsearch/io/datasets/GeneralRGBDDataset.h>
 
 #include <visualsearch/features/color/ColorDescriptors.h>
 #include <visualsearch/features/3d/DepthDescriptors.h>

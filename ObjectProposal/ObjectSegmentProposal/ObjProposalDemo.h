@@ -43,7 +43,7 @@ public:
 
 	ObjProposalDemo(void);
 
-	bool RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg);
+	bool RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oimg);
 
 	//bool RunObjWinProposal(Mat& cimg, Mat& dmap);
 

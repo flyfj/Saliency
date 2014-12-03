@@ -318,7 +318,7 @@ namespace visualsearch
 
 				db_man->GetImageList(imgfiles);
 				//imgfiles.erase(imgfiles.begin(), imgfiles.begin() + 13);
-				imgfiles.erase(imgfiles.begin() + 100, imgfiles.end());
+				imgfiles.erase(imgfiles.begin() + 500, imgfiles.end());
 				db_man->GetDepthmapList(imgfiles, dmapfiles);
 
 				cout << "Generating training samples..." << endl;

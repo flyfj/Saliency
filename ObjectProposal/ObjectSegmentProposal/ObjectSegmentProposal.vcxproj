@@ -55,8 +55,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\opencv249\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;C:\Program Files %28x86%29\Eigen\include;E:\Projects\GitHub\VisualSearchEngine\VisualSearchEngine\EngineLib\include;C:\Program Files %28x86%29\boost_1_56_0_vc12;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opencv249\opencv\build\x86\vc12\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;E:\Projects\GitHub\VisualSearchEngine\VisualSearchEngine\EngineLib\lib;C:\Program Files %28x86%29\boost_1_56_0_vc12\lib32-msvc-12.0;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opencv249\opencv\build\include;C:\Program Files\Microsoft SDKs\Kinect\v1.8\inc;C:\Program Files %28x86%29\Eigen\include;E:\Projects\GitHub\VisualSearchEngine\VisualSearchEngine\EngineLib\include;C:\Program Files %28x86%29\boost_1_57_0_vc12;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opencv249\opencv\build\x86\vc12\lib;C:\Program Files\Microsoft SDKs\Kinect\v1.8\lib\x86;E:\Projects\GitHub\VisualSearchEngine\VisualSearchEngine\EngineLib\lib;C:\Program Files %28x86%29\boost_1_57_0_vc12\lib32-msvc-12.0;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>

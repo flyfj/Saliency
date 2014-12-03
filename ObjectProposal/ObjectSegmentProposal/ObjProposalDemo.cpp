@@ -66,7 +66,7 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 		/*if(dtype == DEMO_OBJECT_WIN)
 			RunObjWinProposal(cimg, dmap);*/
 		if(dtype == DEMO_OBJECT_SEG)
-			RunObjSegProposal(cimg, dmap, Mat());
+			RunObjSegProposal("", cimg, dmap, Mat());
 		if(dtype == DEMO_SAL)
 			RunSaliency(cimg, dmap, visualsearch::processors::attention::SAL_HC);
 
@@ -77,7 +77,7 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 	return true;
 }
 
-bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg)
+bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oimg)
 {
 	// propose
 	vector<VisualObject> sps;
@@ -90,7 +90,36 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg)
 	for (auto val : sps) {
 		boxes.push_back(val.visual_data.bbox);
 	}
-	ImgVisualizer::DrawWinsOnImg("objects", cimg, boxes, oimg);
+	imshow("mask", sps[0].visual_data.mask * 255);
+	cout << "contour length: " << sps[0].visual_data.original_contour.size() << endl;
+	cout << sps[0].visual_data.area*1.0f / (sps[0].visual_data.mask.rows*sps[0].visual_data.mask.cols) << endl;
+	Mat contour_pts = Mat::zeros(cimg.rows, cimg.cols, CV_8U);
+	for (auto p : sps[0].visual_data.original_contour) {
+		contour_pts.at<uchar>(p) = 255;
+	}
+	imshow("contour pts", contour_pts);
+	cout << ImgVisualizer::DrawShapes(cimg, sps, oimg, true) << endl;
+
+	// save result image
+	imwrite(fn + "_res.png", oimg);
+	// convert to 3d point cloud and output to file
+	visualsearch::features::Feature3D feat3d;
+	Mat pts3d;
+	feat3d.ComputeKinect3DMap(dmap, pts3d);
+	ofstream out(fn + ".obj");
+	for (int r = 0; r < pts3d.rows; r++)
+	{
+		for (int c = 0; c < pts3d.cols; c++)
+		{
+			if (sps[0].visual_data.mask.at<uchar>(r, c) > 0) {
+				Vec3f curval = pts3d.at<Vec3f>(r, c);
+				out << "v " << curval.val[0] << " " << curval.val[1] << " " << curval.val[2] << std::endl;
+			}
+		}
+	}
+
+
+	//ImgVisualizer::DrawWinsOnImg("objects", cimg, boxes, oimg);
 	//resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
 	/*char str[30];
 	sprintf_s(str, "%d_0.jpg", frameid);
