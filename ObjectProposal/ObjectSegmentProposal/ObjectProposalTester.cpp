@@ -316,38 +316,61 @@ void ObjectProposalTester::BatchProposal() {
 
 	srand(time(NULL));
 	ObjProposalDemo demo;
-	visualsearch::io::dataset::RGBDECCV14 rgbd;
+	// general io
+	visualsearch::io::dataset::GeneralRGBDDataset rgbd;
+	rgbd.img_dir_ = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\meeting_small\\meeting_small_1\\";// "C:\\Users\\jiefeng\\Box Sync\\KinectVideos\\1\\";
+	rgbd.img_dir_ = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset2\\rgbd-scenes-v2_imgs\\imgs\\scene_14\\";
+	rgbd.dmap_dir_ = rgbd.img_dir_; //"C:\\Users\\jiefeng\\Box Sync\\KinectVideos\\1\\";
+	rgbd.cimg_fn_pattern_ = "*-color.png";
+	rgbd.dmap_fn_pattern_based_on_cimg = "-depth.png";
+
+	//visualsearch::io::dataset::RGBDECCV14 rgbd;
 	FileInfos imgfiles, dmapfiles;
 	rgbd.GetImageList(imgfiles);
 	random_shuffle(imgfiles.begin(), imgfiles.end());
-	imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
+	//imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
 	rgbd.GetDepthmapList(imgfiles, dmapfiles);
 
+<<<<<<< HEAD
 
 	string savedir = "E:\\res\\segments\\";
+=======
+	save_dir = "E:\\res\\segments\\";
+>>>>>>> 25642d27aa93d6ff386cc9a2bed1deee55fa3ca7
 	char str[100];
 	for(size_t i=0; i<imgfiles.size(); i++)
 	{
 		Mat cimg = imread(imgfiles[i].filepath);
+		if (cimg.empty()) {
+			cout << "empty color image" << endl;
+			continue;
+		}
 		Size newsz;
 		tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 		resize(cimg, cimg, newsz);
 		Mat dmap;
-		rgbd.LoadDepthData(dmapfiles[i].filepath, dmap);
+		dmap = imread(dmapfiles[i].filepath, CV_LOAD_IMAGE_UNCHANGED);
+		if (dmap.empty()) {
+			cout << "empty depth image" << endl;
+			continue;
+		}
+		dmap.convertTo(dmap, CV_32F);
+		//rgbd.LoadDepthData(dmapfiles[i].filepath, dmap);
 		resize(dmap, dmap, newsz);
 
 		imshow("color", cimg);
 		ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
 
 		Mat oimg;
-		demo.RunObjSegProposal(cimg, dmap, oimg);
+		string save_fn = save_dir + imgfiles[i].filename;
+		demo.RunObjSegProposal(save_fn, cimg, dmap, oimg);
 		newsz.width = 600;
-		newsz.height = newsz.width * oimg.rows / oimg.cols;
+		newsz.height = 400;
 		resize(oimg, oimg, newsz);
 		imshow("res", oimg);
-		waitKey(0);
+		waitKey(10);
 
-		string savefn = savedir + "nyu_" + imgfiles[i].filename + "_res.png";
+		string savefn = save_dir + "nyu_" + imgfiles[i].filename + "_res.png";
 		//imwrite(savefn, oimg);
 	}
 
