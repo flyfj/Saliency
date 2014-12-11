@@ -81,7 +81,7 @@ bool ObjProposalDemo::RunObjSegProposal(Mat& cimg, Mat& dmap, Mat& oimg)
 {
 	// propose
 	vector<VisualObject> sps;
-	seg_proposal.Run(cimg, dmap, 1, sps);
+	seg_proposal.Run(cimg, dmap, 5, sps);
 
 	//return true;
 	

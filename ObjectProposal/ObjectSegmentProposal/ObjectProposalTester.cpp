@@ -323,6 +323,7 @@ void ObjectProposalTester::BatchProposal() {
 	imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
 	rgbd.GetDepthmapList(imgfiles, dmapfiles);
 
+
 	string savedir = "E:\\res\\segments\\";
 	char str[100];
 	for(size_t i=0; i<imgfiles.size(); i++)
