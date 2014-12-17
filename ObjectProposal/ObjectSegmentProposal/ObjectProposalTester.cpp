@@ -332,8 +332,17 @@ void ObjectProposalTester::BatchProposal() {
 	//imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
 	rgbd.GetDepthmapList(imgfiles, dmapfiles);
 
+<<<<<<< HEAD
 	save_dir = "E:\\res\\segments\\kinectvideo\\";
 	_mkdir(save_dir.c_str());
+=======
+<<<<<<< HEAD
+
+	string savedir = "E:\\res\\segments\\";
+=======
+	save_dir = "E:\\res\\segments\\";
+>>>>>>> 25642d27aa93d6ff386cc9a2bed1deee55fa3ca7
+>>>>>>> 965c212014b982c2c14d78d6ce700be477f62f9b
 	char str[100];
 	for(size_t i=0; i<imgfiles.size(); i++)
 	{
