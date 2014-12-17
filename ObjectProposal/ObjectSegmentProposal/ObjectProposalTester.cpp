@@ -318,20 +318,22 @@ void ObjectProposalTester::BatchProposal() {
 	ObjProposalDemo demo;
 	// general io
 	visualsearch::io::dataset::GeneralRGBDDataset rgbd;
-	rgbd.img_dir_ = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\meeting_small\\meeting_small_1\\";// "C:\\Users\\jiefeng\\Box Sync\\KinectVideos\\1\\";
-	rgbd.img_dir_ = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset2\\rgbd-scenes-v2_imgs\\imgs\\scene_14\\";
+	rgbd.img_dir_ = "F:\\KinectVideos\\";
+	//rgbd.img_dir_ = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\meeting_small\\meeting_small_1\\";// "C:\\Users\\jiefeng\\Box Sync\\KinectVideos\\1\\";
+	//rgbd.img_dir_ = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset2\\rgbd-scenes-v2_imgs\\imgs\\scene_14\\";
 	rgbd.dmap_dir_ = rgbd.img_dir_; //"C:\\Users\\jiefeng\\Box Sync\\KinectVideos\\1\\";
-	rgbd.cimg_fn_pattern_ = "*-color.png";
-	rgbd.dmap_fn_pattern_based_on_cimg = "-depth.png";
+	rgbd.cimg_fn_pattern_ = "frame*.jpg";
+	rgbd.dmap_fn_pattern_based_on_cimg = "_d.png";
 
 	//visualsearch::io::dataset::RGBDECCV14 rgbd;
 	FileInfos imgfiles, dmapfiles;
 	rgbd.GetImageList(imgfiles);
-	random_shuffle(imgfiles.begin(), imgfiles.end());
+	//random_shuffle(imgfiles.begin(), imgfiles.end());
 	//imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
 	rgbd.GetDepthmapList(imgfiles, dmapfiles);
 
-	save_dir = "E:\\res\\segments\\";
+	save_dir = "E:\\res\\segments\\kinectvideo\\";
+	_mkdir(save_dir.c_str());
 	char str[100];
 	for(size_t i=0; i<imgfiles.size(); i++)
 	{
@@ -358,11 +360,12 @@ void ObjectProposalTester::BatchProposal() {
 
 		Mat oimg;
 		string save_fn = save_dir + imgfiles[i].filename;
+		//demo.RunSaliency(cimg, dmap, SAL_GEO);
 		demo.RunObjSegProposal(save_fn, cimg, dmap, oimg);
 		newsz.width = 600;
 		newsz.height = 400;
-		resize(oimg, oimg, newsz);
-		imshow("res", oimg);
+		//resize(oimg, oimg, newsz);
+		//imshow("res", oimg);
 		waitKey(10);
 
 		string savefn = save_dir + "nyu_" + imgfiles[i].filename + "_res.png";
@@ -374,7 +377,7 @@ void ObjectProposalTester::BatchProposal() {
 void ObjectProposalTester::ProposalDemo() {
 
 	ObjProposalDemo demo;
-	demo.RunVideoDemo(SENSOR_CAMERA, DEMO_OBJECT_SEG);
+	demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
 }
 
 void ObjectProposalTester::TestSegmentor3D() {
@@ -490,19 +493,205 @@ void ObjectProposalTester::TestSegmentor3D() {
 }
 
 void ObjectProposalTester::TestBoundaryClf(bool ifTrain) {
-	/*Segmentor3D seg_3d;
-	if(ifTrain)
-	seg_3d.TrainBoundaryDetector(DB_NYU2_RGBD);
-	else {
-	Mat cimg = imread(nyu_cfn);
-	Mat dmap = imread(nyu_dfn, CV_LOAD_IMAGE_UNCHANGED);
-	dmap.convertTo(dmap, CV_32F);
 
-	imshow("cimg", cimg);
-	ImgVisualizer::DrawFloatImg("dmap", dmap);
+	string model_fn = "gray_edge_forest_i300_p400_d10_t10.dat";
 
-	seg_3d.RunBoundaryDetection(cimg, dmap, Mat());
-	}*/
+	int samp_num_per_img = 400;
+	int patch_size = 16;
+
+	learners::trees::DTreeTrainingParams tparams;
+	tparams.feat_type = learners::trees::DTREE_FEAT_CONV;
+	tparams.feature_num = 600;
+	tparams.th_num = 50;
+	tparams.min_samp_num = 50;
+	tparams.kernel_size = patch_size;
+	tparams.MaxLevel = 10;
+
+	learners::trees::RForestTrainingParams rfparams;
+	rfparams.num_trees = 10;
+	rfparams.split_disjoint = false;
+	rfparams.tree_params = tparams;
+
+	if (ifTrain)
+	{
+		// get data
+		DataManagerInterface* db_man = NULL;
+		db_man = new NYUDepth2DataMan;
+		FileInfos imgfiles, dmapfiles;
+		db_man->GetImageList(imgfiles);
+		random_shuffle(imgfiles.begin(), imgfiles.end());
+		imgfiles.erase(imgfiles.begin() + 300, imgfiles.end());
+		db_man->GetDepthmapList(imgfiles, dmapfiles);
+
+		SegmentProcessor seg_proc;
+
+		// select sample and get feature
+		std::cout << "Generating training samples..." << endl;
+		Mat possamps, negsamps;
+		for (size_t i = 0; i < imgfiles.size(); i++) 
+		{
+			// input data
+			Mat cimg = imread(imgfiles[i].filepath);
+			//imshow("input", cimg);
+			Mat gray_img;
+			cvtColor(cimg, gray_img, CV_BGR2GRAY);
+			Size newsz;
+			tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+			//resize(cimg, cimg, newsz);
+			cimg.convertTo(cimg, CV_32F, 1.f / 255);
+			gray_img.convertTo(gray_img, CV_32F, 1.f / 255);
+			Mat dmap;
+			db_man->LoadDepthData(dmapfiles[i].filepath, dmap);
+			//resize(dmap, dmap, newsz);
+			// TODO: not sure if correct
+			normalize(dmap, dmap, 1, 0, NORM_MINMAX);
+
+			map<string, vector<VisualObject>> objmasks;
+			vector<FileInfo> cur_imgfn;
+			cur_imgfn.push_back(imgfiles[i]);
+			db_man->LoadGTMasks(cur_imgfn, objmasks);
+			vector<VisualObject>& gt_masks = objmasks[imgfiles[i].filename];
+			// sample positive and negative samples
+			vector<Point> pos_pts, neg_pts;
+			Mat contour_mask = Mat::zeros(cimg.rows, cimg.cols, CV_8U);
+			for (size_t j = 0; j < gt_masks.size(); j++) {
+				VisualObject& cur_gt_obj = gt_masks[j];
+				seg_proc.ExtractSegmentBasicFeatures(cur_gt_obj);
+				for (auto pt : cur_gt_obj.visual_data.original_contour) {
+					contour_mask.at<uchar>(pt) = 255;
+				}
+			}
+
+			// visualize
+			//imshow("boundary", contour_mask);
+			//waitKey(10);
+
+			for (int r = 0; r < cimg.rows; r++) for (int c = 0; c < cimg.cols; c++) {
+				if (contour_mask.at<uchar>(r, c) == 255) pos_pts.push_back(Point(c, r));
+				else neg_pts.push_back(Point(c, r));
+			}
+			random_shuffle(pos_pts.begin(), pos_pts.end());
+			random_shuffle(neg_pts.begin(), neg_pts.end());
+
+			int max_samp_sz = MIN(samp_num_per_img, MIN(pos_pts.size(), neg_pts.size()));
+			for (int k = 0; k < max_samp_sz; k++) {
+				Point cur_pts[2];
+				cur_pts[0] = pos_pts[k];
+				cur_pts[1] = neg_pts[k];
+				for (auto kk = 0; kk < 2; kk++) {
+					Rect box;
+					box.x = MAX(0, cur_pts[kk].x - patch_size / 2);
+					box.y = MAX(0, cur_pts[kk].y - patch_size / 2);
+					box.width = MIN(cimg.cols - 1, cur_pts[kk].x + patch_size / 2) - box.x;
+					box.height = MIN(cimg.rows - 1, cur_pts[kk].y + patch_size / 2) - box.y;
+					if (box.width != patch_size || box.height != patch_size)
+						continue;
+					Mat cur_feat = Mat::zeros(1, patch_size*patch_size * 1, CV_32F);
+					int cnt = 0;
+					for (int r = box.y; r < box.br().y; r++) for (int c = box.x; c < box.br().x; c++) {
+						cur_feat.at<float>(cnt++) = gray_img.at<float>(r, c);
+					}
+					/*for (int r = box.y; r < box.br().y; r++) for (int c = box.x; c < box.br().x; c++) {
+						cur_feat.at<float>(cnt++) = dmap.at<float>(r, c);
+						}*/
+					if (kk==0) possamps.push_back(cur_feat);
+					else negsamps.push_back(cur_feat);
+				}
+
+			}
+			cout << "Pos samples: " << possamps.rows << " | Neg samples: " << negsamps.rows << endl;
+			cout << i + 1 << "/" << imgfiles.size() << endl;
+		}
+
+		// train model
+		Mat rank_train_data, rank_test_data, rank_train_label, rank_test_label;
+		for (int r = 0; r < possamps.rows; r++) {
+			if (r < possamps.rows*0.7) {
+				rank_train_data.push_back(possamps.row(r));
+				rank_train_label.push_back(1);
+			}
+			else {
+				rank_test_data.push_back(possamps.row(r));
+				rank_test_label.push_back(1);
+			}
+		}
+		for (int r = 0; r < negsamps.rows; r++) {
+			if (r < negsamps.rows*0.7) {
+				rank_train_data.push_back(negsamps.row(r));
+				rank_train_label.push_back(0);
+			}
+			else {
+				rank_test_data.push_back(negsamps.row(r));
+				rank_test_label.push_back(0);
+			}
+		}
+
+		delete db_man;
+		db_man = NULL;
+		cout << "Rank training data ready." << endl;
+
+		cout << "Start to train..." << endl;
+		ofstream out(model_fn.c_str());
+		learners::trees::DecisionTree<learners::trees::ConvolutionFeature> dtree;
+		learners::trees::RandomForest<learners::trees::ConvolutionFeature> rforest;
+		rforest.Init(rfparams);
+		rforest.Train(rank_train_data, rank_train_label);
+		rforest.Save(out);
+
+		// evaluate
+		rforest.EvaluateRandomForest(rank_test_data, rank_test_label, 2);
+
+	}
+	else
+	{
+		// get image
+		string imgfn = "E:\\Images\\1_25_25164.jpg";
+		Mat test_img = imread(nyu_cfn, CV_LOAD_IMAGE_GRAYSCALE);
+		imshow("color", test_img);
+		test_img.convertTo(test_img, CV_32F, 1.f / 255);
+
+		// load model
+		learners::trees::RandomForest<learners::trees::ConvolutionFeature> rforest;
+		rforest.Init(rfparams);
+		ifstream in(model_fn);
+		rforest.Load(in);
+
+		// predict
+		Mat scoremap = Mat::zeros(test_img.rows, test_img.cols, CV_32F);
+#pragma omp parallel for shared(rforest)
+		for (int r = patch_size / 2 + 1; r < test_img.rows - patch_size / 2; r++) {
+			for (int c = patch_size / 2 + 1; c < test_img.cols - patch_size / 2; c++) {
+				Mat cur_feat = Mat::zeros(1, patch_size*patch_size * 1, CV_32F);
+				Rect box;
+				box.x = MAX(0, c - patch_size / 2);
+				box.y = MAX(0, r - patch_size / 2);
+				box.width = patch_size;
+				box.height = patch_size;
+				int cnt = 0;
+				for (int rr = box.y; rr < box.br().y; rr++) for (int cc = box.x; cc < box.br().x; cc++) {
+					cur_feat.at<float>(cnt++) = test_img.at<float>(rr, cc);
+				}
+
+				vector<double> scores;
+				#pragma omp critical
+				rforest.Predict(cur_feat, scores);
+
+				scoremap.at<float>(r, c) = (float)scores[1];
+			}
+		}
+
+		// crop
+		Mat crop_map;
+		scoremap(Rect(patch_size / 2 + 1, patch_size / 2 + 1, test_img.cols - patch_size - 1, test_img.rows - patch_size - 1)).copyTo(crop_map);
+		// smooth
+		//medianBlur(scoremap, scoremap, 5);
+
+		// display
+		ImgVisualizer::DrawFloatImg("score", crop_map);
+		waitKey(0);
+
+	}
+
 }
 
 bool ObjectProposalTester::LoadNYU20Masks(FileInfo imgfn, vector<Mat>& gt_masks) {

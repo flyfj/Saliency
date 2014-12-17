@@ -4,29 +4,26 @@
 ObjProposalDemo::ObjProposalDemo()
 {
 	frameid = 0;
-	DATADIR = "e:\\res\\kinectvideos\\1\\";
+	DATADIR = "F:\\KinectVideos\\";
 }
 
 //////////////////////////////////////////////////////////////////////////
 
 bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 {
-	bool tosave = false;
+	bool tosave = true;
 	visualsearch::io::camera::OpenCVCameraIO cam;
 	if(stype == SENSOR_CAMERA)
 	{
 		if( !cam.InitCamera() )
 			return false;
 	}
-	/*KinectDataMan kinect;
-	if(stype == SENSOR_KINECT)
+	KinectDataMan kinect;
+	if (stype == SENSOR_KINECT)
 	{
-	if( !kinect.InitKinect() )
-	return false;
-	}*/
-
-	//if( !kinectDM.InitKinect() )
-	//return false;
+		if (!kinect.InitKinect())
+			return false;
+	}
 
 	char str[100];
 	frameid = 0;
@@ -38,30 +35,33 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 			if( !cam.QueryNextFrame(visualsearch::io::camera::STREAM_COLOR, cimg) )
 				continue;
 		}
-		/*if(stype == SENSOR_KINECT) {
-		if( !kinect.GetColorDepth(cimg, dmap) )
-		continue;
-		}*/
+		if (stype == SENSOR_KINECT) {
+			if (!kinect.GetColorDepth(cimg, dmap))
+				continue;
+		}
 
-		// downsample cimg to have same size as dmap
+		frameid++;
+
+		// down-sample cimg to have same size as dmap
 		Size newsz;
 		visualsearch::common::tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
-		resize(cimg, cimg, newsz);
+		//resize(cimg, cimg, newsz);
 		// show input
 		imshow("color", cimg);
 		if (!dmap.empty()) {
-			resize(dmap, dmap, newsz);
-			ImgVisualizer::DrawFloatImg("depth", dmap);
+			//resize(dmap, dmap, newsz);
+			//dmap.convertTo(dmap, CV_32F);
+			imshow("depth", dmap);
+			//ImgVisualizer::DrawFloatImg("depth", dmap);
 		}
 
-		if(tosave) {
+		if(tosave && frameid % 5 == 0) {
+			// no need to save every frame
 			sprintf_s(str, "frame_%d.jpg", frameid);
 			imwrite(DATADIR+string(str), cimg);
 			sprintf_s(str, "frame_%d_d.png", frameid);
 			imwrite(DATADIR+string(str), dmap);
 		}
-		
-		frameid++;
 
 		/*if(dtype == DEMO_OBJECT_WIN)
 			RunObjWinProposal(cimg, dmap);*/
@@ -81,7 +81,7 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 {
 	// propose
 	vector<VisualObject> sps;
-	seg_proposal.Run(cimg, dmap, 1, sps);
+	seg_proposal.Run(cimg, dmap, 5, sps);
 
 	//return true;
 	
@@ -102,22 +102,24 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 
 	// save result image
 	imwrite(fn + "_res.png", oimg);
+	//return true;
 	// convert to 3d point cloud and output to file
 	visualsearch::features::Feature3D feat3d;
 	Mat pts3d;
 	feat3d.ComputeKinect3DMap(dmap, pts3d);
-	ofstream out(fn + ".obj");
-	for (int r = 0; r < pts3d.rows; r++)
-	{
-		for (int c = 0; c < pts3d.cols; c++)
-		{
-			if (sps[0].visual_data.mask.at<uchar>(r, c) > 0) {
-				Vec3f curval = pts3d.at<Vec3f>(r, c);
-				out << "v " << curval.val[0] << " " << curval.val[1] << " " << curval.val[2] << std::endl;
+	char str[100];
+	for (size_t i = 0; i < 1; i++) {
+		sprintf_s(str, "_%d.obj", i);
+		ofstream out(fn + str);
+		for (int r = 0; r < pts3d.rows; r++) {
+			for (int c = 0; c < pts3d.cols; c++) {
+				if (sps[i].visual_data.mask.at<uchar>(r, c) > 0) {
+					Vec3f curval = pts3d.at<Vec3f>(r, c);
+					out << "v " << curval.val[0] << " " << curval.val[1] << " " << curval.val[2] << std::endl;
+				}
 			}
 		}
 	}
-
 
 	//ImgVisualizer::DrawWinsOnImg("objects", cimg, boxes, oimg);
 	//resize(oimg, oimg, Size(oimg.cols*2, oimg.rows*2));
@@ -212,8 +214,18 @@ bool ObjProposalDemo::RunSaliency(Mat& cimg, Mat& dmap, visualsearch::processors
 	Mat salmap;
 	salcomputer.ComputeSaliencyMap(cimg, saltype, salmap);
 
+	visualsearch::processors::segmentation::ImageSegmentor segmentor;
+	segmentor.m_dThresholdK = 30.f;
+	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
+	Mat sp_sal_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);
+	for (auto& p : segmentor.superPixels) {
+		sp_sal_map.setTo(mean(salmap, p.visual_data.mask).val[0], p.visual_data.mask);
+	}
+	normalize(sp_sal_map, sp_sal_map, 1, 0, NORM_MINMAX);
+
 	imshow("color", cimg);
-	imshow("sal", salmap);
+	imshow("sal", sp_sal_map);
 
 	return true;
 }

@@ -17,7 +17,43 @@ namespace visualsearch
 				features::DepthFeatParams dparams;
 				dparams.dtype = DEPTH_FEAT_HIST;
 
-				ranker_fn = "svm_ranker.model";
+				ranker_fn = "svm_ranker_shape.model";
+			}
+
+			bool ObjectRanker::Init(const Mat& color_img) {
+
+				cvtColor(color_img, gray_img, CV_BGR2GRAY);
+				gray_img.convertTo(gray_img, CV_32F, 1.f / 255);
+
+				sal_maps.clear();
+				Mat sal_map;
+				salcomputer.ComputeSaliencyMap(color_img, SAL_HC, sal_map);
+				sal_maps.push_back(sal_map);
+				salcomputer.ComputeSaliencyMap(color_img, SAL_GEO, sal_map);
+				sal_maps.push_back(sal_map);
+
+				//if (!rforest.m_ifTrained) {
+				//	// load boundary classifier
+				//	string model_fn = "gray_edge_forest_i300_p400_d10_t10.dat";
+				//	int samp_num_per_img = 400;
+				//	int patch_size = 16;
+				//	learners::trees::DTreeTrainingParams tparams;
+				//	tparams.feat_type = learners::trees::DTREE_FEAT_CONV;
+				//	tparams.feature_num = 600;
+				//	tparams.th_num = 50;
+				//	tparams.min_samp_num = 50;
+				//	tparams.kernel_size = patch_size;
+				//	tparams.MaxLevel = 10;
+				//	rfparams.num_trees = 10;
+				//	rfparams.split_disjoint = false;
+				//	rfparams.tree_params = tparams;
+
+				//	rforest.Init(rfparams);
+				//	ifstream in(model_fn);
+				//	rforest.Load(in);
+				//}			
+
+				return true;
 			}
 
 			//////////////////////////////////////////////////////////////////////////
@@ -30,8 +66,10 @@ namespace visualsearch
 					return RankSegmentsBySaliency(cimg, dmap, sps, orded_sp_ids);
 				if(rtype == SEG_RANK_SHAPE)
 					return RankSegmentsByShape(sps, orded_sp_ids);
-				if (rtype == SEG_RANK_LEARN)
+				if (rtype == SEG_RANK_LEARN) {
+					Init(cimg);
 					return RankSegmentsByLearner(cimg, dmap, sps, orded_sp_ids);
+				}
 
 				return true;
 			}
@@ -95,30 +133,25 @@ namespace visualsearch
 			// multi-scale contrast is used to filter  
 			bool ObjectRanker::RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, vector<int>& orded_sp_ids)
 			{
-				bool use_comp = true;
-				// rank by shape first
-				vector<int> shape_rank_ids;
-				RankSegmentsByShape(sps, shape_rank_ids);
-				cout<<"after shape rank: "<<shape_rank_ids.size()<<endl;
-
+				bool use_comp = false;
 				multimap<float, int, greater<float>> sp_scores;
 				if(use_comp) {
 					// compute composition cost for each superpixel
 					ImageSegmentor segmentor;
 					segmentor.m_dThresholdK = 30.f;
 					segmentor.seg_type_ = OVER_SEG_GRAPH;
-					cout<<"seg num "<<segmentor.DoSegmentation(cimg)<<endl;
+					cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
 					//imshow("baseseg", segmentor.m_segImg);
 					//waitKey(10);
 					for(size_t i=0; i<segmentor.superPixels.size(); i++) 
 						segprocessor.ExtractSegmentBasicFeatures(segmentor.superPixels[i]);
 
 					sal_comp_.Init(SAL_COLOR, cimg, dmap, segmentor.superPixels);
-					for (size_t i=0; i<shape_rank_ids.size(); i++) {
-						int cur_id = shape_rank_ids[i];
+					for (size_t i=0; i<sps.size(); i++) {
+						int cur_id = i;
 						float score = sal_comp_.Compose(sps[cur_id].visual_data.bbox);
 						//float score = sal_comp_.Compose(sps[cur_id]);// * ((float)sps[i].area / contourArea(sps[i].convex_hull));
-						sp_scores.insert(pair<float,int>(score, cur_id));
+						sp_scores.insert(pair<float, int>(score, cur_id));
 					}
 				}
 				else {
@@ -128,26 +161,14 @@ namespace visualsearch
 					imshow("salmap", sal_map);
 
 					// compute saliency score for each superpixel
-					float context_ratios[3] = {1.0, 1.2, 1.3};
-					for (size_t i=0; i<sps.size(); i++)
+					float sal_val = 0;
+					for (size_t i = 0; i < sps.size(); i++)
 					{
-						float mean_obj_score = (float)cv::mean(sal_map, sps[i].visual_data.mask).val[0];
-						float sum_obj_score = mean_obj_score * sps[i].visual_data.area;
-						float sum_context_score = 0;
-						float context_scores[3];
-						for(int k=0; k<3; k++) { 
-							ImgWin context_win = tools::ToolFactory::GetContextWin(cimg.cols, cimg.rows, sps[i].visual_data.bbox, context_ratios[k]);
-							//cout<<context_win<<endl;
-							context_scores[k] = (cv::mean(sal_map(context_win)).val[0]*context_win.area() - sum_obj_score) / 
-								(context_win.area()-sps[i].visual_data.area);
-							sum_context_score += context_scores[k];
-						}
-
-						float total_diff = fabs(sum_context_score - 3*mean_obj_score) / 3;
-						total_diff = total_diff * mean_obj_score;
-						//sp_scores[total_diff] = i;
+						float val = mean(sal_map, sps[i].visual_data.mask).val[0];
+						sp_scores.insert(pair<float, int>(val, i));
 					}
 				}
+
 				orded_sp_ids.clear();
 				orded_sp_ids.reserve(sp_scores.size());
 				for (auto pi=sp_scores.begin(); pi!=sp_scores.end(); pi++) {
@@ -229,6 +250,46 @@ namespace visualsearch
 				vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.2) );
 				vals.push_back( cs_contraster.ComputeContrast(cimg, Mat(), sp, FEAT_TYPE_COLOR, 1.5) );*/
 				// TODO: use saliency composition cost
+				/*for (size_t i = 0; i < sal_maps.size(); i++) {
+					float score = mean(sal_maps[i], sp.visual_data.mask).val[0];
+					vals.push_back(score);
+					}*/
+				
+
+				//int patch_size = rfparams.tree_params.kernel_size;
+				//// boundary strength feature
+				//if (rforest.m_ifTrained) {
+				//	vector<float> bvals;
+				//	int bin_num = 10;
+				//	float step = 1.f / bin_num;
+				//	Mat hist = Mat::zeros(1, bin_num, CV_32F);
+				//	for (auto val : sp.visual_data.original_contour) {
+
+				//		if (val.x + patch_size / 2 > cimg.cols || val.x - patch_size / 2 < 0 ||
+				//			val.y + patch_size / 2 > cimg.rows || val.y - patch_size / 2 < 0)
+				//			continue;
+
+				//		Mat cur_feat = Mat::zeros(1, patch_size*patch_size, CV_32F);
+				//		Rect box;
+				//		box.x = MAX(0, val.x - patch_size / 2);
+				//		box.y = MAX(0, val.y - patch_size / 2);
+				//		box.width = patch_size;
+				//		box.height = patch_size;
+				//		int cnt = 0;
+				//		for (int rr = box.y; rr < box.br().y; rr++) for (int cc = box.x; cc < box.br().x; cc++) {
+				//			cur_feat.at<float>(cnt++) = gray_img.at<float>(rr, cc);
+				//		}
+
+				//		vector<double> scores;
+				//		rforest.Predict(cur_feat, scores);
+				//		int bin_id = MIN(bin_num - 1, scores[1] / step);
+				//		hist.at<float>(bin_id)++;
+				//	}
+				//	normalize(hist, hist, 1, 0, NORM_MINMAX);
+				//	for (int id = 0; id < hist.cols; id++) {
+				//		vals.push_back(hist.at<float>(id));
+				//	}
+				//}
 
 				// depth: depth contrast
 				//if( !dmap.empty() ) {
@@ -318,7 +379,7 @@ namespace visualsearch
 
 				db_man->GetImageList(imgfiles);
 				//imgfiles.erase(imgfiles.begin(), imgfiles.begin() + 13);
-				imgfiles.erase(imgfiles.begin() + 500, imgfiles.end());
+				imgfiles.erase(imgfiles.begin() + 800, imgfiles.end());
 				db_man->GetDepthmapList(imgfiles, dmapfiles);
 
 				cout << "Generating training samples..." << endl;
@@ -334,6 +395,7 @@ namespace visualsearch
 
 					// color image
 					Mat cimg = imread(imgfiles[i].filepath);
+					Init(cimg);
 					Size newsz;
 					tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
 					//resize(cimg, cimg, newsz);

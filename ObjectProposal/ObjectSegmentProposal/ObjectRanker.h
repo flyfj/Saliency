@@ -32,6 +32,8 @@ namespace visualsearch {
 			public:
 				ObjectRanker(void);
 
+				bool Init(const Mat& color_img);
+
 				// classifier if a superpixel is an object based a set of features
 				bool LearnObjectPredictor(DatasetName db_name);
 				bool LearnObjectWindowPredictor();
@@ -66,11 +68,14 @@ namespace visualsearch {
 				SalientRGBDRegionDetector sal_comp_;
 				CenterSurroundFeatureContraster cs_contraster;
 				common::tools::ImgVisualizer img_vis_;
+				learners::trees::RandomForest<learners::trees::ConvolutionFeature> rforest;
+				learners::trees::RForestTrainingParams rfparams;
 
 				Mat rank_train_data, rank_train_label;
 				Mat rank_test_data, rank_test_label;
 				Mat debug_img_;				// used to save intermediate or debug results
 				vector<Mat> sal_maps;		// saliency maps of different types
+				Mat gray_img;
 				bool test_;
 				string ranker_fn;			// filename for storing learned ranker
 			};

@@ -11,7 +11,7 @@ namespace objectproposal
 	bool ObjSegmentProposal::GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps) {
 
 		iter_segmentor.merge_method = MERGE_ITER;
-		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.7f);
+		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.5f);
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.Run2();
 		sps = iter_segmentor.sps;
