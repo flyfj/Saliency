@@ -83,13 +83,22 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 	vector<VisualObject> sps;
 	seg_proposal.Run(cimg, dmap, 5, sps);
 
-	//return true;
-	
-	// display results
-	vector<ImgWin> boxes;
-	for (auto val : sps) {
-		boxes.push_back(val.visual_data.bbox);
+	char str[100];
+	string box_fn = fn + "_box.txt";
+	ofstream out(box_fn);
+	// save all proposal images
+	for (size_t i = 0; i < sps.size(); i++)
+	{
+		Mat tmp_img;
+		vector<VisualObject> tmp_sps;
+		tmp_sps.push_back(sps[i]);
+		ImgVisualizer::DrawShapes(cimg, tmp_sps, tmp_img, true);
+		sprintf_s(str, "_res_%d.png", i);
+		imwrite(fn + str, tmp_img);
+		out << sps[i].visual_data.bbox.x << " " << sps[i].visual_data.bbox.y << " " <<
+			sps[i].visual_data.bbox.width << " " << sps[i].visual_data.bbox.height << endl;
 	}
+	
 	imshow("mask", sps[0].visual_data.mask * 255);
 	cout << "contour length: " << sps[0].visual_data.original_contour.size() << endl;
 	cout << sps[0].visual_data.area*1.0f / (sps[0].visual_data.mask.rows*sps[0].visual_data.mask.cols) << endl;
@@ -107,8 +116,7 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 	visualsearch::features::Feature3D feat3d;
 	Mat pts3d;
 	feat3d.ComputeKinect3DMap(dmap, pts3d);
-	char str[100];
-	for (size_t i = 0; i < 1; i++) {
+	for (size_t i = 0; i < sps.size(); i++) {
 		sprintf_s(str, "_%d.obj", i);
 		ofstream out(fn + str);
 		for (int r = 0; r < pts3d.rows; r++) {

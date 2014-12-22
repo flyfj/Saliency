@@ -4,6 +4,7 @@ namespace objectproposal
 {
 	ObjSegmentProposal::ObjSegmentProposal(void)
 	{
+		verbose = false;
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -11,10 +12,95 @@ namespace objectproposal
 	bool ObjSegmentProposal::GetCandidatesFromIterativeSeg(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps) {
 
 		iter_segmentor.merge_method = MERGE_ITER;
-		iter_segmentor.seg_size_bound_ = Point2f(0.01f, 0.5f);
+		iter_segmentor.seg_size_bound_ = Point2f(0.005f, 0.5f);
 		iter_segmentor.Init(cimg, dmap);
 		iter_segmentor.Run2();
 		sps = iter_segmentor.sps;
+
+		return true;
+	}
+
+	bool ObjSegmentProposal::GetCandidatesFromSaliency(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps)
+	{
+		visualsearch::processors::attention::SaliencyComputer sal_comp;
+		ShapeAnalyzer shape;
+		sps.clear();
+
+		Feature3D feat3d;
+		Mat pts3d;
+		if (!dmap.empty()) {
+			feat3d.ComputeKinect3DMap(dmap, pts3d, true);
+			pts3d.convertTo(pts3d, CV_8U, 255);
+			if (verbose) {
+				imshow("3d map", pts3d);
+				waitKey(0);
+			}
+		}	
+
+		vector<visualsearch::processors::attention::SaliencyType> sal_types;
+		sal_types.push_back(visualsearch::processors::attention::SAL_GEO);
+		sal_types.push_back(visualsearch::processors::attention::SAL_HC);
+		vector<float> ths;
+		for (float th = 0; th < 1; th += 0.1)
+			ths.push_back(th);
+
+		for (size_t i = 0; i < sal_types.size(); i++)
+		{
+			// compute saliency map
+			Mat salmap;
+			sal_comp.ComputeSaliencyMap(cimg, sal_types[i], salmap);
+
+			visualsearch::processors::segmentation::ImageSegmentor segmentor;
+			segmentor.m_dThresholdK = 30.f;
+			segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+			cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
+			Mat sp_sal_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);
+			for (auto& p : segmentor.superPixels) {
+				sp_sal_map.setTo(mean(salmap, p.visual_data.mask).val[0], p.visual_data.mask);
+			}
+			normalize(sp_sal_map, sp_sal_map, 1, 0, NORM_MINMAX);
+			if (verbose) {
+				ImgVisualizer::DrawFloatImg("sal", sp_sal_map);
+				waitKey(0);
+			}
+
+			// thresholding to get candidates
+			// method 1: interval
+			for (size_t j = 1; j < ths.size(); j++) {
+				Mat cur_th_map;
+				inRange(sp_sal_map, ths[j - 1], ths[j], cur_th_map);
+				cur_th_map.convertTo(cur_th_map, CV_8U);
+				if (verbose) {
+					imshow("th map", cur_th_map);
+					waitKey(10);
+				}			
+				vector<VisualObject> objs;
+				shape.ExtractConnectedComponents(cur_th_map, objs);
+				sps.insert(sps.end(), objs.begin(), objs.end());
+				cout << "sp num: " << sps.size() << endl;
+			}
+			// method 2: binary
+			for (size_t j = 0; j < ths.size(); j++) {
+				Mat cur_th_map;
+				inRange(sp_sal_map, ths[j], 1, cur_th_map);
+				cur_th_map.convertTo(cur_th_map, CV_8U);
+				if (verbose) {
+					imshow("th map", cur_th_map);
+					waitKey(10);
+				}
+				vector<VisualObject> objs;
+				shape.ExtractConnectedComponents(cur_th_map, objs);
+				sps.insert(sps.end(), objs.begin(), objs.end());
+				cout << "sp num: " << sps.size() << endl;
+			}
+		}
+
+		// clean candidates
+		for (auto& sp : sps) {
+			seg_proc.ExtractSegmentBasicFeatures(sp);
+		}
+		SegmentProcessor::CleanSPs(sps, 0.01f, 0.5f, 0.9f);
+		cout << "cleaned sp: " << sps.size() << endl;
 
 		return true;
 	}
@@ -106,7 +192,8 @@ namespace objectproposal
 		// get candidates
 		vector<VisualObject> res_sps;
 		//GetCandidatesFromSegment3D(cimg, dmap, res_sps);
-		GetCandidatesFromIterativeSeg(cimg, dmap, res_sps);
+		//GetCandidatesFromIterativeSeg(cimg, dmap, res_sps);
+		GetCandidatesFromSaliency(cimg, dmap, res_sps);
 		// extract basic features
 		SegmentProcessor seg_proc;
 		//for(auto& sp : res_sps) seg_proc.ExtractBasicSegmentFeatures(sp, cimg, dmap);

@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.31101.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ObjectSegmentProposal", "ObjectSegmentProposal\ObjectSegmentProposal.vcxproj", "{5F3E661B-99FB-408D-B819-4F102059A555}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ObjectWindowProposal", "ObjectWindowProposal\ObjectWindowProposal.vcxproj", "{54834AF7-A45F-41B4-8B1B-7B57B6138427}"
@@ -19,6 +21,7 @@ Global
 		{5F3E661B-99FB-408D-B819-4F102059A555}.Debug|x64.Build.0 = Debug|x64
 		{5F3E661B-99FB-408D-B819-4F102059A555}.Release|Win32.ActiveCfg = Release|Win32
 		{5F3E661B-99FB-408D-B819-4F102059A555}.Release|Win32.Build.0 = Release|Win32
+		{5F3E661B-99FB-408D-B819-4F102059A555}.Release|Win32.Deploy.0 = Release|Win32
 		{5F3E661B-99FB-408D-B819-4F102059A555}.Release|x64.ActiveCfg = Release|x64
 		{5F3E661B-99FB-408D-B819-4F102059A555}.Release|x64.Build.0 = Release|x64
 		{54834AF7-A45F-41B4-8B1B-7B57B6138427}.Debug|Win32.ActiveCfg = Debug|Win32

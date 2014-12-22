@@ -11,7 +11,7 @@ namespace visualsearch
 			{
 				features::color::ColorFeatParams cparams;
 				cparams.feat_type = features::color::COLOR_FEAT_MEAN;
-				cparams.histParams.color_space = features::color::COLOR_LAB;
+				cparams.hist_params.color_space = features::color::COLOR_LAB;
 				colordesc.Init(cparams);
 
 				features::DepthFeatParams dparams;

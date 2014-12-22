@@ -316,70 +316,80 @@ void ObjectProposalTester::BatchProposal() {
 
 	srand(time(NULL));
 	ObjProposalDemo demo;
-	// general io
-	visualsearch::io::dataset::GeneralRGBDDataset rgbd;
-	rgbd.img_dir_ = "F:\\KinectVideos\\";
-	//rgbd.img_dir_ = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\meeting_small\\meeting_small_1\\";// "C:\\Users\\jiefeng\\Box Sync\\KinectVideos\\1\\";
-	//rgbd.img_dir_ = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset2\\rgbd-scenes-v2_imgs\\imgs\\scene_14\\";
-	rgbd.dmap_dir_ = rgbd.img_dir_; //"C:\\Users\\jiefeng\\Box Sync\\KinectVideos\\1\\";
-	rgbd.cimg_fn_pattern_ = "frame*.jpg";
-	rgbd.dmap_fn_pattern_based_on_cimg = "_d.png";
 
-	//visualsearch::io::dataset::RGBDECCV14 rgbd;
-	FileInfos imgfiles, dmapfiles;
-	rgbd.GetImageList(imgfiles);
-	//random_shuffle(imgfiles.begin(), imgfiles.end());
-	//imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
-	rgbd.GetDepthmapList(imgfiles, dmapfiles);
-
-<<<<<<< HEAD
-	save_dir = "E:\\res\\segments\\kinectvideo\\";
+	string root_dir = "F:\\KinectVideos\\";
+	save_dir = "F:\\res\\proposal1\\";
 	_mkdir(save_dir.c_str());
-=======
-<<<<<<< HEAD
+	DirInfos dirs;
+	ToolFactory::GetDirsFromDir(root_dir, dirs);
 
-	string savedir = "E:\\res\\segments\\";
-=======
-	save_dir = "E:\\res\\segments\\";
->>>>>>> 25642d27aa93d6ff386cc9a2bed1deee55fa3ca7
->>>>>>> 965c212014b982c2c14d78d6ce700be477f62f9b
-	char str[100];
-	for(size_t i=0; i<imgfiles.size(); i++)
+	for (size_t k = 0; k < dirs.size(); k++) 
 	{
-		Mat cimg = imread(imgfiles[i].filepath);
-		if (cimg.empty()) {
-			cout << "empty color image" << endl;
-			continue;
+		// general io
+		visualsearch::io::dataset::GeneralRGBDDataset rgbd;
+		rgbd.img_dir_ = dirs[k].dirpath;
+			//rgbd.img_dir_ = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset1\\meeting_small\\meeting_small_1\\";// "C:\\Users\\jiefeng\\Box Sync\\KinectVideos\\1\\";
+			//rgbd.img_dir_ = "E:\\Datasets\\RGBD_Dataset\\UW\\rgbd-scene-dataset2\\rgbd-scenes-v2_imgs\\imgs\\scene_14\\";
+			rgbd.dmap_dir_ = rgbd.img_dir_; //"C:\\Users\\jiefeng\\Box Sync\\KinectVideos\\1\\";
+		rgbd.cimg_fn_pattern_ = "frame*.jpg";
+		rgbd.dmap_fn_pattern_based_on_cimg = "_d.png";
+
+		//visualsearch::io::dataset::RGBDECCV14 rgbd;
+		FileInfos imgfiles, dmapfiles;
+		rgbd.GetImageList(imgfiles);
+		//random_shuffle(imgfiles.begin(), imgfiles.end());
+		//imgfiles.erase(imgfiles.begin()+10, imgfiles.end());
+		rgbd.GetDepthmapList(imgfiles, dmapfiles);
+
+		string cur_save_dir = save_dir + dirs[k].dirname + "\\";
+		//save_dir = "E:\\res\\segments\\kinectvideo\\";
+		_mkdir(cur_save_dir.c_str());
+		char str[100];
+		for (size_t i = 0; i < imgfiles.size(); i++)
+		{
+			Mat cimg = imread(imgfiles[i].filepath);
+			if (cimg.empty()) {
+				cout << "empty color image" << endl;
+				continue;
+			}
+			Size newsz;
+			tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
+			//resize(cimg, cimg, newsz);
+			Mat dmap;
+			dmap = imread(dmapfiles[i].filepath, CV_LOAD_IMAGE_UNCHANGED);
+			if (dmap.empty()) {
+				cout << "empty depth image" << endl;
+				continue;
+			}
+			dmap.convertTo(dmap, CV_32F);
+			//rgbd.LoadDepthData(dmapfiles[i].filepath, dmap);
+			//resize(dmap, dmap, newsz);
+
+			imshow("color", cimg);
+			ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
+
+			ImageSegmentor img_segmentor;
+			img_segmentor.m_dThresholdK = 20;
+			img_segmentor.m_dMinArea = 40;
+			img_segmentor.slic_seg_num_ = 300;
+			img_segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+			int init_seg_num = img_segmentor.DoSegmentation(cimg);
+			imshow("seg", img_segmentor.m_segImg);
+
+			Mat oimg;
+			string save_fn = cur_save_dir + imgfiles[i].filename;
+			cout << save_fn << endl;
+			//demo.RunSaliency(cimg, dmap, SAL_GEO);
+			demo.RunObjSegProposal(save_fn, cimg, dmap, oimg);
+			newsz.width = 600;
+			newsz.height = 400;
+			//resize(oimg, oimg, newsz);
+			//imshow("res", oimg);
+			//break;
+			waitKey(10);
 		}
-		Size newsz;
-		tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
-		resize(cimg, cimg, newsz);
-		Mat dmap;
-		dmap = imread(dmapfiles[i].filepath, CV_LOAD_IMAGE_UNCHANGED);
-		if (dmap.empty()) {
-			cout << "empty depth image" << endl;
-			continue;
-		}
-		dmap.convertTo(dmap, CV_32F);
-		//rgbd.LoadDepthData(dmapfiles[i].filepath, dmap);
-		resize(dmap, dmap, newsz);
-
-		imshow("color", cimg);
-		ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
-
-		Mat oimg;
-		string save_fn = save_dir + imgfiles[i].filename;
-		//demo.RunSaliency(cimg, dmap, SAL_GEO);
-		demo.RunObjSegProposal(save_fn, cimg, dmap, oimg);
-		newsz.width = 600;
-		newsz.height = 400;
-		//resize(oimg, oimg, newsz);
-		//imshow("res", oimg);
-		waitKey(10);
-
-		string savefn = save_dir + "nyu_" + imgfiles[i].filename + "_res.png";
-		//imwrite(savefn, oimg);
 	}
+	
 
 }
 

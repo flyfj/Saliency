@@ -63,7 +63,6 @@
 //#pragma comment(lib, "vtkCommonExecutionModel-6.1.lib")
 
 
-
 int main()
 {
 	ObjectProposalTester tester;
