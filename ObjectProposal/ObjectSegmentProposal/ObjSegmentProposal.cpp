@@ -192,8 +192,8 @@ namespace objectproposal
 		// get candidates
 		vector<VisualObject> res_sps;
 		//GetCandidatesFromSegment3D(cimg, dmap, res_sps);
-		//GetCandidatesFromIterativeSeg(cimg, dmap, res_sps);
-		GetCandidatesFromSaliency(cimg, dmap, res_sps);
+		GetCandidatesFromIterativeSeg(cimg, dmap, res_sps);
+		//GetCandidatesFromSaliency(cimg, dmap, res_sps);
 		// extract basic features
 		SegmentProcessor seg_proc;
 		//for(auto& sp : res_sps) seg_proc.ExtractBasicSegmentFeatures(sp, cimg, dmap);

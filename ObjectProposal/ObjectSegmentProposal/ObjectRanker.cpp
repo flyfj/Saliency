@@ -114,6 +114,7 @@ namespace visualsearch
 					ComputeSegmentRankFeature(cimg, dmap, sps[i], cur_feat);
 					sp_scores[i].x = i;
 					sp_scores[i].y = -model.predict(cur_feat, true);
+					sps[i].visual_data.scores.push_back(sp_scores[i].y);
 				}
 				sort(sp_scores.begin(), sp_scores.end(), [](const Point2f& a, const Point2f& b) {
 					return a.y > b.y;

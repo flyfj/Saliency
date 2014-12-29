@@ -83,35 +83,54 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 	vector<VisualObject> sps;
 	seg_proposal.Run(cimg, dmap, 5, sps);
 
+	/*
+		save results
+		1) box position with score
+		2) box overlay on image and cropped image patch
+		3) shape overlay on image
+		4) point cloud
+	*/
 	char str[100];
+	// box positions
 	string box_fn = fn + "_box.txt";
 	ofstream out(box_fn);
-	// save all proposal images
+	vector<ImgWin> boxes;
 	for (size_t i = 0; i < sps.size(); i++)
 	{
+		boxes.push_back(sps[i].visual_data.bbox);
+		
 		Mat tmp_img;
 		vector<VisualObject> tmp_sps;
 		tmp_sps.push_back(sps[i]);
 		ImgVisualizer::DrawShapes(cimg, tmp_sps, tmp_img, true);
 		sprintf_s(str, "_res_%d.png", i);
 		imwrite(fn + str, tmp_img);
+		tmp_img = cimg(sps[i].visual_data.bbox).clone();
+		sprintf_s(str, "_box_%d.png", i);
+		imwrite(fn + str, tmp_img);
+
 		out << sps[i].visual_data.bbox.x << " " << sps[i].visual_data.bbox.y << " " <<
-			sps[i].visual_data.bbox.width << " " << sps[i].visual_data.bbox.height << endl;
+			sps[i].visual_data.bbox.width << " " << sps[i].visual_data.bbox.height << " " << sps[i].visual_data.scores[0] << endl;
 	}
+	// box overlay on image
+	ImgVisualizer::DrawWinsOnImg("boxes", cimg, boxes, oimg);
+	imwrite(fn + "_box.png", oimg);
 	
-	imshow("mask", sps[0].visual_data.mask * 255);
+	/*imshow("mask", sps[0].visual_data.mask * 255);
 	cout << "contour length: " << sps[0].visual_data.original_contour.size() << endl;
 	cout << sps[0].visual_data.area*1.0f / (sps[0].visual_data.mask.rows*sps[0].visual_data.mask.cols) << endl;
 	Mat contour_pts = Mat::zeros(cimg.rows, cimg.cols, CV_8U);
 	for (auto p : sps[0].visual_data.original_contour) {
-		contour_pts.at<uchar>(p) = 255;
+	contour_pts.at<uchar>(p) = 255;
 	}
-	imshow("contour pts", contour_pts);
+	imshow("contour pts", contour_pts);*/
+	
+	// shape overlay on image
 	cout << ImgVisualizer::DrawShapes(cimg, sps, oimg, true) << endl;
+	imwrite(fn + "_shape.png", oimg);
 
-	// save result image
-	imwrite(fn + "_res.png", oimg);
-	//return true;
+	return true;
+
 	// convert to 3d point cloud and output to file
 	visualsearch::features::Feature3D feat3d;
 	Mat pts3d;

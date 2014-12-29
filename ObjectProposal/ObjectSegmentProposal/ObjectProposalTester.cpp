@@ -318,13 +318,15 @@ void ObjectProposalTester::BatchProposal() {
 	ObjProposalDemo demo;
 
 	string root_dir = "F:\\KinectVideos\\";
-	save_dir = "F:\\res\\proposal1\\";
+	save_dir = "F:\\src\\res\\proposal1\\";
 	_mkdir(save_dir.c_str());
 	DirInfos dirs;
 	ToolFactory::GetDirsFromDir(root_dir, dirs);
 
 	for (size_t k = 0; k < dirs.size(); k++) 
 	{
+		if (dirs[k].dirname != "table" && dirs[k].dirname != "table")
+			continue;
 		// general io
 		visualsearch::io::dataset::GeneralRGBDDataset rgbd;
 		rgbd.img_dir_ = dirs[k].dirpath;
@@ -354,7 +356,7 @@ void ObjectProposalTester::BatchProposal() {
 			}
 			Size newsz;
 			tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 400, newsz);
-			//resize(cimg, cimg, newsz);
+			resize(cimg, cimg, newsz);
 			Mat dmap;
 			dmap = imread(dmapfiles[i].filepath, CV_LOAD_IMAGE_UNCHANGED);
 			if (dmap.empty()) {
@@ -363,7 +365,7 @@ void ObjectProposalTester::BatchProposal() {
 			}
 			dmap.convertTo(dmap, CV_32F);
 			//rgbd.LoadDepthData(dmapfiles[i].filepath, dmap);
-			//resize(dmap, dmap, newsz);
+			resize(dmap, dmap, newsz);
 
 			imshow("color", cimg);
 			ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
