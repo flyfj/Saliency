@@ -114,6 +114,7 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 	}
 	// box overlay on image
 	ImgVisualizer::DrawWinsOnImg("boxes", cimg, boxes, oimg);
+	imshow("boxes", oimg);
 	imwrite(fn + "_box.png", oimg);
 	
 	/*imshow("mask", sps[0].visual_data.mask * 255);
@@ -233,16 +234,12 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 
 bool ObjProposalDemo::RunSaliency(Mat& cimg, Mat& dmap, visualsearch::processors::attention::SaliencyType saltype)
 {
-	// resize image
-	Size newsz;
-	tools::ToolFactory::compute_downsample_ratio(Size(cimg.cols, cimg.rows), 300, newsz);
-	resize(cimg, cimg, newsz);
-
 	Mat salmap;
 	salcomputer.ComputeSaliencyMap(cimg, saltype, salmap);
 
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
-	segmentor.m_dThresholdK = 30.f;
+	segmentor.m_dThresholdK = 20.f;
+	segmentor.m_dMinArea = 30;
 	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
 	cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
 	Mat sp_sal_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);

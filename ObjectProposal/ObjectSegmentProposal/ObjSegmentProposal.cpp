@@ -20,6 +20,13 @@ namespace objectproposal
 		return true;
 	}
 
+	/**
+		1) compute saliency map
+		2) select candidate fg/bg regions
+		3) run watershed or graph cut to get regions
+		4) iteratively compute saliency and repeat
+		5) post processing
+	*/
 	bool ObjSegmentProposal::GetCandidatesFromSaliency(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps)
 	{
 		visualsearch::processors::attention::SaliencyComputer sal_comp;
@@ -35,14 +42,11 @@ namespace objectproposal
 				imshow("3d map", pts3d);
 				waitKey(0);
 			}
-		}	
+		}
 
 		vector<visualsearch::processors::attention::SaliencyType> sal_types;
 		sal_types.push_back(visualsearch::processors::attention::SAL_GEO);
-		sal_types.push_back(visualsearch::processors::attention::SAL_HC);
-		vector<float> ths;
-		for (float th = 0; th < 1; th += 0.1)
-			ths.push_back(th);
+		//sal_types.push_back(visualsearch::processors::attention::SAL_HC);
 
 		for (size_t i = 0; i < sal_types.size(); i++)
 		{
@@ -51,14 +55,20 @@ namespace objectproposal
 			sal_comp.ComputeSaliencyMap(cimg, sal_types[i], salmap);
 
 			visualsearch::processors::segmentation::ImageSegmentor segmentor;
-			segmentor.m_dThresholdK = 30.f;
+			segmentor.m_dThresholdK = 20.f;
 			segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
 			cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
+			// compute superpixel saliency map
 			Mat sp_sal_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);
 			for (auto& p : segmentor.superPixels) {
 				sp_sal_map.setTo(mean(salmap, p.visual_data.mask).val[0], p.visual_data.mask);
 			}
 			normalize(sp_sal_map, sp_sal_map, 1, 0, NORM_MINMAX);
+			Mat oimg;
+			ImgVisualizer::DrawFloatImg("sal", sp_sal_map, oimg);
+			imwrite("sal_old.jpg", cimg);
+			imwrite("sal.jpg", oimg);
+			waitKey(0);
 			if (verbose) {
 				ImgVisualizer::DrawFloatImg("sal", sp_sal_map);
 				waitKey(0);
@@ -66,40 +76,44 @@ namespace objectproposal
 
 			// thresholding to get candidates
 			// method 1: interval
-			for (size_t j = 1; j < ths.size(); j++) {
-				Mat cur_th_map;
-				inRange(sp_sal_map, ths[j - 1], ths[j], cur_th_map);
-				cur_th_map.convertTo(cur_th_map, CV_8U);
-				if (verbose) {
-					imshow("th map", cur_th_map);
-					waitKey(10);
-				}			
-				vector<VisualObject> objs;
-				shape.ExtractConnectedComponents(cur_th_map, objs);
-				sps.insert(sps.end(), objs.begin(), objs.end());
-				cout << "sp num: " << sps.size() << endl;
+			vector<float> ths{ 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f };
+			for (size_t j = 0; j < ths.size(); j++) {
+				// 0.4 is the minimum foreground threshold
+				for (float th = 0.2; th < 1; th += 0.1f) {
+					Mat cur_th_map;
+					inRange(sp_sal_map, th, MIN(1, th+ths[j]), cur_th_map);
+					cur_th_map.convertTo(cur_th_map, CV_8U);
+					if (verbose) {
+						imshow("th map", cur_th_map);
+						waitKey(10);
+					}
+					vector<VisualObject> objs;
+					shape.ExtractConnectedComponents(cur_th_map, objs);
+					sps.insert(sps.end(), objs.begin(), objs.end());
+					cout << "sp num: " << sps.size() << endl;
+				}
 			}
 			// method 2: binary
-			for (size_t j = 0; j < ths.size(); j++) {
+			/*for (size_t j = 0; j < ths.size(); j++) {
 				Mat cur_th_map;
 				inRange(sp_sal_map, ths[j], 1, cur_th_map);
 				cur_th_map.convertTo(cur_th_map, CV_8U);
 				if (verbose) {
-					imshow("th map", cur_th_map);
-					waitKey(10);
+				imshow("th map", cur_th_map);
+				waitKey(10);
 				}
 				vector<VisualObject> objs;
 				shape.ExtractConnectedComponents(cur_th_map, objs);
 				sps.insert(sps.end(), objs.begin(), objs.end());
 				cout << "sp num: " << sps.size() << endl;
-			}
+				}*/
 		}
 
 		// clean candidates
 		for (auto& sp : sps) {
 			seg_proc.ExtractSegmentBasicFeatures(sp);
 		}
-		SegmentProcessor::CleanSPs(sps, 0.01f, 0.5f, 0.9f);
+		SegmentProcessor::CleanSPs(sps, 0.01f, 0.2f, 0.7f);
 		cout << "cleaned sp: " << sps.size() << endl;
 
 		return true;
@@ -192,8 +206,8 @@ namespace objectproposal
 		// get candidates
 		vector<VisualObject> res_sps;
 		//GetCandidatesFromSegment3D(cimg, dmap, res_sps);
-		GetCandidatesFromIterativeSeg(cimg, dmap, res_sps);
-		//GetCandidatesFromSaliency(cimg, dmap, res_sps);
+		//GetCandidatesFromIterativeSeg(cimg, dmap, res_sps);
+		GetCandidatesFromSaliency(cimg, dmap, res_sps);
 		// extract basic features
 		SegmentProcessor seg_proc;
 		//for(auto& sp : res_sps) seg_proc.ExtractBasicSegmentFeatures(sp, cimg, dmap);

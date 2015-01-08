@@ -221,6 +221,40 @@ namespace visualsearch
 				return true;
 			}
 
+			bool ObjectRanker::RankSegmentsByPrior(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, IntVector& ordered_sp_ids)
+			{
+				// compute background probability map using depth
+				Mat bg_map = dmap.clone();
+				if (bg_map.depth() != CV_32F) bg_map.convertTo(bg_map, CV_32F);
+				RGBDTools::NormalizeKinectDepth(bg_map);
+				bg_map = 1 - bg_map;
+				// center distance
+				float axis_len = sqrt(cimg.rows*cimg.rows + cimg.cols*cimg.cols) / 2;
+				Point2f center_pt(cimg.cols / 2, cimg.rows / 2);
+				// compute ranking score
+				vector<Point2f> order_pairs;
+				for (size_t i = 0; i < sps.size(); i++) {
+					VisualObject& sp = sps[i];
+					// 1) center prior
+					float center_prob = 1 - ToolFactory::L2_DIST(sp.visual_data.centroid, center_pt) / axis_len;
+					// 2) shape prior
+					float shape_prob = sp.visual_data.area * 1.f / sp.visual_data.bbox.area();
+					// 3) bg prior
+					float bg_prob = 1 - mean(bg_map, sp.visual_data.mask).val[0];
+					order_pairs.push_back(Point2f(i, center_prob*shape_prob*bg_prob));
+				}
+				sort(order_pairs.begin(), order_pairs.end(), [](Point2f a, Point2f b) {
+					return a.y > b.y;
+				});
+
+				ordered_sp_ids.clear();
+				for (size_t i = 0; i < order_pairs.size(); i++) {
+					ordered_sp_ids.push_back((int)order_pairs[i].x);
+				}
+
+				return true;
+			}
+
 			//////////////////////////////////////////////////////////////////////////
 
 			bool ObjectRanker::ComputeSegmentRankFeature(const Mat& cimg, const Mat& dmap, VisualObject& sp, Mat& feat)

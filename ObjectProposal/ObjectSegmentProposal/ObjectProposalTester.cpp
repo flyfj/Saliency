@@ -318,14 +318,14 @@ void ObjectProposalTester::BatchProposal() {
 	ObjProposalDemo demo;
 
 	string root_dir = "F:\\KinectVideos\\";
-	save_dir = "F:\\src\\res\\proposal1\\";
+	save_dir = "F:\\src\\res\\proposal_saliency\\";
 	_mkdir(save_dir.c_str());
 	DirInfos dirs;
 	ToolFactory::GetDirsFromDir(root_dir, dirs);
 
 	for (size_t k = 0; k < dirs.size(); k++) 
 	{
-		if (dirs[k].dirname != "table" && dirs[k].dirname != "table")
+		if (dirs[k].dirname != "cup" && dirs[k].dirname != "cup2")
 			continue;
 		// general io
 		visualsearch::io::dataset::GeneralRGBDDataset rgbd;

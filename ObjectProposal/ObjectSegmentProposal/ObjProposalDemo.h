@@ -26,6 +26,7 @@ enum DemoType
 using namespace visualsearch::common;
 using namespace visualsearch::io::camera;
 
+
 class ObjProposalDemo
 {
 private:
@@ -35,10 +36,12 @@ private:
 	visualsearch::processors::attention::SaliencyComputer salcomputer;
 	visualsearch::processors::segmentation::IterativeSegmentor iterSegmentor;
 	objectproposal::ObjSegmentProposal seg_proposal;
+	static void mouse_callback(int event, int x, int y, int flags, void*);
+	static Point mouse_point;
 
 	string DATADIR;
 
-	int frameid;
+	int frameid = 0;
 
 public:
 
