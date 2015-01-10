@@ -4,7 +4,7 @@
 ObjProposalDemo::ObjProposalDemo()
 {
 	frameid = 0;
-	DATADIR = "F:\\KinectVideos\\";
+	DATADIR = "F:\\KinectVideos\\two\\laptop_cup2\\";
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -12,6 +12,8 @@ ObjProposalDemo::ObjProposalDemo()
 bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 {
 	bool tosave = true;
+	_rmdir(DATADIR.c_str());
+	_mkdir(DATADIR.c_str());
 	visualsearch::io::camera::OpenCVCameraIO cam;
 	if(stype == SENSOR_CAMERA)
 	{
@@ -51,6 +53,7 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 		if (!dmap.empty()) {
 			//resize(dmap, dmap, newsz);
 			//dmap.convertTo(dmap, CV_32F);
+			dmap /= 10;
 			imshow("depth", dmap);
 			//ImgVisualizer::DrawFloatImg("depth", dmap);
 		}
@@ -83,6 +86,8 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 	vector<VisualObject> sps;
 	seg_proposal.Run(cimg, dmap, 5, sps);
 
+	return true;
+
 	/*
 		save results
 		1) box position with score
@@ -103,7 +108,7 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 		vector<VisualObject> tmp_sps;
 		tmp_sps.push_back(sps[i]);
 		ImgVisualizer::DrawShapes(cimg, tmp_sps, tmp_img, true);
-		sprintf_s(str, "_res_%d.png", i);
+		sprintf_s(str, "_shape_%d.png", i);
 		imwrite(fn + str, tmp_img);
 		tmp_img = cimg(sps[i].visual_data.bbox).clone();
 		sprintf_s(str, "_box_%d.png", i);
@@ -112,9 +117,15 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 		out << sps[i].visual_data.bbox.x << " " << sps[i].visual_data.bbox.y << " " <<
 			sps[i].visual_data.bbox.width << " " << sps[i].visual_data.bbox.height << " " << sps[i].visual_data.scores[0] << endl;
 	}
+	// save color and depth image
+	imwrite(fn + "_color.png", cimg);
+	ImgVisualizer::DrawFloatImg("", dmap, oimg);
+	imwrite(fn + "_depth.png", oimg);
 	// box overlay on image
-	ImgVisualizer::DrawWinsOnImg("boxes", cimg, boxes, oimg);
+	ImgVisualizer::DrawWinsOnImg("", cimg, boxes, oimg);
 	imshow("boxes", oimg);
+	ImgVisualizer::DrawCroppedWins("", cimg, boxes, 5, oimg);
+	//imshow("cropped", oimg);
 	imwrite(fn + "_box.png", oimg);
 	
 	/*imshow("mask", sps[0].visual_data.mask * 255);
@@ -127,10 +138,10 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 	imshow("contour pts", contour_pts);*/
 	
 	// shape overlay on image
-	cout << ImgVisualizer::DrawShapes(cimg, sps, oimg, true) << endl;
-	imwrite(fn + "_shape.png", oimg);
+	//cout << ImgVisualizer::DrawShapes(cimg, sps, oimg, true) << endl;
+	//imwrite(fn + "_shape.png", oimg);
 
-	return true;
+	//return true;
 
 	// convert to 3d point cloud and output to file
 	visualsearch::features::Feature3D feat3d;

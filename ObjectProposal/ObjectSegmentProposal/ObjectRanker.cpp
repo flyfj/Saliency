@@ -70,6 +70,8 @@ namespace visualsearch
 					Init(cimg);
 					return RankSegmentsByLearner(cimg, dmap, sps, orded_sp_ids);
 				}
+				if (rtype == SEG_RANK_PRIOR)
+					return RankSegmentsByPrior(cimg, dmap, sps, orded_sp_ids);
 
 				return true;
 			}
@@ -227,21 +229,28 @@ namespace visualsearch
 				Mat bg_map = dmap.clone();
 				if (bg_map.depth() != CV_32F) bg_map.convertTo(bg_map, CV_32F);
 				RGBDTools::NormalizeKinectDepth(bg_map);
-				bg_map = 1 - bg_map;
-				// center distance
+				ImgVisualizer::DrawFloatImg("bg map", bg_map);
+				// center probability map (uniform)
 				float axis_len = sqrt(cimg.rows*cimg.rows + cimg.cols*cimg.cols) / 2;
 				Point2f center_pt(cimg.cols / 2, cimg.rows / 2);
+				Mat center_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);
+				for (int r = 0; r < cimg.rows; r++) for (int c = 0; c < cimg.cols; c++) {
+					center_map.at<float>(r, c) = 1 - ToolFactory::L2_DIST(Point2f(c, r), center_pt) / axis_len;
+				}
+				ImgVisualizer::DrawFloatImg("center map", center_map);
 				// compute ranking score
 				vector<Point2f> order_pairs;
 				for (size_t i = 0; i < sps.size(); i++) {
 					VisualObject& sp = sps[i];
 					// 1) center prior
-					float center_prob = 1 - ToolFactory::L2_DIST(sp.visual_data.centroid, center_pt) / axis_len;
+					float center_prob = mean(center_map, sp.visual_data.mask).val[0];
 					// 2) shape prior
 					float shape_prob = sp.visual_data.area * 1.f / sp.visual_data.bbox.area();
 					// 3) bg prior
-					float bg_prob = 1 - mean(bg_map, sp.visual_data.mask).val[0];
-					order_pairs.push_back(Point2f(i, center_prob*shape_prob*bg_prob));
+					float bg_prob = mean(bg_map, sp.visual_data.mask).val[0];
+					float score = center_prob * shape_prob;
+					sp.visual_data.scores.push_back(score);
+					order_pairs.push_back(Point2f(i, score));
 				}
 				sort(order_pairs.begin(), order_pairs.end(), [](Point2f a, Point2f b) {
 					return a.y > b.y;

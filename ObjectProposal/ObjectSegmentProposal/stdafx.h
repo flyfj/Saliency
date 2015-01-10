@@ -24,6 +24,7 @@
 #include <visualsearch/processors/segmentation/ImageSegmentor.h>
 #include <visualsearch\processors\segmentation\SegmentProcessor.h>
 #include <visualsearch/processors/segmentation/IterativeSegmentor.h>
+#include <visualsearch/processors/segmentation/ObjectSegmentor.h>
 #include <visualsearch/processors/nms.hpp>
 #include <visualsearch/processors/attention/CenterSurroundFeatureContraster.h>
 #include <visualsearch/processors/attention/composition_saliency/SalientRGBDRegionDetector.h>

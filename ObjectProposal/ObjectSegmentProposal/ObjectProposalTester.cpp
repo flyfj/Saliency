@@ -317,15 +317,15 @@ void ObjectProposalTester::BatchProposal() {
 	srand(time(NULL));
 	ObjProposalDemo demo;
 
-	string root_dir = "F:\\KinectVideos\\";
+	string root_dir = "F:\\KinectVideos\\two\\";
 	save_dir = "F:\\src\\res\\proposal_saliency\\";
 	_mkdir(save_dir.c_str());
 	DirInfos dirs;
 	ToolFactory::GetDirsFromDir(root_dir, dirs);
 
-	for (size_t k = 0; k < dirs.size(); k++) 
+	for (size_t k = 0; k < dirs.size(); k++)
 	{
-		if (dirs[k].dirname != "cup" && dirs[k].dirname != "cup2")
+		if (dirs[k].dirname != "two_cups")
 			continue;
 		// general io
 		visualsearch::io::dataset::GeneralRGBDDataset rgbd;
@@ -345,6 +345,7 @@ void ObjectProposalTester::BatchProposal() {
 
 		string cur_save_dir = save_dir + dirs[k].dirname + "\\";
 		//save_dir = "E:\\res\\segments\\kinectvideo\\";
+		_rmdir(cur_save_dir.c_str());
 		_mkdir(cur_save_dir.c_str());
 		char str[100];
 		for (size_t i = 0; i < imgfiles.size(); i++)
@@ -364,6 +365,9 @@ void ObjectProposalTester::BatchProposal() {
 				continue;
 			}
 			dmap.convertTo(dmap, CV_32F);
+			double maxv, minv;
+			minMaxLoc(dmap, &minv, &maxv);
+			cout << maxv << endl;
 			//rgbd.LoadDepthData(dmapfiles[i].filepath, dmap);
 			resize(dmap, dmap, newsz);
 
