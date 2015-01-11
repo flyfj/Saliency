@@ -136,7 +136,7 @@ namespace visualsearch
 			// multi-scale contrast is used to filter  
 			bool ObjectRanker::RankSegmentsBySaliency(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, vector<int>& orded_sp_ids)
 			{
-				bool use_comp = false;
+				bool use_comp = true;
 				multimap<float, int, greater<float>> sp_scores;
 				if(use_comp) {
 					// compute composition cost for each superpixel
@@ -153,6 +153,7 @@ namespace visualsearch
 					for (size_t i=0; i<sps.size(); i++) {
 						int cur_id = i;
 						float score = sal_comp_.Compose(sps[cur_id].visual_data.bbox);
+						sps[i].visual_data.scores.push_back(score);
 						//float score = sal_comp_.Compose(sps[cur_id]);// * ((float)sps[i].area / contourArea(sps[i].convex_hull));
 						sp_scores.insert(pair<float, int>(score, cur_id));
 					}
@@ -201,13 +202,14 @@ namespace visualsearch
 				return true;
 			}
 
-			bool ObjectRanker::RankSegmentsByShape(const vector<VisualObject>& sps, vector<int>& ordered_sp_ids) {
+			bool ObjectRanker::RankSegmentsByShape(vector<VisualObject>& sps, vector<int>& ordered_sp_ids) {
 				int topK = MIN(3000, sps.size());
 				vector<Point2f> order_pairs;
 				order_pairs.reserve(topK);
 
 				for(size_t i=0; i<sps.size(); i++) {
 					float conv_val = sps[i].visual_data.area*1.f / sps[i].visual_data.convex_hull_area;
+					sps[i].visual_data.scores.push_back(conv_val);
 					order_pairs.push_back(Point2f(i, conv_val));
 				}
 
@@ -245,7 +247,7 @@ namespace visualsearch
 					// 1) center prior
 					float center_prob = mean(center_map, sp.visual_data.mask).val[0];
 					// 2) shape prior
-					float shape_prob = sp.visual_data.area * 1.f / sp.visual_data.bbox.area();
+					float shape_prob = sp.visual_data.area * 1.f / sp.visual_data.convex_hull_area;
 					// 3) bg prior
 					float bg_prob = mean(bg_map, sp.visual_data.mask).val[0];
 					float score = center_prob * shape_prob;

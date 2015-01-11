@@ -63,8 +63,24 @@
 //#pragma comment(lib, "vtkCommonExecutionModel-6.1.lib")
 
 
+void renamefiles() {
+	string folder = "F:\\src\\res\\proposal_saliency\\multiple1\\";
+	FileInfos fns;
+	ToolFactory::GetFilesFromDir(folder, "frame_*.jpg_box_*.png", fns);
+	for (size_t i = 0; i < fns.size(); i++) {
+		string curfn = fns[i].filename;
+		remove(fns[i].filepath.c_str());
+		/*Mat img = imread(fns[i].filepath);
+		int pos = curfn.find("box");
+		string newfn = curfn.substr(0, pos) + curfn.substr(pos + 4);
+		imwrite(folder + newfn, img);*/
+	}
+}
+
 int main()
 {
+	renamefiles();
+	return 0;
 	ObjectProposalTester tester;
 	//tester.TestRankerLearner();
 	//tester.ProposalDemo();

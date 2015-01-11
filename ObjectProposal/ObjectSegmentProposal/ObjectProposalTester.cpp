@@ -325,7 +325,7 @@ void ObjectProposalTester::BatchProposal() {
 
 	for (size_t k = 0; k < dirs.size(); k++)
 	{
-		if (dirs[k].dirname != "two_cups")
+		if (dirs[k].dirname != "multiple1")
 			continue;
 		// general io
 		visualsearch::io::dataset::GeneralRGBDDataset rgbd;
@@ -374,13 +374,13 @@ void ObjectProposalTester::BatchProposal() {
 			imshow("color", cimg);
 			ImgVisualizer::DrawFloatImg("dmap", dmap, Mat());
 
-			ImageSegmentor img_segmentor;
+			/*ImageSegmentor img_segmentor;
 			img_segmentor.m_dThresholdK = 20;
 			img_segmentor.m_dMinArea = 40;
 			img_segmentor.slic_seg_num_ = 300;
 			img_segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
 			int init_seg_num = img_segmentor.DoSegmentation(cimg);
-			imshow("seg", img_segmentor.m_segImg);
+			imshow("seg", img_segmentor.m_segImg);*/
 
 			Mat oimg;
 			string save_fn = cur_save_dir + imgfiles[i].filename;
@@ -393,6 +393,8 @@ void ObjectProposalTester::BatchProposal() {
 			//imshow("res", oimg);
 			//break;
 			waitKey(10);
+
+			cout << "Finished " << i << "/" << imgfiles.size() << endl;
 		}
 	}
 	

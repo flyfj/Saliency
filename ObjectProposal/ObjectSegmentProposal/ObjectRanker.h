@@ -54,7 +54,7 @@ namespace visualsearch {
 
 				bool RankSegmentsByCC(const Mat& cimg, const vector<VisualObject>& sps, vector<int>& orded_sp_ids);
 
-				bool RankSegmentsByShape(const vector<VisualObject>& sps, vector<int>& ordered_sp_ids);
+				bool RankSegmentsByShape(vector<VisualObject>& sps, vector<int>& ordered_sp_ids);
 
 				bool RankSegmentsByPrior(const Mat& cimg, const Mat& dmap, vector<VisualObject>& sps, IntVector& ordered_sp_ids);
 

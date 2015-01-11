@@ -4,7 +4,7 @@
 ObjProposalDemo::ObjProposalDemo()
 {
 	frameid = 0;
-	DATADIR = "F:\\KinectVideos\\two\\laptop_cup2\\";
+	DATADIR = "F:\\KinectVideos\\two\\multiple2\\";
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -53,8 +53,8 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 		if (!dmap.empty()) {
 			//resize(dmap, dmap, newsz);
 			//dmap.convertTo(dmap, CV_32F);
-			dmap /= 10;
 			imshow("depth", dmap);
+			dmap /= 10;
 			//ImgVisualizer::DrawFloatImg("depth", dmap);
 		}
 
@@ -86,8 +86,7 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 	vector<VisualObject> sps;
 	seg_proposal.Run(cimg, dmap, 5, sps);
 
-	return true;
-
+	bool tosave = true;
 	/*
 		save results
 		1) box position with score
@@ -109,52 +108,40 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 		tmp_sps.push_back(sps[i]);
 		ImgVisualizer::DrawShapes(cimg, tmp_sps, tmp_img, true);
 		sprintf_s(str, "_shape_%d.png", i);
-		imwrite(fn + str, tmp_img);
+		if(tosave) imwrite(fn + str, tmp_img);
 		tmp_img = cimg(sps[i].visual_data.bbox).clone();
-		sprintf_s(str, "_box_%d.png", i);
-		imwrite(fn + str, tmp_img);
+		sprintf_s(str, "_%d.png", i);
+		if(tosave) imwrite(fn + str, tmp_img);
 
-		out << sps[i].visual_data.bbox.x << " " << sps[i].visual_data.bbox.y << " " <<
+		if(tosave) 
+			out << sps[i].visual_data.bbox.x << " " << sps[i].visual_data.bbox.y << " " <<
 			sps[i].visual_data.bbox.width << " " << sps[i].visual_data.bbox.height << " " << sps[i].visual_data.scores[0] << endl;
 	}
 	// save color and depth image
-	imwrite(fn + "_color.png", cimg);
+	if(tosave) imwrite(fn + "_color.png", cimg);
 	ImgVisualizer::DrawFloatImg("", dmap, oimg);
-	imwrite(fn + "_depth.png", oimg);
+	if(tosave) imwrite(fn + "_depth.png", oimg);
 	// box overlay on image
 	ImgVisualizer::DrawWinsOnImg("", cimg, boxes, oimg);
 	imshow("boxes", oimg);
 	ImgVisualizer::DrawCroppedWins("", cimg, boxes, 5, oimg);
 	//imshow("cropped", oimg);
-	imwrite(fn + "_box.png", oimg);
-	
-	/*imshow("mask", sps[0].visual_data.mask * 255);
-	cout << "contour length: " << sps[0].visual_data.original_contour.size() << endl;
-	cout << sps[0].visual_data.area*1.0f / (sps[0].visual_data.mask.rows*sps[0].visual_data.mask.cols) << endl;
-	Mat contour_pts = Mat::zeros(cimg.rows, cimg.cols, CV_8U);
-	for (auto p : sps[0].visual_data.original_contour) {
-	contour_pts.at<uchar>(p) = 255;
-	}
-	imshow("contour pts", contour_pts);*/
-	
-	// shape overlay on image
-	//cout << ImgVisualizer::DrawShapes(cimg, sps, oimg, true) << endl;
-	//imwrite(fn + "_shape.png", oimg);
+	if(tosave) imwrite(fn + "_box.png", oimg);
 
-	//return true;
-
-	// convert to 3d point cloud and output to file
-	visualsearch::features::Feature3D feat3d;
-	Mat pts3d;
-	feat3d.ComputeKinect3DMap(dmap, pts3d);
-	for (size_t i = 0; i < sps.size(); i++) {
-		sprintf_s(str, "_%d.obj", i);
-		ofstream out(fn + str);
-		for (int r = 0; r < pts3d.rows; r++) {
-			for (int c = 0; c < pts3d.cols; c++) {
-				if (sps[i].visual_data.mask.at<uchar>(r, c) > 0) {
-					Vec3f curval = pts3d.at<Vec3f>(r, c);
-					out << "v " << curval.val[0] << " " << curval.val[1] << " " << curval.val[2] << std::endl;
+	if (tosave) {
+		// convert to 3d point cloud and output to file
+		visualsearch::features::Feature3D feat3d;
+		Mat pts3d;
+		feat3d.ComputeKinect3DMap(dmap, pts3d);
+		for (size_t i = 0; i < sps.size(); i++) {
+			sprintf_s(str, "_%d.obj", i);
+			ofstream out(fn + str);
+			for (int r = 0; r < pts3d.rows; r++) {
+				for (int c = 0; c < pts3d.cols; c++) {
+					if (sps[i].visual_data.mask.at<uchar>(r, c) > 0) {
+						Vec3f curval = pts3d.at<Vec3f>(r, c);
+						out << "v " << curval.val[0] << " " << curval.val[1] << " " << curval.val[2] << std::endl;
+					}
 				}
 			}
 		}

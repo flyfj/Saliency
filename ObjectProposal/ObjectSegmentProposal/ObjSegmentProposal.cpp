@@ -45,7 +45,7 @@ namespace objectproposal
 		}
 
 		vector<visualsearch::processors::attention::SaliencyType> sal_types;
-		sal_types.push_back(visualsearch::processors::attention::SAL_HC);
+		//sal_types.push_back(visualsearch::processors::attention::SAL_HC);
 		sal_types.push_back(visualsearch::processors::attention::SAL_GEO);
 
 		for (size_t i = 0; i < sal_types.size(); i++)
@@ -122,7 +122,7 @@ namespace objectproposal
 			//	}
 			//}
 			// method 2: binary
-			vector<float> fg_ths{ 0.9f, 0.8f, 0.7f, 0.6f};
+			vector<float> fg_ths{ 0.9f, 0.8f, 0.7f};
 			vector<float> bg_ths{ 0.1f, 0.2f, 0.3f };
 			for (size_t j = 0; j < fg_ths.size(); j++) {
 				for (size_t k = 0; k < bg_ths.size(); k++) {
@@ -152,7 +152,12 @@ namespace objectproposal
 						obj_mask.setTo(GC_BGD, bg_mask);
 
 						obj_seg.RunGrabCut(cimg, obj_mask, Rect(), false, true);
-						waitKey(0);
+						//waitKey(0);
+
+						// get components
+						vector<VisualObject> objs;
+					    shape.ExtractConnectedComponents(obj_mask, objs);
+						sps.insert(sps.end(), objs.begin(), objs.end());
 
 						// compute geodesic map
 						/*Mat geo_dist;
@@ -176,7 +181,7 @@ namespace objectproposal
 		for (auto& sp : sps) {
 			seg_proc.ExtractSegmentBasicFeatures(sp);
 		}
-		SegmentProcessor::CleanSPs(sps, 0.01f, 0.2f, 0.4f);
+		SegmentProcessor::CleanSPs(sps, 0.01f, 0.2f, 0.2f);
 		cout << "cleaned sp: " << sps.size() << endl;
 
 		return true;
@@ -280,7 +285,7 @@ namespace objectproposal
 		double start_t = getTickCount();
 		cout<<endl<<"Ranking segments..."<<endl;
 		vector<int> rank_ids;
-		seg_ranker.RankSegments(cimg, dmap, res_sps, visualsearch::processors::attention::SEG_RANK_PRIOR, rank_ids);
+		seg_ranker.RankSegments(cimg, dmap, res_sps, visualsearch::processors::attention::SEG_RANK_SALIENCY, rank_ids);
 		cout << "ranking time: " << (getTickCount() - start_t) / getTickFrequency() << "s" << endl;
 
 		// post-processing
