@@ -325,7 +325,7 @@ void ObjectProposalTester::BatchProposal() {
 
 	for (size_t k = 0; k < dirs.size(); k++)
 	{
-		if (dirs[k].dirname != "multiple1")
+		if (dirs[k].dirname != "multiple2")
 			continue;
 		// general io
 		visualsearch::io::dataset::GeneralRGBDDataset rgbd;

@@ -79,8 +79,6 @@ void renamefiles() {
 
 int main()
 {
-	renamefiles();
-	return 0;
 	ObjectProposalTester tester;
 	//tester.TestRankerLearner();
 	//tester.ProposalDemo();

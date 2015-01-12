@@ -122,8 +122,8 @@ namespace objectproposal
 			//	}
 			//}
 			// method 2: binary
-			vector<float> fg_ths{ 0.9f, 0.8f, 0.7f};
-			vector<float> bg_ths{ 0.1f, 0.2f, 0.3f };
+			vector<float> fg_ths{ 0.9f, 0.8f, 0.7f, 0.6f};
+			vector<float> bg_ths{ 0.1f, 0.2f };
 			for (size_t j = 0; j < fg_ths.size(); j++) {
 				for (size_t k = 0; k < bg_ths.size(); k++) {
 					// classify sp

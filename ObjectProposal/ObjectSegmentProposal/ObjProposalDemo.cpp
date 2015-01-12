@@ -95,7 +95,7 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 		4) point cloud
 	*/
 	char str[100];
-	// box positions
+	// text file for box positions and score
 	string box_fn = fn + "_box.txt";
 	ofstream out(box_fn);
 	vector<ImgWin> boxes;
@@ -124,9 +124,10 @@ bool ObjProposalDemo::RunObjSegProposal(string fn, Mat& cimg, Mat& dmap, Mat& oi
 	// box overlay on image
 	ImgVisualizer::DrawWinsOnImg("", cimg, boxes, oimg);
 	imshow("boxes", oimg);
+	if (tosave) imwrite(fn + "_boxes.png", oimg);
 	ImgVisualizer::DrawCroppedWins("", cimg, boxes, 5, oimg);
 	//imshow("cropped", oimg);
-	if(tosave) imwrite(fn + "_box.png", oimg);
+	if(tosave) imwrite(fn + "_proposals.png", oimg);
 
 	if (tosave) {
 		// convert to 3d point cloud and output to file
