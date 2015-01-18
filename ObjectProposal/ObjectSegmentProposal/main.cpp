@@ -4,7 +4,7 @@
 #include "ObjSegmentProposal.h"
 #include "ObjectRanker.h"
 #include "ObjProposalDemo.h"
-
+#include "GUI/SegmentWin.h"
 
 // link
 #ifdef _DEBUG
@@ -77,8 +77,14 @@ void renamefiles() {
 	}
 }
 
-int main()
+[System::STAThreadAttribute]
+int main(int argc, char* argv[])
 {
+	ObjectSegmentProposal::SegmentWin win;
+	win.ShowDialog();
+
+	return 0;
+
 	ObjectProposalTester tester;
 	//tester.TestRankerLearner();
 	//tester.ProposalDemo();

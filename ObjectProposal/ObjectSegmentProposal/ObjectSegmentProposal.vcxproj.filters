@@ -16,38 +16,9 @@
     <Filter Include="Kinect">
       <UniqueIdentifier>{d60833f3-6067-45f6-b98c-2a838174adf9}</UniqueIdentifier>
     </Filter>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="ReadMe.txt" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjSegmentProposal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectRanker.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjProposalDemo.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ObjectProposalTester.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="KinectDataMan.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Kinect\KinectHelper.h">
-      <Filter>Kinect</Filter>
-    </ClInclude>
-    <ClInclude Include="Kinect\OpenCVFrameHelper.h">
-      <Filter>Kinect</Filter>
-    </ClInclude>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{b57e81ee-41e9-4615-adb8-27c497c3fd5b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -74,5 +45,48 @@
     <ClCompile Include="Kinect\OpenCVFrameHelper.cpp">
       <Filter>Kinect</Filter>
     </ClCompile>
+    <ClCompile Include="GUI\SegmentWin.cpp">
+      <Filter>GUI</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="ReadMe.txt" />
+    <CustomBuild Include="KinectDataMan.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ObjProposalDemo.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ObjSegmentProposal.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ObjectRanker.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="ObjectProposalTester.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Kinect\KinectHelper.h">
+      <Filter>Kinect</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Kinect\OpenCVFrameHelper.h">
+      <Filter>Kinect</Filter>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="GUI\SegmentWin.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="C:\Users\jiefeng\Dropbox\clothes\000030.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>

@@ -61,6 +61,7 @@ public:
 
 	void EvaluateOnDataset(DatasetName db_name);
 
+	void TestPointSegment(const Mat& cimg, Point pt);
 	void TestSegment();
 	void Random();
 

@@ -976,6 +976,55 @@ void ObjectProposalTester::TestSegment() {
 
 }
 
+void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
+
+	// oversegmentation
+	visualsearch::processors::segmentation::ImageSegmentor segmentor;
+	segmentor.m_dThresholdK = 20.f;
+	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
+	imshow("sp", segmentor.m_segImg);
+	VisualObjects& raw_sps = segmentor.superPixels;
+
+	// show selected mask
+	int seg_id = segmentor.m_idxImg.at<int>(pt);
+	imshow("sel mask", raw_sps[seg_id].visual_data.mask*255);
+
+	// compute superpixel graph
+	Mat adj_mat;
+	segmentor.ComputeAdjacencyMat(raw_sps, adj_mat);
+	ColorDescriptors color_desc;
+	ColorFeatParams cparams;
+	cparams.feat_type = COLOR_FEAT_MEAN;
+	cparams.mean_params.color_space = COLOR_RGB;
+	color_desc.Init(cparams);
+	for (auto& sp : raw_sps) {
+		color_desc.Compute(cimg, sp.visual_data.custom_feats["color"], sp.visual_data.mask);
+		sp.visual_data.custom_feats["color"] /= 255;
+	}
+	VSGraph g(raw_sps.size());
+	for (size_t i = 0; i < raw_sps.size(); i++) {
+		g[i][i] = 0;
+		for (size_t j = i + 1; j < raw_sps.size(); j++) {
+			if (adj_mat.at<int>(i, j) > 0)
+				g[i][j] = g[j][i] = norm(raw_sps[i].visual_data.custom_feats["color"], raw_sps[j].visual_data.custom_feats["color"], NORM_L2);
+		}
+	}
+
+	// run shortest path
+	VSGraph dists;
+	ToolFactory::FloydWarshall(g, dists);
+
+	// show distance map
+	Mat dist_map = Mat::ones(cimg.rows, cimg.cols, CV_32F);
+	cout << "dist neighbor: " << dists[seg_id].size() << endl;
+	for (auto pi = dists[seg_id].begin(); pi != dists[seg_id].end(); pi++) {
+		dist_map.setTo(pi->second, raw_sps[pi->first].visual_data.mask);
+	}
+	ImgVisualizer::DrawFloatImg("dist map", dist_map);
+	waitKey(10);
+}
+
 void ObjectProposalTester::Build3DPCL(DatasetName db_name) {
 
 	DataManagerInterface* db_man = NULL;
