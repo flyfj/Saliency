@@ -1,4 +1,5 @@
 
+#include "stdafx.h"
 #include "ObjectProposalTester.h"
 
 void ObjectProposalTester::TestRankerLearner() {
@@ -404,7 +405,7 @@ void ObjectProposalTester::BatchProposal() {
 void ObjectProposalTester::ProposalDemo() {
 
 	ObjProposalDemo demo;
-	demo.RunVideoDemo(SENSOR_KINECT, DEMO_VIEW_ONLY);
+	demo.RunVideoDemo(camera::SensorType::KINECT, DEMO_VIEW_ONLY);
 }
 
 void ObjectProposalTester::TestSegmentor3D() {
@@ -978,6 +979,12 @@ void ObjectProposalTester::TestSegment() {
 
 void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
 
+	// show saliency map
+	Mat salmap;
+	SaliencyComputer sal_comp;
+	sal_comp.ComputeSaliencyMap(cimg, SAL_GEO, salmap);
+	ImgVisualizer::DrawFloatImg("sal", salmap);
+
 	// oversegmentation
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
 	segmentor.m_dThresholdK = 20.f;
@@ -986,17 +993,19 @@ void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
 	imshow("sp", segmentor.m_segImg);
 	VisualObjects& raw_sps = segmentor.superPixels;
 
-	// show selected mask
+	// show selected sp
 	int seg_id = segmentor.m_idxImg.at<int>(pt);
 	imshow("sel mask", raw_sps[seg_id].visual_data.mask*255);
+	vector<ImageMaskSign> sp_signs(raw_sps.size(), ImageMaskSign::UNKNOWN);
+	sp_signs[seg_id] = ImageMaskSign::FG;
 
 	// compute superpixel graph
 	Mat adj_mat;
 	segmentor.ComputeAdjacencyMat(raw_sps, adj_mat);
 	ColorDescriptors color_desc;
 	ColorFeatParams cparams;
-	cparams.feat_type = COLOR_FEAT_MEAN;
-	cparams.mean_params.color_space = COLOR_RGB;
+	cparams.feat_type = ColorFeatType::MEAN;
+	cparams.mean_params.color_space = FeatColorSpace::LAB;
 	color_desc.Init(cparams);
 	for (auto& sp : raw_sps) {
 		color_desc.Compute(cimg, sp.visual_data.custom_feats["color"], sp.visual_data.mask);
@@ -1011,15 +1020,15 @@ void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
 		}
 	}
 
-	// run shortest path
-	VSGraph dists;
-	ToolFactory::FloydWarshall(g, dists);
+	// compute foreground map
+	segmentation::ObjectSegmentor obj_seg;
+	vector<Point2f> fg_bg_scores;
+	obj_seg.CompGeodesicObjectProb(g, sp_signs, fg_bg_scores);
 
 	// show distance map
 	Mat dist_map = Mat::ones(cimg.rows, cimg.cols, CV_32F);
-	cout << "dist neighbor: " << dists[seg_id].size() << endl;
-	for (auto pi = dists[seg_id].begin(); pi != dists[seg_id].end(); pi++) {
-		dist_map.setTo(pi->second, raw_sps[pi->first].visual_data.mask);
+	for (auto i = 0; i < fg_bg_scores.size(); i++) {
+		dist_map.setTo(fg_bg_scores[i].x, raw_sps[i].visual_data.mask);
 	}
 	ImgVisualizer::DrawFloatImg("dist map", dist_map);
 	waitKey(10);

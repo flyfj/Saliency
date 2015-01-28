@@ -2,7 +2,6 @@
 
 #pragma once
 
-#include "stdafx.h"
 #include "ObjSegmentProposal.h"
 //#include "Processors/Attention/BingObjectness.h"
 #include "ObjectRanker.h"

@@ -1,3 +1,5 @@
+
+#include "stdafx.h"
 #include "ObjSegmentProposal.h"
 
 namespace objectproposal
@@ -82,8 +84,8 @@ namespace objectproposal
 			segmentor.ComputeAdjacencyMat(raw_sps, adj_mat);
 			ColorDescriptors color_desc;
 			ColorFeatParams cparams;
-			cparams.feat_type = COLOR_FEAT_MEAN;
-			cparams.mean_params.color_space = COLOR_RGB;
+			cparams.feat_type = ColorFeatType::MEAN;
+			cparams.mean_params.color_space = FeatColorSpace::RGB;
 			color_desc.Init(cparams);
 			for (auto& sp : raw_sps) {
 				color_desc.Compute(cimg, sp.visual_data.custom_feats["color"], sp.visual_data.mask);

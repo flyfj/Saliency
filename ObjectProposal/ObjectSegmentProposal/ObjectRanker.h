@@ -8,8 +8,6 @@
 
 #include <memory>
 
-#include "stdafx.h"
-
 
 namespace visualsearch {
 	namespace processors {

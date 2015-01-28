@@ -1,5 +1,6 @@
 *.vspx
-
+GeneratedFiles/
+*.Ink
 
 ## outside projects
 BingObjectnessCVPR14/

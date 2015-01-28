@@ -69,6 +69,7 @@ namespace ObjectSegmentProposal {
 			// 
 			// sel_img_box
 			// 
+			this->sel_img_box->BorderStyle = System::Windows::Forms::BorderStyle::FixedSingle;
 			this->sel_img_box->Location = System::Drawing::Point(92, 24);
 			this->sel_img_box->Name = L"sel_img_box";
 			this->sel_img_box->Size = System::Drawing::Size(337, 523);

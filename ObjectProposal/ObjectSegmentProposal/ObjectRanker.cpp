@@ -1,3 +1,5 @@
+
+#include "stdafx.h"
 #include "ObjectRanker.h"
 
 
@@ -10,8 +12,8 @@ namespace visualsearch
 			ObjectRanker::ObjectRanker(void)
 			{
 				features::color::ColorFeatParams cparams;
-				cparams.feat_type = features::color::COLOR_FEAT_MEAN;
-				cparams.hist_params.color_space = features::color::COLOR_LAB;
+				cparams.feat_type = features::color::ColorFeatType::MEAN;
+				cparams.hist_params.color_space = features::color::FeatColorSpace::RGB;
 				colordesc.Init(cparams);
 
 				features::DepthFeatParams dparams;
@@ -187,7 +189,7 @@ namespace visualsearch
 				map<float, int, greater<float>> sp_scores;
 				for (size_t i=0; i<sps.size(); i++)
 				{
-					float curscore = cs_contraster.ComputeContrast(cimg, Mat(), sps[i], FEAT_TYPE_COLOR, 1.2);
+					float curscore = cs_contraster.ComputeContrast(cimg, Mat(), sps[i], FeatType::COLOR, 1.2);
 					sp_scores[curscore] = i;
 				}
 

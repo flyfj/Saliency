@@ -1,3 +1,5 @@
+
+#include "stdafx.h"
 #include "ObjProposalDemo.h"
 
 
@@ -15,13 +17,13 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 	_rmdir(DATADIR.c_str());
 	_mkdir(DATADIR.c_str());
 	visualsearch::io::camera::OpenCVCameraIO cam;
-	if(stype == SENSOR_CAMERA)
+	if(stype == SensorType::CAMERA)
 	{
 		if( !cam.InitCamera() )
 			return false;
 	}
 	KinectDataMan kinect;
-	if (stype == SENSOR_KINECT)
+	if (stype == SensorType::KINECT)
 	{
 		if (!kinect.InitKinect())
 			return false;
@@ -33,11 +35,11 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 	while(1)
 	{
 		Mat cimg, dmap;
-		if(stype == SENSOR_CAMERA) {
+		if(stype == SensorType::CAMERA) {
 			if( !cam.QueryNextFrame(visualsearch::io::camera::STREAM_COLOR, cimg) )
 				continue;
 		}
-		if (stype == SENSOR_KINECT) {
+		if (stype == SensorType::KINECT) {
 			if (!kinect.GetColorDepth(cimg, dmap))
 				continue;
 		}

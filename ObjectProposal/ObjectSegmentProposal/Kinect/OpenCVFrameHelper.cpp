@@ -4,6 +4,7 @@
 // </copyright>
 //-----------------------------------------------------------------------------
 
+#include "stdafx.h"
 #include "OpenCVFrameHelper.h"
 
 using namespace Microsoft::KinectBridge;
