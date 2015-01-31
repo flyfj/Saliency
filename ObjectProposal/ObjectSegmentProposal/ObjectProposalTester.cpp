@@ -979,6 +979,14 @@ void ObjectProposalTester::TestSegment() {
 
 void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
 
+	// do segmentation
+	Mat objmask;
+	segmentation::ObjectSegmentor obj_seg;
+	obj_seg.PointCut(cimg, Mat(), pt, objmask);
+	imshow("mask", objmask * 255);
+	waitKey(10);
+	return;
+
 	// show saliency map
 	Mat salmap;
 	SaliencyComputer sal_comp;
@@ -988,9 +996,11 @@ void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
 	// oversegmentation
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
 	segmentor.m_dThresholdK = 20.f;
+	segmentor.m_dMinArea = 100.f;
 	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
 	cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
 	imshow("sp", segmentor.m_segImg);
+	waitKey(10);
 	VisualObjects& raw_sps = segmentor.superPixels;
 
 	// show selected sp
@@ -1021,7 +1031,6 @@ void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
 	}
 
 	// compute foreground map
-	segmentation::ObjectSegmentor obj_seg;
 	vector<Point2f> fg_bg_scores;
 	obj_seg.CompGeodesicObjectProb(g, sp_signs, fg_bg_scores);
 
@@ -1032,6 +1041,7 @@ void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
 	}
 	ImgVisualizer::DrawFloatImg("dist map", dist_map);
 	waitKey(10);
+
 }
 
 void ObjectProposalTester::Build3DPCL(DatasetName db_name) {
