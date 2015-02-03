@@ -5,7 +5,7 @@
 #include "ObjSegmentProposal.h"
 //#include "Processors/Attention/BingObjectness.h"
 #include "ObjectRanker.h"
-#include "KinectDataMan.h"
+//#include "KinectDataMan.h"
 
 //////////////////////////////////////////////////////////////////////////
 // general video demo components

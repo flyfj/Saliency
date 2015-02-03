@@ -58,7 +58,7 @@ namespace objectproposal
 
 			visualsearch::processors::segmentation::ImageSegmentor segmentor;
 			segmentor.m_dThresholdK = 20.f;
-			segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+			segmentor.seg_type_ = visualsearch::processors::segmentation::OversegmentType::GRAPH;
 			cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
 			VisualObjects& raw_sps = segmentor.superPixels;
 			// compute superpixel saliency map
@@ -86,9 +86,9 @@ namespace objectproposal
 			ColorFeatParams cparams;
 			cparams.feat_type = ColorFeatType::MEAN;
 			cparams.mean_params.color_space = FeatColorSpace::RGB;
-			color_desc.Init(cparams);
+			color_desc.Init(cimg, cparams);
 			for (auto& sp : raw_sps) {
-				color_desc.Compute(cimg, sp.visual_data.custom_feats["color"], sp.visual_data.mask);
+				color_desc.Compute(sp.visual_data.custom_feats["color"], sp.visual_data.mask);
 				sp.visual_data.custom_feats["color"] /= 255;
 			}
 			VSGraph g(raw_sps.size());

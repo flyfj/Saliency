@@ -282,7 +282,7 @@ void ObjectProposalTester::BoundaryPlayground() {
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
 	segmentor.m_dThresholdK = 1000;
 	segmentor.m_dMinArea = 200;
-	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	segmentor.seg_type_ = visualsearch::processors::segmentation::OversegmentType::GRAPH;
 	segmentor.slic_seg_num_ = 2;
 	int num = segmentor.DoSegmentation(tbmap);
 	cout<<"segment number: "<<num<<endl;
@@ -970,7 +970,7 @@ void ObjectProposalTester::TestSegment() {
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
 	segmentor.m_dThresholdK = 25;
 	imshow("color", cimg);
-	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	segmentor.seg_type_ = visualsearch::processors::segmentation::OversegmentType::GRAPH;
 	segmentor.DoSegmentation(cimg);
 	imshow("seg", segmentor.m_segImg);
 	waitKey(0);
@@ -980,7 +980,7 @@ void ObjectProposalTester::TestSegment() {
 void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
 
 	// do segmentation
-	Mat objmask;
+	Mat objmask = Mat::zeros(cimg.rows, cimg.cols, CV_8U);
 	segmentation::ObjectSegmentor obj_seg;
 	obj_seg.PointCut(cimg, Mat(), pt, objmask);
 	imshow("mask", objmask * 255);
@@ -995,13 +995,17 @@ void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
 
 	// oversegmentation
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
-	segmentor.m_dThresholdK = 20.f;
+	segmentor.m_dThresholdK = 100.f;
 	segmentor.m_dMinArea = 100.f;
-	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	segmentor.seg_type_ = visualsearch::processors::segmentation::OversegmentType::GRAPH;
 	cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
 	imshow("sp", segmentor.m_segImg);
 	waitKey(10);
 	VisualObjects& raw_sps = segmentor.superPixels;
+	SegmentProcessor seg_proc;
+	for (auto& sp : raw_sps) {
+		seg_proc.ExtractSegmentBasicFeatures(sp);
+	}
 
 	// show selected sp
 	int seg_id = segmentor.m_idxImg.at<int>(pt);
@@ -1012,13 +1016,14 @@ void ObjectProposalTester::TestPointSegment(const Mat& cimg, Point pt) {
 	// compute superpixel graph
 	Mat adj_mat;
 	segmentor.ComputeAdjacencyMat(raw_sps, adj_mat);
+	segmentor.DrawAdjacencyGraph(raw_sps, adj_mat);
 	ColorDescriptors color_desc;
 	ColorFeatParams cparams;
 	cparams.feat_type = ColorFeatType::MEAN;
 	cparams.mean_params.color_space = FeatColorSpace::LAB;
-	color_desc.Init(cparams);
+	color_desc.Init(cimg, cparams);
 	for (auto& sp : raw_sps) {
-		color_desc.Compute(cimg, sp.visual_data.custom_feats["color"], sp.visual_data.mask);
+		color_desc.Compute(sp.visual_data.custom_feats["color"], sp.visual_data.mask);
 		sp.visual_data.custom_feats["color"] /= 255;
 	}
 	VSGraph g(raw_sps.size());
@@ -1177,7 +1182,7 @@ void ObjectProposalTester::TestGraphcut() {
 	ImageSegmentor img_segmentor;
 	img_segmentor.m_dMinArea = 30;
 	img_segmentor.m_dThresholdK = 30;
-	img_segmentor.seg_type_ = OVER_SEG_GRAPH;
+	img_segmentor.seg_type_ = segmentation::OversegmentType::GRAPH;
 	img_segmentor.DoSegmentation(cimg);
 	imshow("seg", img_segmentor.m_segImg);
 

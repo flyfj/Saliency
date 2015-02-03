@@ -2,7 +2,7 @@
 //////////////////////////////////////////////////////////////////////////
 
 #include <windows.h>
-#include <NuiApi.h>
+#include <Kinect.h>
 #include <iostream>
 #include <visualsearch/common/Core2d.h>
 #include "Kinect/OpenCVFrameHelper.h"

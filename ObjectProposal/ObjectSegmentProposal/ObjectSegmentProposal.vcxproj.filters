@@ -39,21 +39,12 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="KinectDataMan.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Kinect\OpenCVFrameHelper.cpp">
-      <Filter>Kinect</Filter>
-    </ClCompile>
     <ClCompile Include="GUI\SegmentWin.cpp">
       <Filter>GUI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="ReadMe.txt" />
-    <CustomBuild Include="KinectDataMan.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="ObjProposalDemo.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
@@ -71,12 +62,6 @@
     </CustomBuild>
     <CustomBuild Include="ObjectProposalTester.h">
       <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Kinect\KinectHelper.h">
-      <Filter>Kinect</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Kinect\OpenCVFrameHelper.h">
-      <Filter>Kinect</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>

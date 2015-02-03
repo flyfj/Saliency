@@ -11,11 +11,6 @@ namespace visualsearch
 		{
 			ObjectRanker::ObjectRanker(void)
 			{
-				features::color::ColorFeatParams cparams;
-				cparams.feat_type = features::color::ColorFeatType::MEAN;
-				cparams.hist_params.color_space = features::color::FeatColorSpace::RGB;
-				colordesc.Init(cparams);
-
 				features::DepthFeatParams dparams;
 				dparams.dtype = DEPTH_FEAT_HIST;
 
@@ -23,6 +18,11 @@ namespace visualsearch
 			}
 
 			bool ObjectRanker::Init(const Mat& color_img) {
+
+				features::color::ColorFeatParams cparams;
+				cparams.feat_type = features::color::ColorFeatType::MEAN;
+				cparams.hist_params.color_space = features::color::FeatColorSpace::RGB;
+				colordesc.Init(color_img, cparams);
 
 				cvtColor(color_img, gray_img, CV_BGR2GRAY);
 				gray_img.convertTo(gray_img, CV_32F, 1.f / 255);
@@ -144,7 +144,7 @@ namespace visualsearch
 					// compute composition cost for each superpixel
 					ImageSegmentor segmentor;
 					segmentor.m_dThresholdK = 30.f;
-					segmentor.seg_type_ = OVER_SEG_GRAPH;
+					segmentor.seg_type_ = segmentation::OversegmentType::GRAPH;
 					cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
 					//imshow("baseseg", segmentor.m_segImg);
 					//waitKey(10);
@@ -481,7 +481,7 @@ namespace visualsearch
 					bool finish = false;
 					for (size_t k = 0; k < seg_ths.size() && !finish; k++) {
 						imgsegmentor.m_dThresholdK = seg_ths[k];
-						imgsegmentor.seg_type_ = OVER_SEG_GRAPH;
+						imgsegmentor.seg_type_ = segmentation::OversegmentType::GRAPH;
 						imgsegmentor.DoSegmentation(cimg);
 						vector<VisualObject>& tsps = imgsegmentor.superPixels;
 

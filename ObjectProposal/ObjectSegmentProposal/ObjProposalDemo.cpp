@@ -22,12 +22,12 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 		if( !cam.InitCamera() )
 			return false;
 	}
-	KinectDataMan kinect;
+	/*KinectDataMan kinect;
 	if (stype == SensorType::KINECT)
 	{
-		if (!kinect.InitKinect())
-			return false;
-	}
+	if (!kinect.InitKinect())
+	return false;
+	}*/
 
 	char str[100];
 	frameid = 0;
@@ -39,10 +39,10 @@ bool ObjProposalDemo::RunVideoDemo(SensorType stype, DemoType dtype)
 			if( !cam.QueryNextFrame(visualsearch::io::camera::STREAM_COLOR, cimg) )
 				continue;
 		}
-		if (stype == SensorType::KINECT) {
+		/*if (stype == SensorType::KINECT) {
 			if (!kinect.GetColorDepth(cimg, dmap))
-				continue;
-		}
+			continue;
+			}*/
 
 		frameid++;
 
@@ -241,7 +241,7 @@ bool ObjProposalDemo::RunSaliency(Mat& cimg, Mat& dmap, visualsearch::processors
 	visualsearch::processors::segmentation::ImageSegmentor segmentor;
 	segmentor.m_dThresholdK = 20.f;
 	segmentor.m_dMinArea = 30;
-	segmentor.seg_type_ = visualsearch::processors::segmentation::OVER_SEG_GRAPH;
+	segmentor.seg_type_ = visualsearch::processors::segmentation::OversegmentType::GRAPH;
 	cout << "seg num " << segmentor.DoSegmentation(cimg) << endl;
 	Mat sp_sal_map = Mat::zeros(cimg.rows, cimg.cols, CV_32F);
 	for (auto& p : segmentor.superPixels) {
